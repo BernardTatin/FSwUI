@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Reflection.Context" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 </Project>

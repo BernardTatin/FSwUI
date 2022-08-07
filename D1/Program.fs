@@ -19,31 +19,52 @@
  *          - "System.Windows.Forms"
  *          - "System.Drawing"
  *)
-open System
-open System.Windows.Forms
 
-let setUIStyleAndShow (panel : FlowLayoutPanel) (element : Control) : bool =
-    element.AutoSize <- true
-    panel.Controls.Add(element)
-    true
+namespace d1
 
+module main =
+    open System
+    open System.Reflection
+    open System.Windows.Forms
 
-let form = new Form(Width= 400, Height = 300, Visible = true, Text = "Hello World")
-let leHello = new Label(Text = "Oh!")
-let leTexte = new Label(Text="Hello world!")
-let uiElements = [ leHello; leTexte ]
+    let onClickForm (arg : EventArgs) (leControl : Control) =
+        // show MouseEventArgs but the type of arg can't be MouseEventArgs
+        let tArg = arg.GetType().FullName
+        let tCont = leControl.GetType().FullName
+        leControl.Text <- sprintf "%A %A" tArg tCont
 
-form.Click.Add (fun _ -> 
-    leTexte.Text <- sprintf "form clicked at %i" DateTime.Now.Ticks)
-let panel = new FlowLayoutPanel()
-form.Controls.Add(panel)
-// why = and not <- ?
-panel.Dock = DockStyle.Fill |> ignore 
-panel.WrapContents <- false 
-panel.FlowDirection <- FlowDirection.TopDown
+    let setUIStyleAndShow (panel : FlowLayoutPanel) (element : Control) : bool =
+        element.AutoSize <- true
+        element.Click.Add (fun arg -> onClickForm arg element)
+        panel.Controls.Add(element)
+        true
 
-List.forall (fun e -> setUIStyleAndShow panel e) uiElements |> ignore
+    let createPanel (form : Form) : FlowLayoutPanel =
+        let panel = new FlowLayoutPanel()
+        form.Controls.Add(panel)
+        // why = and not <- ?
+        panel.Dock = DockStyle.Fill |> ignore 
+        panel.WrapContents <- false 
+        panel.FlowDirection <- FlowDirection.TopDown
+        panel
+        
+    [<EntryPoint>]
+    let main argv =
+        let form = new Form(Width= 400, Height = 300, 
+            Visible = true, 
+            Text = "D1 is my name")
+        let leHello = new Label(Text = "B'jour, toi!")
+        let leTexte = new Label(Text="Oh!!")
+        let leTPanel = new Label(Text="Aaaaaaaaaaaaah")
+        let panel = createPanel form
+        let uiElements = [ leHello; leTexte; leTPanel]
 
+        // form.Click.Add (fun arg -> onClickForm arg leTexte)
+        
 
-Application.Run(form)
+        List.forall (fun e -> setUIStyleAndShow panel e) uiElements |> ignore
+
+        Application.Run(form)
+
+        0
 

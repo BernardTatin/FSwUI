@@ -26,6 +26,8 @@ module main =
     open System
     open System.Reflection
     open System.Windows.Forms
+    open StateMachines
+
 
     let newButton text : Control =
         let button = new Button()
@@ -75,7 +77,6 @@ module main =
             newLabel("Ohhhh!")]
 
         List.forall (fun e -> setUIStyleAndShow panel e) allLabels |> ignore
-
+        onStart() |> ignore
         Application.Run(form)
-
         0

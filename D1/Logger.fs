@@ -1,8 +1,8 @@
 ﻿(*
     Project:    D1
-    File name:  StateMachines.fs
+    File name:  Logger.fs
     User:       berna
-    Date:       2022-08-10
+    Date:       2022-08-11
 
     The MIT License (MIT)
 
@@ -30,28 +30,37 @@
 
 namespace d1
 
-module StateMachines =
+module Logger =
 
-    // module States =
-    type private StartingStates =
-        | Start
-        | Error
-        | ConfigSearch
-        | ConfigWriteDefault
-        | ConfigLoad
-        | ConfigLoaded
-        | StartEnd
+    open System.IO
 
-    // open States
-    let onStart() : bool =
-        let rec run newState isOK : bool =
-            match newState with
-                | Start -> run ConfigSearch  isOK
-                | ConfigSearch -> run ConfigWriteDefault  isOK
-                | ConfigWriteDefault -> run ConfigLoad  isOK
-                | ConfigLoad -> run ConfigLoaded  isOK
-                | ConfigLoaded -> run StartEnd  isOK
-                | Error -> run StartEnd false
-                | StartEnd ->  isOK
+    type private LogFile =
+        struct
+            val mutable name : string;
+            val mutable stream :StreamWriter;
+            val mutable isOpen : bool;
+        end
 
-        run Start true
+    let mutable private log = new LogFile()
+
+    let openLog (fileName : string) : bool =
+        log.name <- fileName
+        log.stream <- new StreamWriter(fileName, false)
+        log.isOpen <- true
+        log.isOpen
+
+    let closeLog () =
+        if log.isOpen then
+            log.stream.Close()
+            log.stream.Dispose()
+            log.isOpen <- false
+            true
+        else
+            false
+
+    let doLog (message : string) : bool =
+        if log.isOpen then
+            log.stream.WriteLine message
+            true
+        else
+            false

@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Logger.fs" />
     <Compile Include="State.fs" />
-    <Compile Include="StateMachines.fs" />
+    <Compile Include="StartStateMachines.fs" />
+    <Compile Include="ExitStateMachine.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

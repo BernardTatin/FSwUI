@@ -22,13 +22,15 @@
 
 namespace d1
 
-open d1.StateMachines
+open d1.StartStateMachines
 
 module main =
     open System
     open System.Reflection
     open System.Windows.Forms
-    open StateMachines
+    open StartStateMachines
+    open ExitStateMachine
+    open Logger
 
 
     let newButton text : Control =
@@ -68,6 +70,7 @@ module main =
 
     [<EntryPoint>]
     let main argv =
+        openLog "theLog.log" |> ignore
         let form = new Form(Width= 400, Height = 300,
             Visible = true,
             Text = "D1 is my name")
@@ -81,4 +84,6 @@ module main =
         List.forall (fun e -> setUIStyleAndShow panel e) allLabels |> ignore
         onStart() |> ignore
         Application.Run(form)
-        0
+        closeLog() |> ignore
+        if onExit() then 0
+                    else 255

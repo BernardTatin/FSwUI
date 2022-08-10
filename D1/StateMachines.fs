@@ -31,16 +31,27 @@
 namespace d1
 
 module StateMachines =
-    open State
+
+    // module States =
+    type private StartingStates =
+        | Start
+        | Error
+        | ConfigSearch
+        | ConfigWriteDefault
+        | ConfigLoad
+        | ConfigLoaded
+        | StartEnd
+
+    // open States
     let onStart() : bool =
         let rec run newState isOK : bool =
             match newState with
                 | Start -> run ConfigSearch  isOK
-                | Error -> run StartEnd false
                 | ConfigSearch -> run ConfigWriteDefault  isOK
                 | ConfigWriteDefault -> run ConfigLoad  isOK
                 | ConfigLoad -> run ConfigLoaded  isOK
                 | ConfigLoaded -> run StartEnd  isOK
+                | Error -> run StartEnd false
                 | StartEnd ->  isOK
 
         run Start true

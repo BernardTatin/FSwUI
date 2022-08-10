@@ -32,15 +32,6 @@
 namespace d1
 
 module State =
-    type StartingStates =
-        | Start
-        | Error
-        | ConfigSearch
-        | ConfigWriteDefault
-        | ConfigLoad
-        | ConfigLoaded
-        | StartEnd
-
     type ExitStates =
         | ExitStart
         | ExitAsk

@@ -22,6 +22,8 @@
 
 namespace d1
 
+open d1.StateMachines
+
 module main =
     open System
     open System.Reflection

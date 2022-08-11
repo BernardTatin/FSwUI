@@ -43,17 +43,16 @@ module main =
         label
 
     let setUIStyleAndShow (panel : FlowLayoutPanel) (element : Control) : bool =
-        let onClick (arg : EventArgs) =
+        let onClick (arg : MouseEventArgs) =
             // show MouseEventArgs but the type of arg can't be MouseEventArgs
-            let tCont = element.GetType().FullName
-            element.Text <- sprintf "%A" tCont
+            let tCont = arg.GetType().FullName
+            let x = arg.X
+            let y = arg.Y
+            element.Text <- sprintf "%A (%4d %4d)" tCont x y
 
-        element.Click.Add (onClick)
+        element.MouseClick.Add (onClick)
         element.AutoSize <- true
         panel.Controls.Add(element)
-        // let tCont = element.GetType().FullName
-//         if tCont = "System.Windows.Forms.Button" then element.Text <- "Un bouton"
-//         else element.Text <- "I'm a " + tCont
 
         true
 

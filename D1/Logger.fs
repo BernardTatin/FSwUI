@@ -70,8 +70,12 @@ module Logger =
         | LogState.ReadyToOpen
         | LogState.InError ->
             if setName fileName then
-                log.stream <- new StreamWriter(fileName, false)
-                log.state <- LogState.Open
+                try
+                    log.stream <- new StreamWriter(log.name, false)
+                    log.state <- LogState.Open
+                with
+                | :? FileNotFoundException -> log.state <- LogState.InError
+                | ex -> log.state <- LogState.InError
             isOpen()
         | _ ->
             isOpen()

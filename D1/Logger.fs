@@ -30,36 +30,63 @@
 
 namespace d1
 
+open System.Windows.Forms.VisualStyles
+
 module Logger =
 
     open System.IO
+
+    type private LogState =
+        | Empty = 0
+        | ReadyToOpen = 1
+        | Open = 2
+        | InError = 3
 
     type private LogFile =
         struct
             val mutable name : string;
             val mutable stream :StreamWriter;
-            val mutable isOpen : bool;
+            val mutable state : LogState;
         end
 
     let mutable private log = new LogFile()
 
+    let isOpen() =
+        log.state = LogState.Open
+
+    let setName (fileName : string) : bool =
+        match log.state with
+        | LogState.Empty
+        | LogState.ReadyToOpen ->
+            log.name <- fileName
+            log.state <- LogState.ReadyToOpen
+            true
+        | _ ->
+            false
+
     let openLog (fileName : string) : bool =
-        log.name <- fileName
-        log.stream <- new StreamWriter(fileName, false)
-        log.isOpen <- true
-        log.isOpen
+        match log.state with
+        | LogState.Empty
+        | LogState.ReadyToOpen
+        | LogState.InError ->
+            if setName fileName then
+                log.stream <- new StreamWriter(fileName, false)
+                log.state <- LogState.Open
+            isOpen()
+        | _ ->
+            isOpen()
 
     let closeLog () =
-        if log.isOpen then
+        if isOpen() then
             log.stream.Close()
             log.stream.Dispose()
-            log.isOpen <- false
+            log.state <- LogState.ReadyToOpen
             true
         else
             false
 
     let doLog (message : string) : bool =
-        if log.isOpen then
+        if isOpen() then
             log.stream.WriteLine message
             true
         else

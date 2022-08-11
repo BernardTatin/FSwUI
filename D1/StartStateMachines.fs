@@ -47,8 +47,6 @@ module StartStateMachines =
     let private printState(state : StartingStates) =
         let i_print_State (stateName : string) =
             doLog stateName
-            // Console.Out.Write (sprintf "-> %s\n" stateName)
-
 
         match state with
         | Start -> i_print_State (sprintf "-> %s" "Start")
@@ -65,7 +63,7 @@ module StartStateMachines =
             match newState with
                 | Start -> run ConfigSearch  isOK
                 | ConfigSearch -> run ConfigWriteDefault  isOK
-                | ConfigWriteDefault -> run ConfigLoad  isOK
+                | ConfigWriteDefault -> run ConfigLoaded  isOK
                 | ConfigLoad -> run ConfigLoaded  isOK
                 | ConfigLoaded -> run StartEnd  isOK
                 | Error -> run StartEnd false

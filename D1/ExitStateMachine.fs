@@ -39,18 +39,20 @@ module ExitStateMachine =
         | ConfigWrite
         | ExitEnd
 
-    let onExit() : bool =
-        let AskToLeaveUs() : bool =
-            true
+    let onExit () : bool =
+        let AskToLeaveUs () : bool = true
 
         let rec run newState isOK : bool =
             match newState with
-                | Start -> run AskToLeave  isOK
-                | AskToLeave -> if AskToLeaveUs() then run ConfigWrite  true
-                                    else  run DontLeaveUs  false
-                | DontLeaveUs -> run ConfigWrite  isOK
-                | ConfigWrite -> run ExitEnd  isOK
-                | Error -> run ExitEnd false
-                | ExitEnd ->  isOK
+            | Start -> run AskToLeave isOK
+            | AskToLeave ->
+                if AskToLeaveUs () then
+                    run ConfigWrite true
+                else
+                    run DontLeaveUs false
+            | DontLeaveUs -> run ConfigWrite isOK
+            | ConfigWrite -> run ExitEnd isOK
+            | Error -> run ExitEnd false
+            | ExitEnd -> isOK
 
         run Start true

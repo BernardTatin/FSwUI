@@ -44,9 +44,8 @@ module StartStateMachines =
         | StartEnd
 
     // bad stuff
-    let private printState(state : StartingStates) =
-        let i_print_State (stateName : string) =
-            doLog stateName
+    let private printState (state: StartingStates) =
+        let i_print_State (stateName: string) = doLog stateName
 
         match state with
         | Start -> i_print_State (sprintf "-> %s" "Start")
@@ -57,17 +56,18 @@ module StartStateMachines =
         | ConfigLoaded -> i_print_State (sprintf "-> %s" "ConfigLoaded")
         | StartEnd -> i_print_State (sprintf "-> %s" "StartEnd")
 
-    let onStart() : bool =
+    let onStart () : bool =
         let rec run newState isOK : bool =
             printState newState |> ignore
+
             match newState with
-                | Start -> run ConfigSearch  isOK
-                | ConfigSearch -> run ConfigWriteDefault  isOK
-                | ConfigWriteDefault -> run ConfigLoaded  isOK
-                | ConfigLoad -> run ConfigLoaded  isOK
-                | ConfigLoaded -> run StartEnd  isOK
-                | Error -> run StartEnd false
-                | StartEnd ->  isOK
+            | Start -> run ConfigSearch isOK
+            | ConfigSearch -> run ConfigWriteDefault isOK
+            | ConfigWriteDefault -> run ConfigLoaded isOK
+            | ConfigLoad -> run ConfigLoaded isOK
+            | ConfigLoaded -> run StartEnd isOK
+            | Error -> run StartEnd false
+            | StartEnd -> isOK
 
         doLog "C'est parti" |> ignore
         run Start true

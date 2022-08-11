@@ -36,16 +36,16 @@ module main =
 
 
     let newButton text : Control =
-        let button = new Button()
-        button.Text <-  text
+        let button = new Button ()
+        button.Text <- text
         button
 
-    let newLabel (text : string) : Control =
-        let label = new Label(Text=text)
+    let newLabel (text: string) : Control =
+        let label = new Label (Text = text)
         label
 
-    let setUIStyleAndShow (panel : FlowLayoutPanel) (element : Control) : bool =
-        let onClick (arg : MouseEventArgs) =
+    let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
+        let onClick (arg: MouseEventArgs) =
             // show MouseEventArgs but the type of arg can't be MouseEventArgs
             let tCont = arg.GetType().FullName
             let x = arg.X
@@ -54,37 +54,47 @@ module main =
 
         element.MouseClick.Add (onClick)
         element.AutoSize <- true
-        panel.Controls.Add(element)
+        panel.Controls.Add (element)
 
         true
 
-    let createPanel (form : Form) : FlowLayoutPanel =
-        let panel = new FlowLayoutPanel()
+    let createPanel (form: Form) : FlowLayoutPanel =
+        let panel = new FlowLayoutPanel ()
 
         // why = and not <- ?
         panel.Dock = DockStyle.Fill |> ignore
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.TopDown
         panel.AutoSize <- true
-        form.Controls.Add(panel)
+        form.Controls.Add (panel)
         panel
 
     [<EntryPoint>]
     let main argv =
         openLog "theLog.log" |> ignore
-        let form = new Form(Width= 400, Height = 300,
-            Visible = true,
-            Text = "D1 is my name")
-        let panel = createPanel form
-        let allLabels = [ newLabel("Ohhhh!");
-            newButton("Un bouton");
-            newLabel("Ohhhh!");
-            newButton("Encore un bouton");
-            newLabel("Ohhhh!")]
 
-        List.forall (fun e -> setUIStyleAndShow panel e) allLabels |> ignore
-        onStart() |> ignore
-        Application.Run(form)
-        closeLog() |> ignore
-        if onExit() then (int SYSExit.Success)
-                    else (int SYSExit.Failure)
+        let form =
+            new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")
+
+        let panel = createPanel form
+
+        let allLabels =
+            [
+                newLabel ("Ohhhh!")
+                newButton ("Un bouton")
+                newLabel ("Ohhhh!")
+                newButton ("Encore un bouton")
+                newLabel ("Ohhhh!")
+            ]
+
+        List.forall (fun e -> setUIStyleAndShow panel e) allLabels
+        |> ignore
+
+        onStart () |> ignore
+        Application.Run (form)
+        closeLog () |> ignore
+
+        if onExit () then
+            (int SYSExit.Success)
+        else
+            (int SYSExit.Failure)

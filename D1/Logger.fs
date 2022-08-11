@@ -44,53 +44,51 @@ module Logger =
 
     type private LogFile =
         struct
-            val mutable name : string;
-            val mutable stream :StreamWriter;
-            val mutable state : LogState;
+            val mutable name: string
+            val mutable stream: StreamWriter
+            val mutable state: LogState
         end
 
-    let mutable private log = new LogFile()
+    let mutable private log = new LogFile ()
 
-    let isOpen() =
-        log.state = LogState.Open
+    let isOpen () = log.state = LogState.Open
 
-    let setName (fileName : string) : bool =
+    let setName (fileName: string) : bool =
         match log.state with
         | LogState.Empty
         | LogState.ReadyToOpen ->
             log.name <- fileName
             log.state <- LogState.ReadyToOpen
             true
-        | _ ->
-            false
+        | _ -> false
 
-    let openLog (fileName : string) : bool =
+    let openLog (fileName: string) : bool =
         match log.state with
         | LogState.Empty
         | LogState.ReadyToOpen
         | LogState.InError ->
             if setName fileName then
                 try
-                    log.stream <- new StreamWriter(log.name, false)
+                    log.stream <- new StreamWriter (log.name, false)
                     log.state <- LogState.Open
                 with
-                | :? FileNotFoundException -> log.state <- LogState.InError
-                | ex -> log.state <- LogState.InError
-            isOpen()
-        | _ ->
-            isOpen()
+                    | :? FileNotFoundException -> log.state <- LogState.InError
+                    | ex -> log.state <- LogState.InError
+
+            isOpen ()
+        | _ -> isOpen ()
 
     let closeLog () =
-        if isOpen() then
-            log.stream.Close()
-            log.stream.Dispose()
+        if isOpen () then
+            log.stream.Close ()
+            log.stream.Dispose ()
             log.state <- LogState.ReadyToOpen
             true
         else
             false
 
-    let doLog (message : string) : bool =
-        if isOpen() then
+    let doLog (message: string) : bool =
+        if isOpen () then
             log.stream.WriteLine message
             true
         else

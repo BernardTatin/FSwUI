@@ -23,6 +23,7 @@
 namespace d1
 
 open d1.StartStateMachines
+open d1.SystemTools
 
 module main =
     open System
@@ -31,6 +32,7 @@ module main =
     open StartStateMachines
     open ExitStateMachine
     open Logger
+    open SystemTools
 
 
     let newButton text : Control =
@@ -84,5 +86,5 @@ module main =
         onStart() |> ignore
         Application.Run(form)
         closeLog() |> ignore
-        if onExit() then 0
-                    else 255
+        if onExit() then (int SYSExit.Success)
+                    else (int SYSExit.Failure)

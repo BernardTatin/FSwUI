@@ -1,0 +1,3 @@
+﻿Learning how to play with GUI (Windows Forms) in F#.
+
+And I experiment with types (strutures, enum, ...), state machines, files...

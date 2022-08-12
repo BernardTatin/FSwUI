@@ -28,13 +28,20 @@
 
  *)
 
+(*
+ From Windows, I tried to write on the equivalent of <stdout>,
+ which would be great for debug, but it's really too shitty,
+ I give up for today
+ *)
 namespace d1
 
 open System.Windows.Forms.VisualStyles
 
 module Logger =
 
+    open System
     open System.IO
+    let private with_console : bool = false
 
     type private LogState =
         | Empty = 0
@@ -45,7 +52,7 @@ module Logger =
     type private LogFile =
         struct
             val mutable name: string
-            val mutable stream: StreamWriter
+            val mutable stream: TextWriter
             val mutable state: LogState
         end
 
@@ -57,7 +64,8 @@ module Logger =
         match log.state with
         | LogState.Empty
         | LogState.ReadyToOpen ->
-            log.name <- fileName
+            if not with_console then log.name <- fileName
+            else log.name <- "<Console for Windows>"
             log.state <- LogState.ReadyToOpen
             true
         | _ -> false
@@ -69,7 +77,10 @@ module Logger =
         | LogState.InError ->
             if setName fileName then
                 try
-                    log.stream <- new StreamWriter (log.name, false)
+                    if not with_console then
+                        log.stream <- new StreamWriter (log.name, false)
+                    else
+                        log.stream <- Console.Out
                     log.state <- LogState.Open
                 with
                     | :? FileNotFoundException -> log.state <- LogState.InError
@@ -80,8 +91,11 @@ module Logger =
 
     let closeLog () =
         if isOpen () then
-            log.stream.Close ()
-            log.stream.Dispose ()
+            if not with_console then
+                log.stream.Close ()
+                log.stream.Dispose ()
+            else
+                log.stream.Flush()
             log.state <- LogState.ReadyToOpen
             true
         else
@@ -90,6 +104,8 @@ module Logger =
     let doLog (message: string) : bool =
         if isOpen () then
             log.stream.WriteLine message
+            if with_console then
+                log.stream.Flush()
             true
         else
             false

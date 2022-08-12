@@ -78,7 +78,7 @@ module main =
 
         let panel = createPanel form
 
-        let allLabels =
+        let allControls =
             [
                 newLabel ("Ohhhh!")
                 newButton ("Un bouton")
@@ -87,7 +87,7 @@ module main =
                 newLabel ("Ohhhh!")
             ]
 
-        List.forall (fun e -> setUIStyleAndShow panel e) allLabels
+        List.forall (fun e -> setUIStyleAndShow panel e) allControls
         |> ignore
 
         onStart () |> ignore

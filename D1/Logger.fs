@@ -104,8 +104,7 @@ module Logger =
     let doLog (message: string) : bool =
         if isOpen () then
             log.stream.WriteLine message
-            if with_console then
-                log.stream.Flush()
+            log.stream.Flush()
             true
         else
             false

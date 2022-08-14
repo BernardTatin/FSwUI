@@ -72,6 +72,9 @@ module main =
     [<EntryPoint>]
     let main argv =
         openLog "theLog.log" |> ignore
+        // Windows: first argument is not the name of the program !!
+        for a in argv do
+            doLog a |> ignore
 
         let form =
             new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")

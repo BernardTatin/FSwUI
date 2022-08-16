@@ -43,19 +43,27 @@ module UDPRecieverTools =
             val mutable address: IPEndPoint
         end
 
-    let mutable private receiver = new UDPReceiver ()
+    let mutable private receiver =
+        new UDPReceiver ()
 
-    let setPort(port : int) =
+    let setPort (port: int) =
         receiver.port <- port
-        receiver.client <- new UdpClient(port)
-        receiver.address <- new IPEndPoint(IPAddress.Any, port)
+        receiver.client <- new UdpClient (port)
+        receiver.address <- new IPEndPoint (IPAddress.Any, port)
 
     let receive () =
         let receivingClient = receiver.client
-        let mutable receivingIpEndPoint = receiver.address
+
+        let mutable receivingIpEndPoint =
+            receiver.address
+
         try
-            let receiveBytes = receivingClient.Receive(&receivingIpEndPoint)
-            let returnData = Encoding.ASCII.GetString(receiveBytes)
+            let receiveBytes =
+                receivingClient.Receive (&receivingIpEndPoint)
+
+            let returnData =
+                Encoding.ASCII.GetString (receiveBytes)
+
             printfn "%s" returnData
         with
             | error -> eprintfn "%s" error.Message

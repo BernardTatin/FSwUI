@@ -60,7 +60,8 @@ module Logger =
             val mutable logName: LogName
             val mutable stream: TextWriter
             val mutable state: LogState
-            new (name, stream, state) =
+
+            new(name, stream, state) =
                 {
                     logName = name
                     stream = stream
@@ -68,9 +69,8 @@ module Logger =
                 }
         end
 
-    let mutable private log : LogFile = LogFile (DeviceType DeviceName.Nothing,
-                                                 Console.Out,
-                                                 LogState.Start)
+    let mutable private log: LogFile =
+        LogFile (DeviceType DeviceName.Nothing, Console.Out, LogState.Start)
 
     let isOpen () = log.state = LogState.Opened
 
@@ -94,19 +94,14 @@ module Logger =
             if setName fileName then
                 try
                     log.state <- LogState.Opened
+
                     match fileName with
-                    | FileName name ->
-                        log.stream <- new StreamWriter (name, false)
-                    | UDPort port ->
-                        setPort port
+                    | FileName name -> log.stream <- new StreamWriter (name, false)
+                    | UDPort port -> setPort port
                     | DeviceType t ->
                         match t with
-                        | DeviceName.ConsoleT ->
-                            log.stream <- Console.Out
-                        | _ ->
-                            log.state <- LogState.InError
-                    // | _ ->
-                    //     log.state <- LogState.InError
+                        | DeviceName.ConsoleT -> log.stream <- Console.Out
+                        | _ -> log.state <- LogState.InError
                 with
                     | :? FileNotFoundException -> log.state <- LogState.InError
                     | ex -> log.state <- LogState.InError
@@ -121,36 +116,37 @@ module Logger =
                 log.stream.Close ()
                 log.stream.Dispose ()
                 log.state <- LogState.ReadyToOpen
-            | UDPort _ ->
-                log.state <- LogState.ReadyToOpen
+            | UDPort _ -> log.state <- LogState.ReadyToOpen
             | DeviceType t ->
                 match t with
                 | DeviceName.ConsoleT ->
-                    log.stream.Flush()
+                    log.stream.Flush ()
                     log.state <- LogState.ReadyToOpen
-                | _ ->
-                    log.state <- LogState.InError
+                | _ -> log.state <- LogState.InError
+
             log.state = LogState.ReadyToOpen
         else
             false
 
     let doLog (message: string) : bool =
         let tm = DateTime.Now
-        let message = sprintf "%02d:%02d:%02d %s" tm.Hour tm.Minute tm.Second message
+
+        let message =
+            sprintf "%02d:%02d:%02d %s" tm.Hour tm.Minute tm.Second message
+
         if isOpen () then
             match log.logName with
             | FileName _ ->
                 log.stream.WriteLine message
-                log.stream.Flush()
-            | UDPort _ ->
-                send message
+                log.stream.Flush ()
+            | UDPort _ -> send message
             | DeviceType t ->
                 match t with
                 | DeviceName.ConsoleT ->
                     log.stream.WriteLine message
-                    log.stream.Flush()
-                | _ ->
-                    log.state <- LogState.InError
+                    log.stream.Flush ()
+                | _ -> log.state <- LogState.InError
+
             true
         else
             false

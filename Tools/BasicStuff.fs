@@ -29,20 +29,25 @@
  *)
 
 namespace Tools
+
 module BasicStuff =
     open System
     open UDPTools.UDPSenderTools
 
     let on_error message =
         match message with
-            | "" -> eprintfn "FATAL ERROR!!"
-            | str -> eprintfn "ERROR %s!!" message
+        | "" -> eprintfn "FATAL ERROR!!"
+        | str -> eprintfn "ERROR %s!!" message
+
         exit 1
 
     let str2int (str: string) =
         let mutable result = 0
-        if Int32.TryParse(str, &result) then
+
+        if Int32.TryParse (str, &result) then
             result
         else
-            on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
+            on_error (sprintf "Unable to transform '%s' as an integer" str)
+            |> ignore
+
             0

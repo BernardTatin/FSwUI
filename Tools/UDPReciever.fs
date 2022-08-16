@@ -1,8 +1,8 @@
 ﻿(*
     Project:    ShTTY
-    File name:  mainShTTY.fs
+    File name:  UDPReciver.fs
     User:       berna
-    Date:       2022-08-14
+    Date:       2022-08-16
 
     The MIT License (MIT)
 
@@ -28,40 +28,34 @@
 
  *)
 
-namespace main
+namespace UDPTools
 
-module mainShTTY =
+module UDPRecieverTools =
     open System
-    open UDPTools.UDPRecieverTools
+    open System.Net
+    open System.Net.Sockets
+    open System.Text
 
-    let on_error message =
-        match message with
-            | "" -> eprintfn "FATAL ERROR!!"
-            | str -> eprintfn "ERROR %s!!" message
-        exit 1
+    type private UDPReceiver =
+        struct
+            val mutable port: int
+            val mutable client: UdpClient
+            val mutable address: IPEndPoint
+        end
 
-    let str2int (str: string) =
-        let mutable result = 0
-        if Int32.TryParse(str, &result) then
-            result
-        else
-            on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
-            0
+    let mutable private receiver = new UDPReceiver ()
 
+    let setPort(port : int) =
+        receiver.port <- port
+        receiver.client <- new UdpClient(port)
+        receiver.address <- new IPEndPoint(IPAddress.Any, port)
 
-    let mutable receivePort = 8080
-
-
-    let rec loop() =
-        receive ()
-        loop ()
-
-    [<EntryPoint>]
-    let main argv =
-        if argv.Length = 0 then
-            on_error "You must specify a port number"
-        receivePort <- str2int argv[0]
-        setPort receivePort
-        printfn "Listening on port %d, bordel!!" receivePort
-        loop ()
-        0 // return an integer exit code
+    let receive () =
+        let receivingClient = receiver.client
+        let mutable receivingIpEndPoint = receiver.address
+        try
+            let receiveBytes = receivingClient.Receive(&receivingIpEndPoint)
+            let returnData = Encoding.ASCII.GetString(receiveBytes)
+            printfn "%s" returnData
+        with
+            | error -> eprintfn "%s" error.Message

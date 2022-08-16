@@ -30,9 +30,7 @@
 
 module mainTest =
     open System
-    open System.Net
-    open System.Net.Sockets
-    open System.Text
+    open UDPTools.UDPSenderTools
 
     let on_error message =
         match message with
@@ -48,18 +46,6 @@ module mainTest =
             on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
             0
 
-    let mutable sendPort = 8080
-
-    let send(message : string) =
-        let sendingClient = new UdpClient()
-        let sendingIpEndPoint = new IPEndPoint(IPAddress.Loopback, sendPort)
-        let (sendBytes: byte array) = Encoding.ASCII.GetBytes(message)
-        printfn "Send <%s>" message
-        try
-            sendingClient.Send(sendBytes, sendBytes.Length, sendingIpEndPoint) |> ignore
-        with
-            | error -> eprintfn "%s" error.Message
-
     let rec loop(k : int) =
         let message = sprintf "%5d message" k
         send message
@@ -73,7 +59,8 @@ module mainTest =
     let main argv =
         if argv.Length = 0 then
             on_error "You must specify a port number"
-        sendPort <- str2int argv[0]
-        printfn "Listening on port %d, bordel!!" sendPort
+        let sendPort = str2int argv[0]
+        setPort sendPort
+        printfn "Sending on port %d, bordel!!" sendPort
         loop 1
         0 // return an integer exit code

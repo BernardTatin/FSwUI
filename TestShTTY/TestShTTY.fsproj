@@ -9,4 +9,8 @@
         <Compile Include="mainTest.fs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tools\Tools.fsproj" />
+    </ItemGroup>
+
 </Project>

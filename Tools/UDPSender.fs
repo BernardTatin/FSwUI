@@ -1,8 +1,8 @@
 ﻿(*
-    Project:    ShTTY
-    File name:  mainShTTY.fs
+    Project:    Tools
+    File name:  UDPSender.fs
     User:       berna
-    Date:       2022-08-14
+    Date:       2022-08-16
 
     The MIT License (MIT)
 
@@ -28,40 +28,37 @@
 
  *)
 
-namespace main
+namespace UDPTools
 
-module mainShTTY =
+module UDPSenderTools =
     open System
-    open UDPTools.UDPRecieverTools
-
-    let on_error message =
-        match message with
-            | "" -> eprintfn "FATAL ERROR!!"
-            | str -> eprintfn "ERROR %s!!" message
-        exit 1
-
-    let str2int (str: string) =
-        let mutable result = 0
-        if Int32.TryParse(str, &result) then
-            result
-        else
-            on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
-            0
+    open System.Net
+    open System.Net.Sockets
+    open System.Text
 
 
-    let mutable receivePort = 8080
+    type private UDPSender =
+        struct
+            val mutable port: int
+            val mutable client: UdpClient
+            val mutable address: IPEndPoint
+        end
 
+    let mutable private sender = new UDPSender()
 
-    let rec loop() =
-        receive ()
-        loop ()
+    let setPort(port : int) =
+        printfn "setPort %d.." port
+        sender.port <- port
+        sender.client <- new UdpClient()
+        sender.address <- new IPEndPoint(IPAddress.Loopback, port)
 
-    [<EntryPoint>]
-    let main argv =
-        if argv.Length = 0 then
-            on_error "You must specify a port number"
-        receivePort <- str2int argv[0]
-        setPort receivePort
-        printfn "Listening on port %d, bordel!!" receivePort
-        loop ()
-        0 // return an integer exit code
+    let send(message : string) =
+        let sClient = sender.client
+        let sAddress = sender.address
+        // let sAddress = new IPEndPoint(IPAddress.Loopback, sender.port)
+        let (sendBytes: byte array) = Encoding.ASCII.GetBytes(message)
+        printfn "Send <%s>" message
+        try
+            sClient.Send(sendBytes, sendBytes.Length, sAddress) |> ignore
+        with
+            | error -> eprintfn "ERROR UDPSender: %s" error.Message

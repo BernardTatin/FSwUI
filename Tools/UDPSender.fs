@@ -48,7 +48,6 @@ module UDPSenderTools =
         new UDPSender ()
 
     let setPort (port: int) =
-        printfn "setPort %d.." port
         sender.port <- port
         sender.client <- new UdpClient ()
         sender.address <- new IPEndPoint (IPAddress.Loopback, port)
@@ -56,11 +55,9 @@ module UDPSenderTools =
     let send (message: string) =
         let sClient = sender.client
         let sAddress = sender.address
-        // let sAddress = new IPEndPoint(IPAddress.Loopback, sender.port)
+
         let (sendBytes: byte array) =
             Encoding.ASCII.GetBytes (message)
-
-        printfn "Send <%s>" message
 
         try
             sClient.Send (sendBytes, sendBytes.Length, sAddress)

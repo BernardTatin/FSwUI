@@ -31,7 +31,7 @@
 (*
  From Windows, I tried to write on the equivalent of <stdout>,
  which would be great for debug, but it's really too shitty,
- I give up for today
+ I made an UDP ShTTY server for that.
  *)
 namespace Tools
 
@@ -101,12 +101,12 @@ module Logger =
                         setPort port
                     | DeviceType t ->
                         match t with
-                        | DeviceName.Nothing ->
-                            log.state <- LogState.InError
                         | DeviceName.ConsoleT ->
                             log.stream <- Console.Out
-                    | _ ->
-                        log.state <- LogState.InError
+                        | _ ->
+                            log.state <- LogState.InError
+                    // | _ ->
+                    //     log.state <- LogState.InError
                 with
                     | :? FileNotFoundException -> log.state <- LogState.InError
                     | ex -> log.state <- LogState.InError
@@ -128,26 +128,28 @@ module Logger =
                 | DeviceName.ConsoleT ->
                     log.stream.Flush()
                     log.state <- LogState.ReadyToOpen
-                | DeviceName.Nothing ->
+                | _ ->
                     log.state <- LogState.InError
             log.state = LogState.ReadyToOpen
         else
             false
 
     let doLog (message: string) : bool =
+        let tm = DateTime.Now
+        let message = sprintf "%02d:%02d:%02d %s" tm.Hour tm.Minute tm.Second message
         if isOpen () then
             match log.logName with
             | FileName _ ->
                 log.stream.WriteLine message
                 log.stream.Flush()
             | UDPort _ ->
-                send (sprintf "%s\n" message)
+                send message
             | DeviceType t ->
                 match t with
                 | DeviceName.ConsoleT ->
                     log.stream.WriteLine message
                     log.stream.Flush()
-                | DeviceName.Nothing ->
+                | _ ->
                     log.state <- LogState.InError
             true
         else

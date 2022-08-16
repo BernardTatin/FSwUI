@@ -46,8 +46,8 @@ module Logger =
 
     type LogName =
         | FileName of string
-        | DeviceType of DeviceName
         | UDPort of int
+        | DeviceType of DeviceName
 
     type private LogState =
         | Start = 0
@@ -72,15 +72,17 @@ module Logger =
     let mutable private log: LogFile =
         LogFile (DeviceType DeviceName.Nothing, Console.Out, LogState.Start)
 
-    let isOpen () = log.state = LogState.Opened
+    let private isOpen () = log.state = LogState.Opened
 
     let private setName (fileName: LogName) : bool =
         match log.state with
+        | LogState.InError
         | LogState.Start
         | LogState.ReadyToOpen ->
             log.logName <- fileName
             log.state <- LogState.ReadyToOpen
             true
+        | LogState.Opened -> false
         | _ ->
             log.logName <- DeviceType DeviceName.Nothing
             log.state <- LogState.InError

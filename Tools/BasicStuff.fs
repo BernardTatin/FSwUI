@@ -1,8 +1,8 @@
 ﻿(*
-    Project:    ShTTY
-    File name:  mainShTTY.fs
+    Project:    Tools
+    File name:  BasicStuff.fs
     User:       berna
-    Date:       2022-08-14
+    Date:       2022-08-16
 
     The MIT License (MIT)
 
@@ -28,25 +28,21 @@
 
  *)
 
-namespace main
-
-module mainShTTY =
+namespace Tools
+module BasicStuff =
     open System
-    open UDPTools.UDPRecieverTools
-    open Tools.BasicStuff
+    open UDPTools.UDPSenderTools
 
+    let on_error message =
+        match message with
+            | "" -> eprintfn "FATAL ERROR!!"
+            | str -> eprintfn "ERROR %s!!" message
+        exit 1
 
-    let rec loop () =
-        receive ()
-        loop ()
-
-    [<EntryPoint>]
-    let main argv =
-        if argv.Length = 0 then
-            on_error "You must specify a port number"
-
-        let receivePort = str2int argv[0]
-        setPort receivePort
-        printfn "Listening on port %d" receivePort
-        loop ()
-        0 // return an integer exit code
+    let str2int (str: string) =
+        let mutable result = 0
+        if Int32.TryParse(str, &result) then
+            result
+        else
+            on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
+            0

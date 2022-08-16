@@ -10,6 +10,7 @@
         <Compile Include="UDPReciever.fs" />
         <Compile Include="UDPSender.fs" />
         <Compile Include="Logger.fs" />
+        <Compile Include="BasicStuff.fs" />
     </ItemGroup>
 
 </Project>

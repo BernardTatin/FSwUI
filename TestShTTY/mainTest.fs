@@ -31,20 +31,7 @@
 module mainTest =
     open System
     open UDPTools.UDPSenderTools
-
-    let on_error message =
-        match message with
-            | "" -> eprintfn "FATAL ERROR!!"
-            | str -> eprintfn "ERROR %s!!" message
-        exit 1
-
-    let str2int (str: string) =
-        let mutable result = 0
-        if Int32.TryParse(str, &result) then
-            result
-        else
-            on_error (sprintf "Unable to transform '%s' as an integer" str) |> ignore
-            0
+    open Tools.BasicStuff
 
     let rec loop(k : int) =
         let message = sprintf "%5d message" k
@@ -61,6 +48,6 @@ module mainTest =
             on_error "You must specify a port number"
         let sendPort = str2int argv[0]
         setPort sendPort
-        printfn "Sending on port %d, bordel!!" sendPort
+        printfn "Sending on port %d" sendPort
         loop 1
         0 // return an integer exit code

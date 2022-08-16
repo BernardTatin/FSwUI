@@ -32,7 +32,7 @@ namespace d1
 
 module StartStateMachines =
     open System
-    open Logger
+    open Tools.Logger
 
     type private StartingStates =
         | Start

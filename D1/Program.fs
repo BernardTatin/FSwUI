@@ -31,7 +31,7 @@ module main =
     open System.Windows.Forms
     open StartStateMachines
     open ExitStateMachine
-    open Logger
+    open Tools.Logger
     open SystemTools
 
 
@@ -71,7 +71,8 @@ module main =
 
     [<EntryPoint>]
     let main argv =
-        openLog "theLog.log" |> ignore
+        // openLog (FileName "theLog.log") |> ignore
+        openLog (UDPort 2345) |> ignore
         // Windows: first argument is not the name of the program !!
         for a in argv do
             doLog a |> ignore

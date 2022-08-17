@@ -49,4 +49,5 @@ module mainShTTY =
         setPort receivePort
         printfn "Listening on port %d" receivePort
         loop ()
-        0 // return an integer exit code
+
+        (int SYSExit.Success)

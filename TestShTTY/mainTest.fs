@@ -35,6 +35,7 @@ module mainTest =
 
     let rec loop (k: int) =
         let message = sprintf "%5d message" k
+        printfn "Sending <%s>" message
         send message
         // System.Threading.Thread.Sleep 250
         if k < 300 then loop (k + 1) else ()
@@ -48,4 +49,5 @@ module mainTest =
         setPort sendPort
         printfn "Sending on port %d" sendPort
         loop 1
-        0 // return an integer exit code
+
+        (int SYSExit.Success)

@@ -34,12 +34,16 @@ module BasicStuff =
     open System
     open UDPTools.UDPSenderTools
 
+    type SYSExit =
+        | Success = 0
+        | Failure = 127
+
     let on_error message =
         match message with
         | "" -> eprintfn "FATAL ERROR!!"
         | str -> eprintfn "ERROR %s!!" message
 
-        exit 1
+        exit (int SYSExit.Failure)
 
     let str2int (str: string) =
         let mutable result = 0

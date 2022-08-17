@@ -22,8 +22,8 @@
 
 namespace d1
 
-open d1.StartStateMachines
-open d1.SystemTools
+open Tools
+
 
 module main =
     open System
@@ -32,7 +32,7 @@ module main =
     open StartStateMachines
     open ExitStateMachine
     open Tools.Logger
-    open SystemTools
+    open BasicStuff
 
 
     let newButton text : Control =

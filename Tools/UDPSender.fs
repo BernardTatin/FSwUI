@@ -37,30 +37,31 @@ module UDPSenderTools =
     open System.Text
 
 
-    type private UDPSender =
-        struct
-            val mutable port: int
-            val mutable client: UdpClient
-            val mutable address: IPEndPoint
-        end
+    type UDPSender(newPort: int) =
+        let mutable port: int = newPort
+
+        let mutable client: UdpClient =
+            new UdpClient ()
+
+        let mutable address: IPEndPoint =
+            new IPEndPoint (IPAddress.Loopback, newPort)
+
+        member this.send(message: string) =
+            let sClient = client
+            let sAddress = address
+
+            let (sendBytes: byte array) =
+                Encoding.ASCII.GetBytes (message)
+
+            try
+                sClient.Send (sendBytes, sendBytes.Length, sAddress)
+                |> ignore
+            with
+                | error -> eprintfn "ERROR UDPSender: %s" error.Message
 
     let mutable private sender =
-        new UDPSender ()
+        new udpsender (1)
 
-    let setPort (port: int) =
-        sender.port <- port
-        sender.client <- new UdpClient ()
-        sender.address <- new IPEndPoint (IPAddress.Loopback, port)
+    let setPort (port: int) = sender <- new UDPSender (port)
 
-    let send (message: string) =
-        let sClient = sender.client
-        let sAddress = sender.address
-
-        let (sendBytes: byte array) =
-            Encoding.ASCII.GetBytes (message)
-
-        try
-            sClient.Send (sendBytes, sendBytes.Length, sAddress)
-            |> ignore
-        with
-            | error -> eprintfn "ERROR UDPSender: %s" error.Message
+    let send (message: string) = sender.send message

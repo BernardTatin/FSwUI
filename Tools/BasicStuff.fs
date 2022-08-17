@@ -32,7 +32,6 @@ namespace Tools
 
 module BasicStuff =
     open System
-    open UDPTools.UDPSenderTools
 
     type SYSExit =
         | Success = 0

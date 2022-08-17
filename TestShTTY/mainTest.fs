@@ -28,17 +28,19 @@
 
  *)
 
+open UDPTools
+
 module mainTest =
     open System
     open UDPTools.UDPSenderTools
     open Tools.BasicStuff
 
-    let rec loop (k: int) =
+    let rec loop (sender: UDPSender) (k: int) =
         let message = sprintf "%5d message" k
         printfn "Sending <%s>" message
-        send message
+        sender.send message
         // System.Threading.Thread.Sleep 250
-        if k < 300 then loop (k + 1) else ()
+        if k < 300 then loop sender (k + 1) else ()
 
     [<EntryPoint>]
     let main argv =
@@ -46,8 +48,8 @@ module mainTest =
             on_error "You must specify a port number"
 
         let sendPort = str2int argv[0]
-        setPort sendPort
+        let sender = new UDPSender (sendPort)
         printfn "Sending on port %d" sendPort
-        loop 1
+        loop sender 1
 
         (int SYSExit.Success)

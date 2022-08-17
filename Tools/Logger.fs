@@ -64,9 +64,9 @@ module Logger =
         let mutable logName = DeviceType DeviceName.Nothing
         let mutable stream = Console.Out
         let mutable state = LogState.Start
-        member this.isOpen() : bool = state = LogState.Opened
+        let isOpen() : bool = state = LogState.Opened
 
-        member this.setName(fileName: LogName) : bool =
+        let setName(fileName: LogName) : bool =
             match state with
             | LogState.InError
             | LogState.Start
@@ -85,7 +85,7 @@ module Logger =
             | LogState.Start
             | LogState.ReadyToOpen
             | LogState.InError ->
-                if this.setName fileName then
+                if setName fileName then
                     try
                         state <- LogState.Opened
 
@@ -100,11 +100,11 @@ module Logger =
                         | :? FileNotFoundException -> state <- LogState.InError
                         | ex -> state <- LogState.InError
 
-                this.isOpen ()
-            | _ -> this.isOpen ()
+                isOpen ()
+            | _ -> isOpen ()
 
         member this.closeLog() =
-            if this.isOpen () then
+            if isOpen () then
                 match logName with
                 | FileName _ ->
                     stream.Close ()
@@ -129,7 +129,7 @@ module Logger =
             let message =
                 sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
 
-            if this.isOpen () then
+            if isOpen () then
                 match logName with
                 | FileName _ ->
                     stream.WriteLine message

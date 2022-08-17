@@ -29,11 +29,16 @@
  *)
 
 (*
- From Windows, I tried to write on the equivalent of <stdout>,
+ This code is more about to learn F# types than anything else.
+
+ From Windows application, I tried to write on the equivalent of <stdout>,
  which would be great for debug, but it's really too shitty,
  I made an UDP ShTTY server for that.
  *)
+
 namespace Tools
+
+open System
 
 module Logger =
     open System
@@ -55,97 +60,97 @@ module Logger =
         | Opened = 2
         | InError = 3
 
-    type private LogFile(name: LogName, stream: TextWriter, state: LogState) =
-        member val logName = name with get, set
-        member val stream = stream with get, set
-        member val state = state with get, set
-        member this.isOpen() : bool = this.state = LogState.Opened
-        member this.setName (fileName: LogName) : bool =
-            match this.state with
+    type private LogFile() =
+        let mutable logName = DeviceType DeviceName.Nothing
+        let mutable stream = Console.Out
+        let mutable state = LogState.Start
+        member this.isOpen() : bool = state = LogState.Opened
+
+        member this.setName(fileName: LogName) : bool =
+            match state with
             | LogState.InError
             | LogState.Start
             | LogState.ReadyToOpen ->
-                this.logName <- fileName
-                this.state <- LogState.ReadyToOpen
+                logName <- fileName
+                state <- LogState.ReadyToOpen
                 true
             | LogState.Opened -> false
             | _ ->
-                this.logName <- DeviceType DeviceName.Nothing
-                this.state <- LogState.InError
+                logName <- DeviceType DeviceName.Nothing
+                state <- LogState.InError
                 false
-        member this.openLog (fileName: LogName) : bool =
-            match this.state with
+
+        member this.openLog(fileName: LogName) : bool =
+            match state with
             | LogState.Start
             | LogState.ReadyToOpen
             | LogState.InError ->
                 if this.setName fileName then
                     try
-                        this.state <- LogState.Opened
+                        state <- LogState.Opened
 
                         match fileName with
-                        | FileName name -> this.stream <- new StreamWriter (name, false)
+                        | FileName name -> stream <- new StreamWriter (name, false)
                         | UDPort port -> setPort port
                         | DeviceType t ->
                             match t with
-                            | DeviceName.ConsoleT -> this.stream <- Console.Out
-                            | _ -> this.state <- LogState.InError
+                            | DeviceName.ConsoleT -> stream <- Console.Out
+                            | _ -> state <- LogState.InError
                     with
-                        | :? FileNotFoundException -> this.state <- LogState.InError
-                        | ex -> this.state <- LogState.InError
+                        | :? FileNotFoundException -> state <- LogState.InError
+                        | ex -> state <- LogState.InError
 
                 this.isOpen ()
             | _ -> this.isOpen ()
-        member this.closeLog () =
+
+        member this.closeLog() =
             if this.isOpen () then
-                match this.logName with
+                match logName with
                 | FileName _ ->
-                    this.stream.Close ()
-                    this.stream.Dispose ()
-                    this.state <- LogState.ReadyToOpen
-                | UDPort _ -> this.state <- LogState.ReadyToOpen
+                    stream.Close ()
+                    stream.Dispose ()
+                    state <- LogState.ReadyToOpen
+                | UDPort _ -> state <- LogState.ReadyToOpen
                 | DeviceType t ->
                     match t with
                     | DeviceName.ConsoleT ->
-                        this.stream.Flush ()
-                        this.state <- LogState.ReadyToOpen
-                    | _ -> this.state <- LogState.InError
+                        stream.Flush ()
+                        state <- LogState.ReadyToOpen
+                    | _ -> state <- LogState.InError
 
-                this.state = LogState.ReadyToOpen
+                logName <- DeviceType DeviceName.Nothing
+                state = LogState.ReadyToOpen
             else
                 false
-        member this.doLog (message: string) : bool =
+
+        member this.doLog(message: string) : bool =
             let tm = DateTime.Now
 
             let message =
                 sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
 
             if this.isOpen () then
-                match this.logName with
+                match logName with
                 | FileName _ ->
-                    this.stream.WriteLine message
-                    this.stream.Flush ()
+                    stream.WriteLine message
+                    stream.Flush ()
                 | UDPort _ -> send message
                 | DeviceType t ->
                     match t with
                     | DeviceName.ConsoleT ->
-                        this.stream.WriteLine message
-                        this.stream.Flush ()
-                    | _ -> this.state <- LogState.InError
+                        stream.WriteLine message
+                        stream.Flush ()
+                    | _ -> state <- LogState.InError
 
                 true
             else
                 false
 
-
-
     let mutable private log: LogFile =
-        LogFile (DeviceType DeviceName.Nothing, Console.Out, LogState.Start)
+        LogFile ()
 
-    let openLog (fileName: LogName) : bool =
-        log.openLog fileName
+    let openLog (fileName: LogName) : bool = log.openLog fileName
 
-    let closeLog () =
-        log.closeLog ()
+    let closeLog () = log.closeLog ()
 
-    let doLog (message: string) : bool =
-        log.doLog message
+    let doLog (message: string) : bool = log.doLog message

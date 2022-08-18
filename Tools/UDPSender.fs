@@ -60,7 +60,7 @@ module UDPSenderTools =
                 | error -> eprintfn "ERROR UDPSender: %s" error.Message
 
     let mutable private sender =
-        new udpsender (1)
+        new UDPSender (1)
 
     let setPort (port: int) = sender <- new UDPSender (port)
 

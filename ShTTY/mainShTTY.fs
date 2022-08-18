@@ -36,9 +36,9 @@ module mainShTTY =
     open Tools.BasicStuff
 
 
-    let rec loop () =
-        receive ()
-        loop ()
+    let rec loop (receiver: UDPReceiver) =
+        receiver.receive ()
+        loop (receiver)
 
     [<EntryPoint>]
     let main argv =
@@ -46,8 +46,9 @@ module mainShTTY =
             on_error "You must specify a port number"
 
         let receivePort = str2int argv[0]
-        setPort receivePort
+        // setPort receivePort
+        let receiver = new UDPReceiver(receivePort)
         printfn "Listening on port %d" receivePort
-        loop ()
+        loop receiver
 
         (int SYSExit.Success)

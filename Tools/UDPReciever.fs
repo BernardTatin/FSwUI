@@ -36,34 +36,34 @@ module UDPRecieverTools =
     open System.Net.Sockets
     open System.Text
 
-    type private UDPReceiver =
-        struct
-            val mutable port: int
-            val mutable client: UdpClient
-            val mutable address: IPEndPoint
-        end
+    type UDPReceiver(newPort: int) =
+        let mutable port: int = newPort
 
-    let mutable private receiver =
-        new UDPReceiver ()
+        let mutable client: UdpClient =
+            new UdpClient (port)
 
-    let setPort (port: int) =
-        receiver.port <- port
-        receiver.client <- new UdpClient (port)
-        receiver.address <- new IPEndPoint (IPAddress.Any, port)
+        let mutable address: IPEndPoint =
+            new IPEndPoint (IPAddress.Any, port)
 
-    let receive () =
-        let receivingClient = receiver.client
+        member this.setPort(newPort: int) =
+            port <- newPort
+            client <- new UdpClient (port)
+            address <- new IPEndPoint (IPAddress.Any, port)
 
-        let mutable receivingIpEndPoint =
-            receiver.address
+        member this.receive() =
+            let receivingClient = client
 
-        try
-            let receiveBytes =
-                receivingClient.Receive (&receivingIpEndPoint)
+            let mutable receivingIpEndPoint = address
 
-            let returnData =
-                Encoding.ASCII.GetString (receiveBytes)
+            try
+                let receiveBytes =
+                    receivingClient.Receive (&receivingIpEndPoint)
 
-            printfn "%s" returnData
-        with
-            | error -> eprintfn "%s" error.Message
+                let returnData =
+                    Encoding.ASCII.GetString (receiveBytes)
+
+                printfn "%s" returnData
+            with
+                | error -> eprintfn "%s" error.Message
+
+        member this.close() = client.Close ()

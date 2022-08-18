@@ -32,23 +32,44 @@ namespace main
 
 module mainShTTY =
     open System
+    open System.Threading
     open UDPTools.UDPRecieverTools
     open Tools.BasicStuff
 
 
-    let rec loop (receiver: UDPReceiver) =
-        receiver.receive ()
-        loop (receiver)
+
+    let onCtrlC (receiver: UDPReceiver) =
+        Console.WriteLine "Closing application..."
+        receiver.close ()
+        Console.WriteLine "exiting..."
+
+        exit (int SYSExit.Success)
+
+    let run (receiver: UDPReceiver) =
+
+        let rec loop (receiver: UDPReceiver) =
+            receiver.receive ()
+            // printfn "wait..."
+            // System.Threading.Thread.Sleep 1000
+
+            loop (receiver)
+
+        printfn "Run loop"
+        loop receiver
+
 
     [<EntryPoint>]
     let main argv =
+        use cancellation = new CancellationTokenSource()
         if argv.Length = 0 then
             on_error "You must specify a port number"
 
         let receivePort = str2int argv[0]
         // setPort receivePort
         let receiver = new UDPReceiver(receivePort)
+        printfn "Prepare Ctrl+C handler"
+        Console.CancelKeyPress.Add  (fun _ -> cancellation.Cancel(); onCtrlC receiver)
         printfn "Listening on port %d" receivePort
-        loop receiver
+        run receiver
 
         (int SYSExit.Success)

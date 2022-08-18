@@ -29,7 +29,8 @@
  *)
 
 (*
- This code is more about to learn F# types than anything else.
+ This code is more about to learn F# types than anything else. To get something
+ really usable, some more works must be done. Perhaps in the next days.
 
  From Windows application, I tried to write on the equivalent of <stdout>,
  which would be great for debug, but it's really too shitty,

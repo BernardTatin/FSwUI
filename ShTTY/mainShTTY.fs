@@ -36,40 +36,37 @@ module mainShTTY =
     open UDPTools.UDPRecieverTools
     open Tools.BasicStuff
 
-
-
-    let onCtrlC (receiver: UDPReceiver) =
-        Console.WriteLine "Closing application..."
-        receiver.close ()
-        Console.WriteLine "exiting..."
-
-        exit (int SYSExit.Success)
-
     let run (receiver: UDPReceiver) =
+        use cancellation = new CancellationTokenSource()
+        let onCtrlC () =
+            cancellation.Cancel();
+            Console.WriteLine "Closing application..."
+            receiver.close ()
+            Console.WriteLine "exiting..."
+            exit (int SYSExit.Success)
 
         let rec loop (receiver: UDPReceiver) =
             receiver.receive ()
-            // printfn "wait..."
-            // System.Threading.Thread.Sleep 1000
-
             loop (receiver)
 
+        printfn "Prepare Ctrl+C handler"
+        Console.CancelKeyPress.Add  (fun _ -> onCtrlC ())
+        // why I had to put () around  receiver.getPort() ?
+        // perhaps membership is done by a sort of a preprocessor
+        // strange and disturbing and sort of 'not natural'
+        printfn "Listening on port %d" (receiver.getPort())
         printfn "Run loop"
         loop receiver
 
 
     [<EntryPoint>]
     let main argv =
-        use cancellation = new CancellationTokenSource()
         if argv.Length = 0 then
             on_error "You must specify a port number"
 
         let receivePort = str2int argv[0]
         // setPort receivePort
         let receiver = new UDPReceiver(receivePort)
-        printfn "Prepare Ctrl+C handler"
-        Console.CancelKeyPress.Add  (fun _ -> cancellation.Cancel(); onCtrlC receiver)
-        printfn "Listening on port %d" receivePort
         run receiver
 
         (int SYSExit.Success)

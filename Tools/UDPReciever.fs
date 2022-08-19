@@ -45,6 +45,8 @@ module UDPRecieverTools =
         let mutable address: IPEndPoint =
             new IPEndPoint (IPAddress.Any, port)
 
+        member this.getPort () : int =
+            port
         member this.setPort(newPort: int) =
             port <- newPort
             client <- new UdpClient (port)

@@ -7,10 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="BasicStuff.fs" />
         <Compile Include="UDPReciever.fs" />
         <Compile Include="UDPSender.fs" />
+        <Compile Include="LogTypes.fs" />
         <Compile Include="Logger.fs" />
-        <Compile Include="BasicStuff.fs" />
     </ItemGroup>
 
 </Project>

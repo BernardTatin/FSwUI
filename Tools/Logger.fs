@@ -37,118 +37,120 @@
  I made an UDP ShTTY server for that.
  *)
 
-namespace Tools
+namespace LogTools
 
-open System
+open LogTools.LogTypes
 
 module Logger =
     open System
     open System.IO
+    open LogTypes
     open UDPTools.UDPSenderTools
 
-    type DeviceName =
-        | Nothing = 0
-        | ConsoleT = 1
+    // type DeviceName =
+    //     | Nothing = 0
+    //     | ConsoleT = 1
+    //
+    // type LogName =
+    //     | FileName of string
+    //     | UDPort of int
+    //     | DeviceType of DeviceName
+    //
+    //
+    // type private LogState =
+    //     | Start = 0
+    //     | ReadyToOpen = 1
+    //     | Opened = 2
+    //     | InError = 3
+    //
+    // type private LogFile() =
+    //     let mutable logName = DeviceType DeviceName.Nothing
+    //     let mutable stream = Console.Out
+    //     let mutable state = LogState.Start
+    //     let isOpen() : bool = state = LogState.Opened
+    //
+    //     let setName(fileName: LogName) : bool =
+    //         match state with
+    //         | LogState.InError
+    //         | LogState.Start
+    //         | LogState.ReadyToOpen ->
+    //             logName <- fileName
+    //             state <- LogState.ReadyToOpen
+    //             true
+    //         | LogState.Opened -> false
+    //         | _ ->
+    //             logName <- DeviceType DeviceName.Nothing
+    //             state <- LogState.InError
+    //             false
+    //
+    //     member this.openLog(fileName: LogName) : bool =
+    //         match state with
+    //         | LogState.Start
+    //         | LogState.ReadyToOpen
+    //         | LogState.InError ->
+    //             if setName fileName then
+    //                 try
+    //                     state <- LogState.Opened
+    //
+    //                     match fileName with
+    //                     | FileName name -> stream <- new StreamWriter (name, false)
+    //                     | UDPort port -> setPort port
+    //                     | DeviceType t ->
+    //                         match t with
+    //                         | DeviceName.ConsoleT -> stream <- Console.Out
+    //                         | _ -> state <- LogState.InError
+    //                 with
+    //                     | :? FileNotFoundException -> state <- LogState.InError
+    //                     | ex -> state <- LogState.InError
+    //
+    //             isOpen ()
+    //         | _ -> isOpen ()
+    //
+    //     member this.closeLog() =
+    //         if isOpen () then
+    //             match logName with
+    //             | FileName _ ->
+    //                 stream.Close ()
+    //                 stream.Dispose ()
+    //                 state <- LogState.ReadyToOpen
+    //             | UDPort _ -> state <- LogState.ReadyToOpen
+    //             | DeviceType t ->
+    //                 match t with
+    //                 | DeviceName.ConsoleT ->
+    //                     stream.Flush ()
+    //                     state <- LogState.ReadyToOpen
+    //                 | _ -> state <- LogState.InError
+    //
+    //             logName <- DeviceType DeviceName.Nothing
+    //             state = LogState.ReadyToOpen
+    //         else
+    //             false
+    //
+    //     member this.doLog(message: string) : bool =
+    //         let tm = DateTime.Now
+    //
+    //         let message =
+    //             sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
+    //
+    //         if isOpen () then
+    //             match logName with
+    //             | FileName _ ->
+    //                 stream.WriteLine message
+    //                 stream.Flush ()
+    //             | UDPort _ -> send message
+    //             | DeviceType t ->
+    //                 match t with
+    //                 | DeviceName.ConsoleT ->
+    //                     stream.WriteLine message
+    //                     stream.Flush ()
+    //                 | _ -> state <- LogState.InError
+    //
+    //             true
+    //         else
+    //             false
 
-    type LogName =
-        | FileName of string
-        | UDPort of int
-        | DeviceType of DeviceName
-
-    type private LogState =
-        | Start = 0
-        | ReadyToOpen = 1
-        | Opened = 2
-        | InError = 3
-
-    type private LogFile() =
-        let mutable logName = DeviceType DeviceName.Nothing
-        let mutable stream = Console.Out
-        let mutable state = LogState.Start
-        let isOpen() : bool = state = LogState.Opened
-
-        let setName(fileName: LogName) : bool =
-            match state with
-            | LogState.InError
-            | LogState.Start
-            | LogState.ReadyToOpen ->
-                logName <- fileName
-                state <- LogState.ReadyToOpen
-                true
-            | LogState.Opened -> false
-            | _ ->
-                logName <- DeviceType DeviceName.Nothing
-                state <- LogState.InError
-                false
-
-        member this.openLog(fileName: LogName) : bool =
-            match state with
-            | LogState.Start
-            | LogState.ReadyToOpen
-            | LogState.InError ->
-                if setName fileName then
-                    try
-                        state <- LogState.Opened
-
-                        match fileName with
-                        | FileName name -> stream <- new StreamWriter (name, false)
-                        | UDPort port -> setPort port
-                        | DeviceType t ->
-                            match t with
-                            | DeviceName.ConsoleT -> stream <- Console.Out
-                            | _ -> state <- LogState.InError
-                    with
-                        | :? FileNotFoundException -> state <- LogState.InError
-                        | ex -> state <- LogState.InError
-
-                isOpen ()
-            | _ -> isOpen ()
-
-        member this.closeLog() =
-            if isOpen () then
-                match logName with
-                | FileName _ ->
-                    stream.Close ()
-                    stream.Dispose ()
-                    state <- LogState.ReadyToOpen
-                | UDPort _ -> state <- LogState.ReadyToOpen
-                | DeviceType t ->
-                    match t with
-                    | DeviceName.ConsoleT ->
-                        stream.Flush ()
-                        state <- LogState.ReadyToOpen
-                    | _ -> state <- LogState.InError
-
-                logName <- DeviceType DeviceName.Nothing
-                state = LogState.ReadyToOpen
-            else
-                false
-
-        member this.doLog(message: string) : bool =
-            let tm = DateTime.Now
-
-            let message =
-                sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
-
-            if isOpen () then
-                match logName with
-                | FileName _ ->
-                    stream.WriteLine message
-                    stream.Flush ()
-                | UDPort _ -> send message
-                | DeviceType t ->
-                    match t with
-                    | DeviceName.ConsoleT ->
-                        stream.WriteLine message
-                        stream.Flush ()
-                    | _ -> state <- LogState.InError
-
-                true
-            else
-                false
-
-    let mutable private log: LogFile =
-        LogFile ()
+    let mutable private log: ILogger =
+        LogNothing ()
 
     let openLog (fileName: LogName) : bool = log.openLog fileName
 

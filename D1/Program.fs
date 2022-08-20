@@ -31,7 +31,7 @@ module main =
     open System.Windows.Forms
     open StartStateMachines
     open ExitStateMachine
-    open Tools.Logger
+    open LogTools.Logger
     open BasicStuff
 
 

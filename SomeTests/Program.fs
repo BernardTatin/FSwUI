@@ -42,12 +42,15 @@ let main argv =
     let write v = printfn "%s" v
     try
         write "Starting a Test 2"
-        // System.Console.CancelKeyPress.Add (fun arg -> write "CancelKeyPress"; arg.Cancel <- true )
+        // not sure if the arg.Cancel has the same behavior and on Linux
+        System.Console.CancelKeyPress.Add (fun arg ->
+            write "CancelKeyPress"
+            arg.Cancel <- false )
         System.AppDomain.CurrentDomain.ProcessExit.Add (fun _ -> write "ProcessExit" )
         System.AppDomain.CurrentDomain.DomainUnload.Add (fun _ -> write "DomainUnload" )
         // let onExit = new ConsoleCancelEventHandler(fun _ args -> Console.WriteLine("Exit"); closing.Set() |> ignore)
-        let onExit = new ConsoleCancelEventHandler(fun _ args -> write "\nExit")
-        Console.CancelKeyPress.AddHandler onExit
+        // let onExit = new ConsoleCancelEventHandler(fun _ args -> write "\nExit")
+        // Console.CancelKeyPress.AddHandler onExit
         write "Waiting for Ctrl+C !!!!!"
         // let r = Console.ReadKey()
         let r = System.Console.In.ReadLine()

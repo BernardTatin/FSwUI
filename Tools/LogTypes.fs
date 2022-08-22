@@ -54,9 +54,12 @@ module LogTypes =
             member this.stop() = false
             member this.write(message : string) = false
 
-    let formatMessage (message: string) : string =
+    let formatMessage (message: string) (withEOL: bool): string =
         let tm = DateTime.Now
-        sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
+        if withEOL then
+            sprintf "%02d:%02d:%02d: %s\n" tm.Hour tm.Minute tm.Second message
+        else
+            sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
 
     type LogConsole() =
         let stream: TextWriter = Console.Out
@@ -65,7 +68,7 @@ module LogTypes =
             member this.start() = true
             member this.stop() = true
             member this.write(message : string) =
-                stream.Write (formatMessage message)
+                stream.Write (formatMessage message true)
                 stream.Flush()
                 true
 
@@ -79,7 +82,7 @@ module LogTypes =
                 stream.Dispose ()
                 true
             member this.write(message : string) =
-                stream.Write (formatMessage message)
+                stream.Write (formatMessage message true)
                 stream.Flush()
                 true
 
@@ -91,5 +94,5 @@ module LogTypes =
             member this.stop() =
                 true
             member this.write(message : string) =
-                sender.send (formatMessage message)
+                sender.send (formatMessage message true)
                 true

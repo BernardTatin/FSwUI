@@ -52,7 +52,8 @@ module main =
 
         element.MouseClick.Add (onClick)
         element.AutoSize <- true
-        element.Dock <- DockStyle.Fill
+        // element.Dock <- DockStyle.Fill
+        element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         panel.Controls.Add (element)
 
         true
@@ -60,11 +61,12 @@ module main =
     let createPanel (form: Form) : FlowLayoutPanel =
         let panel = new FlowLayoutPanel ()
 
-        // why = and not <- ?
+        // Works on Linux, not sure on Windows
         panel.Dock <- DockStyle.Fill
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.TopDown
-        panel.AutoSize <- true
+        // panel.AutoSize <- true
+        // panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Top ||| AnchorStyles.Bottom)
         form.Controls.Add (panel)
         panel
 
@@ -92,6 +94,12 @@ module main =
         List.forall (fun e -> setUIStyleAndShow panel e) allControls
         |> ignore
 
+        let onAppExit _ _ =
+            doLog "Application exiting"
+            ()
+        let evtExitHandler : EventHandler = new EventHandler(onAppExit)
+        // Application.ApplicationExit <- evtExitHandler
+        // form.Closed <- evtExitHandler
         onStart () |> ignore
         Application.Run (form)
         closeLog () |> ignore

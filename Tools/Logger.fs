@@ -152,8 +152,10 @@ module Logger =
     let mutable private log: ILogger =
         LogNothing ()
 
-    let openLog (fileName: LogName) : bool = log.openLog fileName
+    let openLog () : bool =
+        log <- new LogConsole()
+        log.start()
 
-    let closeLog () = log.closeLog ()
+    let closeLog () = log.stop ()
 
-    let doLog (message: string) : bool = log.doLog message
+    let doLog (message: string) : bool = log.write message

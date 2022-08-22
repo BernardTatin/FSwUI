@@ -72,7 +72,8 @@ module main =
     [<EntryPoint>]
     let main argv =
         // openLog (FileName "theLog.log") |> ignore
-        openLog (UDPort 2345) |> ignore
+        // openLog (UDPort 2345) |> ignore
+        openLog () |> ignore
         // Windows: first argument is not the name of the program !!
         for a in argv do
             doLog a |> ignore

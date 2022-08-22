@@ -33,8 +33,8 @@ namespace main
 module mainShTTY =
     open System
     open System.Threading
-    open UDPTools.UDPRecieverTools
     open Tools.BasicStuff
+    open UDPTools.UDPRecieverTools
 
     let run (receiver: UDPReceiver) =
         use cancellation = new CancellationTokenSource()

@@ -46,14 +46,13 @@ module main =
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
         let onClick (arg: MouseEventArgs) =
-            // show MouseEventArgs but the type of arg can't be MouseEventArgs
-            let tCont = arg.GetType().FullName
             let x = arg.X
             let y = arg.Y
-            element.Text <- sprintf "%A (%4d %4d)" tCont x y
+            element.Text <- sprintf "(%4d %4d)" x y
 
         element.MouseClick.Add (onClick)
         element.AutoSize <- true
+        element.Dock <- DockStyle.Fill
         panel.Controls.Add (element)
 
         true
@@ -62,7 +61,7 @@ module main =
         let panel = new FlowLayoutPanel ()
 
         // why = and not <- ?
-        panel.Dock = DockStyle.Fill |> ignore
+        panel.Dock <- DockStyle.Fill
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.TopDown
         panel.AutoSize <- true
@@ -71,8 +70,6 @@ module main =
 
     [<EntryPoint>]
     let main argv =
-        // openLog (FileName "theLog.log") |> ignore
-        // openLog (UDPort 2345) |> ignore
         openLog () |> ignore
         // Windows: first argument is not the name of the program !!
         for a in argv do

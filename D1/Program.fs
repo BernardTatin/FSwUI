@@ -72,39 +72,45 @@ module main =
 
     [<EntryPoint>]
     let main argv =
-        openLog () |> ignore
-        // Windows: first argument is not the name of the program !!
-        for a in argv do
-            doLog a |> ignore
+        try
+            openLog () |> ignore
+            // Windows: first argument is not the name of the program !!
+            for a in argv do
+                doLog a |> ignore
 
-        let form =
-            new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")
+            let form =
+                new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")
 
-        let panel = createPanel form
+            let panel = createPanel form
 
-        let allControls =
-            [
-                newLabel ("Ohhhh!")
-                newButton ("Un bouton")
-                newLabel ("Ohhhh!")
-                newButton ("Encore un bouton")
-                newLabel ("Ohhhh!")
-            ]
+            let allControls =
+                [
+                    newLabel ("Ohhhh!")
+                    newButton ("Un bouton")
+                    newLabel ("Ohhhh!")
+                    newButton ("Encore un bouton")
+                    newLabel ("Ohhhh!")
+                ]
 
-        List.forall (fun e -> setUIStyleAndShow panel e) allControls
-        |> ignore
+            List.forall (fun e -> setUIStyleAndShow panel e) allControls
+            |> ignore
 
-        let onAppExit _ _ =
-            doLog "Application exiting"
-            ()
-        let evtExitHandler : EventHandler = new EventHandler(onAppExit)
-        // Application.ApplicationExit <- evtExitHandler
-        // form.Closed <- evtExitHandler
-        onStart () |> ignore
-        Application.Run (form)
-        closeLog () |> ignore
+            let onAppExit1 _ =
+                doLog "onExit1"
+                ()
+            Application.ApplicationExit.Add (fun args ->
+                doLog (sprintf "Application.ApplicationExit %A" args) |> ignore
+                onAppExit1 args)
+            form.Closed.Add (fun args ->
+                doLog (sprintf "Form.Closed %A" args) |> ignore
+                onAppExit1 args)
+            onStart () |> ignore
+            Application.Run (form)
 
-        if onExit () then
-            (int SYSExit.Success)
-        else
-            (int SYSExit.Failure)
+            if onExit () then
+                (int SYSExit.Success)
+            else
+                (int SYSExit.Failure)
+        finally
+            doLog "Finaly, exit!"
+            closeLog () |> ignore

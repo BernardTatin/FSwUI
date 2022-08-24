@@ -22,27 +22,19 @@
 
 namespace d1
 
-open Tools
 
+open System.Windows.Forms
+open StartStateMachines
+open ExitStateMachine
+open LogTools.Logger
+open Tools
+open BasicStuff
+open FormsTools
+open aboutForm
 
 module main =
-    open System
-    open System.Reflection
-    open System.Windows.Forms
-    open StartStateMachines
-    open ExitStateMachine
-    open LogTools.Logger
-    open BasicStuff
 
 
-    let newButton text : Control =
-        let button = new Button ()
-        button.Text <- text
-        button
-
-    let newLabel (text: string) : Control =
-        let label = new Label (Text = text)
-        label
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
         let onClick (arg: MouseEventArgs) =
@@ -50,25 +42,30 @@ module main =
             let y = arg.Y
             element.Text <- sprintf "(%4d %4d)" x y
 
-        element.MouseClick.Add (onClick)
+        element.MouseClick.Add onClick
         element.AutoSize <- true
         // element.Dock <- DockStyle.Fill
         element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-        panel.Controls.Add (element)
+        panel.Controls.Add element
 
         true
 
-    let createPanel (form: Form) : FlowLayoutPanel =
-        let panel = new FlowLayoutPanel ()
+    let createMenu (form: Form) =
+        let menu = new MenuStrip()
+        let menuQuit = new ToolStripButton("Quit")
+        let menuAbout = new ToolStripButton("About")
+        let doClose () =
+           doLog "Menu Quit" |> ignore
+           form.Close()
 
-        // Works on Linux, not sure on Windows
-        panel.Dock <- DockStyle.Fill
-        panel.WrapContents <- false
-        panel.FlowDirection <- FlowDirection.TopDown
-        // panel.AutoSize <- true
-        // panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Top ||| AnchorStyles.Bottom)
-        form.Controls.Add (panel)
-        panel
+        menuQuit.Click.Add (fun _ -> doClose())
+        menuAbout.Click.Add (fun _ ->
+            doLog "Menu About" |> ignore
+            showAboutForm())
+        menu.Items.Add menuQuit |> ignore
+        menu.Items.Add menuAbout |> ignore
+        form.Controls.Add menu
+        ()
 
     [<EntryPoint>]
     let main argv =
@@ -81,22 +78,25 @@ module main =
             let form =
                 new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")
 
+
             let panel = createPanel form
 
             let allControls =
                 [
-                    newLabel ("Ohhhh!")
-                    newButton ("Un bouton")
-                    newLabel ("Ohhhh!")
-                    newButton ("Encore un bouton")
-                    newLabel ("Ohhhh!")
+                    newLabel "Ohhhh!"
+                    newButton "Un bouton"
+                    newLabel "Ohhhh!"
+                    newButton "Encore un bouton"
+                    newLabel "Ohhhh!"
                 ]
+
+            createMenu(form)
 
             List.forall (fun e -> setUIStyleAndShow panel e) allControls
             |> ignore
 
             let onAppExit1 _ =
-                doLog "onExit1"
+                doLog "onExit1" |> ignore
                 ()
             Application.ApplicationExit.Add (fun args ->
                 doLog (sprintf "Application.ApplicationExit %A" args) |> ignore
@@ -105,12 +105,12 @@ module main =
                 doLog (sprintf "Form.Closed %A" args) |> ignore
                 onAppExit1 args)
             onStart () |> ignore
-            Application.Run (form)
+            Application.Run form
 
             if onExit () then
                 (int SYSExit.Success)
             else
                 (int SYSExit.Failure)
         finally
-            doLog "Finaly, exit!"
+            doLog "Finaly, exit!" |> ignore
             closeLog () |> ignore

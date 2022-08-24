@@ -11,6 +11,8 @@
     <Compile Include="State.fs" />
     <Compile Include="StartStateMachines.fs" />
     <Compile Include="ExitStateMachine.fs" />
+    <Compile Include="FormsTools.fs" />
+    <Compile Include="AboutForm.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -34,15 +34,16 @@ open aboutForm
 
 module main =
 
+    let onButtonClick (button: Button) (arg: MouseEventArgs) =
+        let x = arg.X
+        let y = arg.Y
+        let message = (sprintf "(%4d %4d)" x y)
+        doLog message |> ignore
+        button.Text <- message
 
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
-        let onClick (arg: MouseEventArgs) =
-            let x = arg.X
-            let y = arg.Y
-            element.Text <- sprintf "(%4d %4d)" x y
 
-        element.MouseClick.Add onClick
         element.AutoSize <- true
         // element.Dock <- DockStyle.Fill
         element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
@@ -51,17 +52,14 @@ module main =
         true
 
     let createMenu (form: Form) =
-        let menu = new MenuStrip()
-        let menuQuit = new ToolStripButton("Quit")
-        let menuAbout = new ToolStripButton("About")
-        let doClose () =
-           doLog "Menu Quit" |> ignore
-           form.Close()
+        let menu = new MenuStrip ()
 
-        menuQuit.Click.Add (fun _ -> doClose())
-        menuAbout.Click.Add (fun _ ->
-            doLog "Menu About" |> ignore
-            showAboutForm())
+        let menuAbout =
+            newMenuEntry "About" (fun _ _ -> showAboutForm ())
+
+        let menuQuit =
+            newMenuEntry "Quit" (fun _ _ -> form.Close ())
+
         menu.Items.Add menuQuit |> ignore
         menu.Items.Add menuAbout |> ignore
         form.Controls.Add menu
@@ -76,21 +74,22 @@ module main =
                 doLog a |> ignore
 
             let form =
-                new Form (Width = 400, Height = 300, Visible = true, Text = "D1 is my name")
+                new Form (Width = 400, Height = 300, Visible = true)
 
+            form.Text <- "D1 is my name"
 
             let panel = createPanel form
 
             let allControls =
                 [
                     newLabel "Ohhhh!"
-                    newButton "Un bouton"
+                    newButton "Un bouton" onButtonClick
                     newLabel "Ohhhh!"
-                    newButton "Encore un bouton"
+                    newButton "Encore un bouton" onButtonClick
                     newLabel "Ohhhh!"
                 ]
 
-            createMenu(form)
+            createMenu form
 
             List.forall (fun e -> setUIStyleAndShow panel e) allControls
             |> ignore
@@ -98,12 +97,17 @@ module main =
             let onAppExit1 _ =
                 doLog "onExit1" |> ignore
                 ()
+
             Application.ApplicationExit.Add (fun args ->
-                doLog (sprintf "Application.ApplicationExit %A" args) |> ignore
+                doLog (sprintf "Application.ApplicationExit %A" args)
+                |> ignore
+
                 onAppExit1 args)
+
             form.Closed.Add (fun args ->
                 doLog (sprintf "Form.Closed %A" args) |> ignore
                 onAppExit1 args)
+
             onStart () |> ignore
             Application.Run form
 

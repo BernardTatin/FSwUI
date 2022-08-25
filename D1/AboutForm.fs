@@ -32,37 +32,56 @@
 namespace d1
 
 
+open System.Drawing
 open System.Windows.Forms
-open StartStateMachines
-open ExitStateMachine
 open LogTools.Logger
-open Tools
 open FormsTools
 
 module aboutForm =
+    let makeLabel (text: string) (withBorders: bool): Control =
+        let label = new Label (Text = text)
+        label.TextAlign <- ContentAlignment.MiddleCenter
+        if withBorders then
+            label.BorderStyle <- BorderStyle.FixedSingle
+        label
+
     let showAboutForm () =
         try
-            let form = new Form(Text = "About D1")
+            let form = new Form (Text = "About D1")
+            let width = form.Size.Width
+
             let panel = createPanel form
+            panel.Width <- width
             let addControl (control: Control) : bool =
                 control.AutoSize <- true
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+                control.Dock <- DockStyle.Fill
                 panel.Controls.Add control
                 true
             // because of the form.AcceptButton, had to do this...
-            let okButton = new Button()
-            okButton.Text <- "OK"
-            okButton.Click.Add (fun _ ->
-                doLog "about Form: click OK button" |> ignore
-                form.Close())
+            let okButtonOnClick =
+                (fun _ _ ->
+                    doLog "about Form: click OK button" |> ignore
+                    form.Close ())
+
             let controls =
                 [
-                    newLabel "D1, for the fun of Windows Forms in F#"
-                    okButton
+                    makeLabel "D1, for the fun of Windows Forms in F#" true
+                    makeLabel "" false
+                    makeLabel "(c) 2022" true
+                    makeLabel "" false
+                    newButton "Ok" okButtonOnClick
                 ]
+
             doLog "Start of showAboutForm" |> ignore
+            // Define the border style of the form to a dialog box.
+            form.FormBorderStyle <- FormBorderStyle.FixedDialog
+            // Set the MaximizeBox to false to remove the maximize box.
+            form.MaximizeBox <- false
+            // Set the MinimizeBox to false to remove the minimize box.
+            form.MinimizeBox <- false
+
             List.forall addControl controls |> ignore
-            form.AcceptButton <- okButton
             form.ShowDialog () |> ignore
         finally
             doLog "End of showAboutForm" |> ignore

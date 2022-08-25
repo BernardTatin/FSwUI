@@ -32,16 +32,13 @@ namespace d1
 
 
 open System.Windows.Forms
-open StartStateMachines
-open ExitStateMachine
-open LogTools.Logger
-open Tools
 
 module FormsTools =
 
-    let newButton text : Control =
+    let newButton (text: string) (onClick: Button -> MouseEventArgs -> unit) : Control =
         let button = new Button ()
         button.Text <- text
+        button.MouseClick.Add (fun (event: MouseEventArgs) -> onClick button event)
         button
 
     let newLabel (text: string) : Control =
@@ -59,3 +56,8 @@ module FormsTools =
         // panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Top ||| AnchorStyles.Bottom)
         form.Controls.Add panel
         panel
+
+    let newMenuEntry (text: string) onClick =
+        let menuEntry = new ToolStripButton (text)
+        menuEntry.Click.Add (fun arg -> onClick menuEntry arg)
+        menuEntry

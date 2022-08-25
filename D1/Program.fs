@@ -23,6 +23,7 @@
 namespace d1
 
 
+open System
 open System.Windows.Forms
 open StartStateMachines
 open ExitStateMachine
@@ -43,25 +44,29 @@ module main =
 
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
-
-        element.AutoSize <- true
-        // element.Dock <- DockStyle.Fill
         element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         panel.Controls.Add element
-
         true
 
     let createMenu (form: Form) =
         let menu = new MenuStrip ()
 
         let menuAbout =
-            newMenuEntry "About" (fun _ _ -> showAboutForm ())
+            newMenuEntry "&About" (fun _ _ -> showAboutForm ())
 
         let menuQuit =
-            newMenuEntry "Quit" (fun _ _ -> form.Close ())
+            newMenuEntry "&Quit" (fun _ _ -> form.Close ())
 
+        let fullMenu = new ToolStripDropDown()
+        fullMenu.Text <- "Menu"
+        fullMenu.Items.Add menuAbout |> ignore
+        fullMenu.Items.Add menuQuit |> ignore
+        // bien compliqué, tout ça, hein? JE VEUX un truc SIMPLE pour faire un MENU!
+        // does not work
+        // menu.Items.Add fullMenu
         menu.Items.Add menuQuit |> ignore
         menu.Items.Add menuAbout |> ignore
+        form.MainMenuStrip <- menu
         form.Controls.Add menu
         ()
 
@@ -82,11 +87,13 @@ module main =
 
             let allControls =
                 [
-                    newLabel "Ohhhh!"
-                    newButton "Un bouton" onButtonClick
-                    newLabel "Ohhhh!"
-                    newButton "Encore un bouton" onButtonClick
-                    newLabel "Ohhhh!"
+                    makeLabel (sprintf "OS: %s" (Environment.OSVersion.ToString())) true
+                    makeLabel (sprintf "Machine:") false
+                    makeLabel (sprintf "%s" Environment.MachineName) true
+                    makeLabel (sprintf "Directory:") false
+                    makeLabel (sprintf "%s" Environment.CurrentDirectory) true
+                    makeLabel (sprintf "System Directory:") false
+                    makeLabel (sprintf "%s" Environment.SystemDirectory) true
                 ]
 
             createMenu form

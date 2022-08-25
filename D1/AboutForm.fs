@@ -38,12 +38,6 @@ open LogTools.Logger
 open FormsTools
 
 module aboutForm =
-    let makeLabel (text: string) (withBorders: bool): Control =
-        let label = new Label (Text = text)
-        label.TextAlign <- ContentAlignment.MiddleCenter
-        if withBorders then
-            label.BorderStyle <- BorderStyle.FixedSingle
-        label
 
     let showAboutForm () =
         try
@@ -53,7 +47,6 @@ module aboutForm =
             let panel = createPanel form
             panel.Width <- width
             let addControl (control: Control) : bool =
-                control.AutoSize <- true
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
                 control.Dock <- DockStyle.Fill
                 panel.Controls.Add control

@@ -37,12 +37,21 @@ module FormsTools =
 
     let newButton (text: string) (onClick: Button -> MouseEventArgs -> unit) : Control =
         let button = new Button ()
+        button.AutoSize <- true
         button.Text <- text
         button.MouseClick.Add (fun (event: MouseEventArgs) -> onClick button event)
         button
 
     let newLabel (text: string) : Control =
         let label = new Label (Text = text)
+        label.AutoSize <- true
+        label
+
+    let makeLabel (text: string) (withBorders: bool): Control =
+        let label = new Label (Text = text)
+        label.AutoSize <- true
+        if withBorders then
+            label.BorderStyle <- BorderStyle.FixedSingle
         label
 
     let createPanel (form: Form) : FlowLayoutPanel =

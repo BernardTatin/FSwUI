@@ -32,6 +32,7 @@ namespace d1
 
 
 open System.Windows.Forms
+open System.Drawing
 
 module FormsTools =
 
@@ -61,9 +62,30 @@ module FormsTools =
         panel.Dock <- DockStyle.Fill
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.TopDown
-        // panel.AutoSize <- true
-        // panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Top ||| AnchorStyles.Bottom)
+        // for debug purpose
+        // panel.BackColor <- Color.Crimson
         form.Controls.Add panel
+        panel
+
+    let getHzPanel() : FlowLayoutPanel =
+        let panel = new FlowLayoutPanel ()
+
+        // Works on Linux, not sure on Windows
+        panel.Dock <- DockStyle.None
+        panel.AutoSize <- true
+        panel.WrapContents <- false
+        panel.FlowDirection <- FlowDirection.LeftToRight
+
+        // for debug purpose
+        // panel.BackColor <- Color.Crimson
+        panel
+
+    let getTabPanel (cols: int) (rows: int) =
+        let panel = new TableLayoutPanel()
+        panel.Dock <- DockStyle.None
+        panel.AutoSize <- true
+        panel.ColumnCount <- cols
+        panel.RowCount <- rows
         panel
 
     let newMenuEntry (text: string) onClick =

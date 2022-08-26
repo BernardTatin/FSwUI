@@ -25,6 +25,7 @@ namespace d1
 
 open System
 open System.Windows.Forms
+open System.Drawing
 open StartStateMachines
 open ExitStateMachine
 open LogTools.Logger
@@ -42,11 +43,6 @@ module main =
         doLog message |> ignore
         button.Text <- message
 
-
-    let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
-        element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-        panel.Controls.Add element
-        true
 
     let createMenu (form: Form) =
         let menu = new MenuStrip ()
@@ -70,6 +66,12 @@ module main =
         form.Controls.Add menu
         ()
 
+    let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
+        element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        panel.Controls.Add element
+        true
+
+
     [<EntryPoint>]
     let main argv =
         try
@@ -79,27 +81,77 @@ module main =
                 doLog a |> ignore
 
             let form =
-                new Form (Width = 400, Height = 300, Visible = true)
+                new Form (Width = 400, Height = 600, Visible = true)
 
             form.Text <- "D1 is my name"
 
             let panel = createPanel form
+            let formFont = form.Font
+            let bigFontSize = formFont.Size + 2.0F
+            let smallFontSize = formFont.Size
+            let bigFont = new Font("Fira Sans", bigFontSize, FontStyle.Italic)
+            let smallFont = new Font("Fira Sans", smallFontSize, FontStyle.Regular)
+            form.Font <- smallFont
 
-            let allControls =
-                [
-                    makeLabel (sprintf "OS: %s" (Environment.OSVersion.ToString())) true
-                    makeLabel (sprintf "Machine:") false
-                    makeLabel (sprintf "%s" Environment.MachineName) true
-                    makeLabel (sprintf "Directory:") false
-                    makeLabel (sprintf "%s" Environment.CurrentDirectory) true
-                    makeLabel (sprintf "System Directory:") false
-                    makeLabel (sprintf "%s" Environment.SystemDirectory) true
-                ]
+            let mkNameLabel (name : string) : Label =
+                let nameLabel = newLabel name
+                nameLabel.Anchor <- AnchorStyles.Left
+                nameLabel.Font <- bigFont
+                // casting, cf
+                //   https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/casting-and-conversions
+                nameLabel :?> Label
+
+            let mkValueLabel (value: string) : Label =
+                let valueLabel = makeLabel value true
+                valueLabel.Anchor <- AnchorStyles.Right
+                valueLabel.Font <- smallFont
+                valueLabel :?> Label
+
+            let showValue (name: string) (value: string) =
+
+                let nameLabel = mkNameLabel name
+                let valueLabel = mkValueLabel value
+                let lpanel = getTabPanel 2 1
+                lpanel.Controls.Add nameLabel
+                lpanel.Controls.Add valueLabel
+                panel.Controls.Add lpanel
+                ()
+
+            let showValues (name: string) (values: string[]) =
+                let nameLabel = mkNameLabel name
+                panel.Controls.Add nameLabel
+                let makeValueLabel (value: string) =
+                    let valueLabel = mkValueLabel value
+                    panel.Controls.Add valueLabel
+
+                for v in values do
+                    makeValueLabel v
+
+                ()
+
+
+            showValue "Font" (sprintf "%s - %s" bigFont.Name (bigFont.Style.ToString()))
+            showValue "Operating System" (sprintf "%s (%s bits)"
+                                              (Environment.OSVersion.ToString())
+                                              (if Environment.Is64BitOperatingSystem then "64" else "32"))
+            showValue "Machine" Environment.MachineName
+            showValue "Processors" (sprintf "%d" Environment.ProcessorCount)
+            showValue "Page size" (sprintf "%d" Environment.SystemPageSize)
+
+            showValue "CLI Version" (Environment.Version.ToString())
+
+            showValue "Memory used by this process" (sprintf "%d" Environment.WorkingSet)
+            showValue "64 bits process" (if Environment.Is64BitProcess then "yes" else "no")
+            showValue "Directory" Environment.CurrentDirectory
+
+            showValue "System Directory" Environment.SystemDirectory
+            showValues "Logical drives/Mount points" (Environment.GetLogicalDrives())
+
+            showValue "User name" Environment.UserName
+            showValue "User domain" Environment.UserDomainName
+
 
             createMenu form
-
-            List.forall (fun e -> setUIStyleAndShow panel e) allControls
-            |> ignore
 
             let onAppExit1 _ =
                 doLog "onExit1" |> ignore

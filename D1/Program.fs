@@ -122,8 +122,8 @@ module main =
             let panel = createPanel form
 
             form.Font <- smallFont
-
-            let _, yLab = showValueR "Windows dimension" (sprintf "%d x %d" form.Width form.Height) panel
+            let getWinDim() = (sprintf "%d x %d" form.Width form.Height)
+            let _, yLab = showValueR "Windows dimension" (getWinDim()) panel
             // font: Name != OriginalName sie la font Name  n'existe pas
             //       il y a peut-être d'autres cas
             showValue "Font" (sprintf "%s - %s" bigFont.Name (bigFont.Style.ToString ())) panel
@@ -149,7 +149,8 @@ module main =
 
             showValue "CLI Version" (Environment.Version.ToString ()) panel
 
-            let _, memLab = showValueR "Memory used by this process" (sprintf "%d Ko" (Environment.WorkingSet / 1024L)) panel
+            let getMemoryValue() = (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+            let _, memLab = showValueR "Memory used by this process" (getMemoryValue()) panel
 
             showValue
                 "64 bits process"
@@ -170,15 +171,15 @@ module main =
             let timer = new Timer()
             timer.Tick.Add (fun _ ->
                 timer.Stop()
-                memLab.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+                memLab.Text <- (getMemoryValue())
                 timer.Enabled <- true)
             timer.Interval <- 1000
             timer.Start()
 
             createMenu form
             form.Resize.Add (fun _ ->
-                memLab.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
-                yLab.Text <- (sprintf "%d x %d" form.Width form.Height))
+                memLab.Text <- (getMemoryValue())
+                yLab.Text <- (getWinDim()))
             let onAppExit1 _ =
                 doLog "onExit1" |> ignore
                 ()

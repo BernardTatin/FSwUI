@@ -32,9 +32,9 @@
 namespace d1
 
 
-open System.Drawing
 open System.Windows.Forms
 open LogTools.Logger
+open D1Fonts
 open FormsTools
 
 module aboutForm =
@@ -42,8 +42,10 @@ module aboutForm =
     let showAboutForm () =
         try
             let form = new Form (Text = "About D1")
+
             let width = form.Size.Width
 
+            form.Font <- smallFont
             let panel = createPanel form
             panel.Width <- width
             let addControl (control: Control) : bool =

@@ -30,17 +30,17 @@
 
 namespace d1
 
-
+open System
 open System.Windows.Forms
-open System.Drawing
+open Tools.BasicStuff
 
 module FormsTools =
 
-    let newButton (text: string) (onClick: Button -> MouseEventArgs -> unit) : Control =
+    let newButton (text: string) (onClick: Button -> EventArgs -> unit) : Control =
         let button = new Button ()
         button.AutoSize <- true
         button.Text <- text
-        button.MouseClick.Add (fun (event: MouseEventArgs) -> onClick button event)
+        button.Click.Add (fun event -> onClick button event)
         button
 
     let newLabel (text: string) : Control =
@@ -75,6 +75,8 @@ module FormsTools =
         panel.AutoSize <- true
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.LeftToRight
+        if isWindows() then
+            panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
 
         // for debug purpose
         // panel.BackColor <- Color.Crimson

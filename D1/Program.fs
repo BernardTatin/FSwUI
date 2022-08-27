@@ -25,24 +25,18 @@ namespace d1
 
 open System
 open System.Windows.Forms
-open System.Drawing
 open StartStateMachines
 open ExitStateMachine
 open LogTools.Logger
 open Tools
 open BasicStuff
+open D1Fonts
 open FormsTools
 open aboutForm
 
 module main =
-
-    let onButtonClick (button: Button) (arg: MouseEventArgs) =
-        let x = arg.X
-        let y = arg.Y
-        let message = (sprintf "(%4d %4d)" x y)
-        doLog message |> ignore
-        button.Text <- message
-
+    let form =
+        new Form (Width = 500, Height = 700, Visible = true)
 
     let createMenu (form: Form) =
         let menu = new MenuStrip ()
@@ -53,7 +47,7 @@ module main =
         let menuQuit =
             newMenuEntry "&Quit" (fun _ _ -> form.Close ())
 
-        let fullMenu = new ToolStripDropDown()
+        let fullMenu = new ToolStripDropDown ()
         fullMenu.Text <- "Menu"
         fullMenu.Items.Add menuAbout |> ignore
         fullMenu.Items.Add menuQuit |> ignore
@@ -71,6 +65,49 @@ module main =
         panel.Controls.Add element
         true
 
+    let mkNameLabel (name: string) : Label =
+        let nameLabel = newLabel name :?> Label
+        nameLabel.Anchor <- AnchorStyles.Left
+        nameLabel.Font <- bigFont
+        // casting, cf
+        //   https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/casting-and-conversions
+        nameLabel
+
+    let mkValueLabel (value: string) : Label =
+        let valueLabel =
+            makeLabel value true :?> Label
+
+        valueLabel.Anchor <- AnchorStyles.Right
+        valueLabel.Font <- smallFont
+        valueLabel
+
+    let showValueR (name: string) (value: string) (panel: FlowLayoutPanel) =
+
+        let nameLabel = mkNameLabel name
+        let valueLabel = mkValueLabel value
+        let lPanel = getTabPanel 2 1
+        if isWindows() then
+            lPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        lPanel.Controls.Add nameLabel
+        lPanel.Controls.Add valueLabel
+        panel.Controls.Add lPanel
+        (nameLabel, valueLabel)
+    let showValue (name: string) (value: string) (panel: FlowLayoutPanel) =
+        showValueR name value panel |> ignore
+        ()
+
+    let showValues (name: string) (values: string []) (panel: FlowLayoutPanel) =
+        let nameLabel = mkNameLabel name
+        panel.Controls.Add nameLabel
+
+        let makeValueLabel (value: string) =
+            let valueLabel = mkValueLabel value
+            panel.Controls.Add valueLabel
+
+        for v in values do
+            makeValueLabel v
+
+        ()
 
     [<EntryPoint>]
     let main argv =
@@ -80,79 +117,68 @@ module main =
             for a in argv do
                 doLog a |> ignore
 
-            let form =
-                new Form (Width = 400, Height = 600, Visible = true)
-
             form.Text <- "D1 is my name"
 
             let panel = createPanel form
-            let formFont = form.Font
-            let bigFontSize = formFont.Size + 2.0F
-            let smallFontSize = formFont.Size
-            let bigFont = new Font("Fira Sans", bigFontSize, FontStyle.Italic)
-            let smallFont = new Font("Fira Sans", smallFontSize, FontStyle.Regular)
+
             form.Font <- smallFont
 
-            let mkNameLabel (name : string) : Label =
-                let nameLabel = newLabel name
-                nameLabel.Anchor <- AnchorStyles.Left
-                nameLabel.Font <- bigFont
-                // casting, cf
-                //   https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/casting-and-conversions
-                nameLabel :?> Label
+            let _, yLab = showValueR "Windows dimension" (sprintf "%d x %d" form.Width form.Height) panel
+            // font: Name != OriginalName sie la font Name  n'existe pas
+            //       il y a peut-être d'autres cas
+            showValue "Font" (sprintf "%s - %s" bigFont.Name (bigFont.Style.ToString ())) panel
+            showValue "" bigFont.OriginalFontName panel
+            if bigFont.IsSystemFont then
+                showValue "" bigFont.SystemFontName panel
+            showValue "Font size/unit" (sprintf "%f / %s" bigFont.Size (bigFont.Unit.ToString())) panel
 
-            let mkValueLabel (value: string) : Label =
-                let valueLabel = makeLabel value true
-                valueLabel.Anchor <- AnchorStyles.Right
-                valueLabel.Font <- smallFont
-                valueLabel :?> Label
+            showValue
+                "Operating System"
+                (sprintf
+                    "%s (%s bits)"
+                    (Environment.OSVersion.ToString ())
+                    (if Environment.Is64BitOperatingSystem then
+                         "64"
+                     else
+                         "32"))
+                panel
 
-            let showValue (name: string) (value: string) =
+            showValue "Machine" Environment.MachineName panel
+            showValue "Processors" (sprintf "%d" Environment.ProcessorCount) panel
+            showValue "Page size" (sprintf "%d" Environment.SystemPageSize) panel
 
-                let nameLabel = mkNameLabel name
-                let valueLabel = mkValueLabel value
-                let lpanel = getTabPanel 2 1
-                lpanel.Controls.Add nameLabel
-                lpanel.Controls.Add valueLabel
-                panel.Controls.Add lpanel
-                ()
+            showValue "CLI Version" (Environment.Version.ToString ()) panel
 
-            let showValues (name: string) (values: string[]) =
-                let nameLabel = mkNameLabel name
-                panel.Controls.Add nameLabel
-                let makeValueLabel (value: string) =
-                    let valueLabel = mkValueLabel value
-                    panel.Controls.Add valueLabel
+            let _, memLab = showValueR "Memory used by this process" (sprintf "%d Ko" (Environment.WorkingSet / 1024L)) panel
 
-                for v in values do
-                    makeValueLabel v
+            showValue
+                "64 bits process"
+                (if Environment.Is64BitProcess then
+                     "yes"
+                 else
+                     "no")
+                panel
 
-                ()
+            showValue "Directory" Environment.CurrentDirectory panel
 
+            showValue "System Directory" Environment.SystemDirectory panel
+            showValues "Logical drives/Mount points" (Environment.GetLogicalDrives ()) panel
 
-            showValue "Font" (sprintf "%s - %s" bigFont.Name (bigFont.Style.ToString()))
-            showValue "Operating System" (sprintf "%s (%s bits)"
-                                              (Environment.OSVersion.ToString())
-                                              (if Environment.Is64BitOperatingSystem then "64" else "32"))
-            showValue "Machine" Environment.MachineName
-            showValue "Processors" (sprintf "%d" Environment.ProcessorCount)
-            showValue "Page size" (sprintf "%d" Environment.SystemPageSize)
+            showValue "User name" Environment.UserName panel
+            showValue "User domain" Environment.UserDomainName panel
 
-            showValue "CLI Version" (Environment.Version.ToString())
-
-            showValue "Memory used by this process" (sprintf "%d" Environment.WorkingSet)
-            showValue "64 bits process" (if Environment.Is64BitProcess then "yes" else "no")
-            showValue "Directory" Environment.CurrentDirectory
-
-            showValue "System Directory" Environment.SystemDirectory
-            showValues "Logical drives/Mount points" (Environment.GetLogicalDrives())
-
-            showValue "User name" Environment.UserName
-            showValue "User domain" Environment.UserDomainName
-
+            let timer = new Timer()
+            timer.Tick.Add (fun _ ->
+                timer.Stop()
+                memLab.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+                timer.Enabled <- true)
+            timer.Interval <- 1000
+            timer.Start()
 
             createMenu form
-
+            form.Resize.Add (fun _ ->
+                memLab.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+                yLab.Text <- (sprintf "%d x %d" form.Width form.Height))
             let onAppExit1 _ =
                 doLog "onExit1" |> ignore
                 ()
@@ -160,7 +186,6 @@ module main =
             Application.ApplicationExit.Add (fun args ->
                 doLog (sprintf "Application.ApplicationExit %A" args)
                 |> ignore
-
                 onAppExit1 args)
 
             form.Closed.Add (fun args ->
@@ -175,5 +200,5 @@ module main =
             else
                 (int SYSExit.Failure)
         finally
-            doLog "Finaly, exit!" |> ignore
+            doLog "Finally, exit!" |> ignore
             closeLog () |> ignore

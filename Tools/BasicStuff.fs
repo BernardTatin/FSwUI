@@ -37,10 +37,17 @@ module BasicStuff =
         | Success = 0
         | Failure = 127
 
+    type OSFamily =
+        | Windows = 0
+        | Unix = 1
+        | MacOSX = 2
+        | Other = 3
+        | Error = 127
+
     let on_error message =
         match message with
         | "" -> eprintfn "FATAL ERROR!!"
-        | str -> eprintfn "ERROR %s!!" message
+        | str -> eprintfn "ERROR %s!!" str
 
         exit (int SYSExit.Failure)
 
@@ -54,3 +61,29 @@ module BasicStuff =
             |> ignore
 
             0
+
+    let private osFamily =
+        match Environment.OSVersion.Platform with
+        | PlatformID.Win32S
+        | PlatformID.Win32Windows
+        | PlatformID.Win32NT ->
+            OSFamily.Windows
+        | PlatformID.Unix ->
+            OSFamily.MacOSX
+        | PlatformID.Xbox ->
+            OSFamily.Other
+        | _ ->
+            OSFamily.Error
+
+    let getOSFamily() : OSFamily =
+        osFamily
+
+    let isWindows() : bool =
+        match osFamily with
+        | OSFamily.Windows -> true
+        | _ -> false
+
+    let isUnix() : bool =
+        match osFamily with
+        | OSFamily.Unix -> true
+        | _ -> false

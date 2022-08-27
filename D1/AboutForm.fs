@@ -41,7 +41,7 @@ module aboutForm =
 
     let showAboutForm () =
         try
-            let form = new Form (Text = "About D1")
+            let form = new Form (Width = 330, Height = 200, Text = "About D1")
 
             let width = form.Size.Width
 

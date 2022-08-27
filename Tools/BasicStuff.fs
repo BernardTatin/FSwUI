@@ -69,6 +69,8 @@ module BasicStuff =
         | PlatformID.Win32NT ->
             OSFamily.Windows
         | PlatformID.Unix ->
+            OSFamily.Unix
+        | PlatformID.MacOSX ->
             OSFamily.MacOSX
         | PlatformID.Xbox ->
             OSFamily.Other

@@ -6,4 +6,8 @@ riderModule.iml
 /.idea/.idea.FSwUI/.idea
 /.vs/FSwUI
 /Docs/
+docs/
+build/
 FSwUI.sln.DotSettings.user
+
+dotnet-tools.json

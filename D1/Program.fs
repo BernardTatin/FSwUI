@@ -33,14 +33,15 @@ open LogTools.Logger
 open Tools
 open BasicStuff
 open D1Fonts
+open D1Form
 open FormsTools
 open aboutForm
 
 module main =
     let form =
-        new Form (Width = 500, Height = 700, Visible = true)
+        new DForm ( 500,  700, "D1 is my name")
 
-    let createMenu (form: Form) =
+    let createMenu (form: DForm) =
         let menu = new MenuStrip ()
 
         let menuAbout =
@@ -58,8 +59,8 @@ module main =
         // menu.Items.Add fullMenu
         menu.Items.Add menuQuit |> ignore
         menu.Items.Add menuAbout |> ignore
-        form.MainMenuStrip <- menu
-        form.Controls.Add menu
+        // form.MainMenuStrip <- menu
+        form.addMenu menu
         ()
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
@@ -127,13 +128,9 @@ module main =
             // Windows: first argument is not the name of the program !!
             for a in argv do
                 doLog a |> ignore
-
-            form.Text <- "D1 is my name"
-
-            let panel = createPanel form
-
-            form.Font <- smallFont
-            let getWinDim() = (sprintf "%d x %d" form.Width form.Height)
+            form.initialize()
+            let panel = form.getPanel()
+            let getWinDim() = (sprintf "%d x %d" (form.Width()) (form.Height()))
             let _, yLab = showValueR "Windows dimension" (getWinDim()) panel
             // font: Name != OriginalName sie la font Name  n'existe pas
             //       il y a peut-être d'autres cas
@@ -188,7 +185,7 @@ module main =
             timer.Start()
 
             createMenu form
-            form.Resize.Add (fun _ ->
+            form.addResize (fun _ ->
                 memLab.Text <- (getMemoryValue())
                 yLab.Text <- (getWinDim()))
             let onAppExit1 _ =
@@ -200,12 +197,12 @@ module main =
                 |> ignore
                 onAppExit1 args)
 
-            form.Closed.Add (fun args ->
+            form.addClosed (fun args ->
                 doLog (sprintf "Form.Closed %A" args) |> ignore
                 onAppExit1 args)
 
             onStart () |> ignore
-            Application.Run form
+            form.run()
 
             if onExit () then
                 (int SYSExit.Success)

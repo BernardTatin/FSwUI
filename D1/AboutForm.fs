@@ -36,22 +36,18 @@ open System.Windows.Forms
 open LogTools.Logger
 open D1Fonts
 open FormsTools
+open D1Form
 
 module aboutForm =
 
     let showAboutForm () =
         try
-            let form = new Form (Width = 330, Height = 200, Text = "About D1")
-
-            let width = form.Size.Width
-
-            form.Font <- smallFont
-            let panel = createPanel form
-            panel.Width <- width
+            let form = new DForm ( 330,  200,  "About D1")
+            form.initialize()
             let addControl (control: Control) : bool =
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
                 control.Dock <- DockStyle.Fill
-                panel.Controls.Add control
+                form.addControl control
                 true
             // because of the form.AcceptButton, had to do this...
             let okButtonOnClick =
@@ -69,12 +65,6 @@ module aboutForm =
                 ]
 
             doLog "Start of showAboutForm" |> ignore
-            // Define the border style of the form to a dialog box.
-            form.FormBorderStyle <- FormBorderStyle.FixedDialog
-            // Set the MaximizeBox to false to remove the maximize box.
-            form.MaximizeBox <- false
-            // Set the MinimizeBox to false to remove the minimize box.
-            form.MinimizeBox <- false
 
             List.forall addControl controls |> ignore
             form.ShowDialog () |> ignore

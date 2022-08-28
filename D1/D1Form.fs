@@ -29,6 +29,7 @@
  *)
 
 namespace d1
+open System
 open System.Windows.Forms
 open D1Fonts
 open FormsTools
@@ -59,19 +60,51 @@ module D1Form =
         /// the wrapped form
         let form = new Form(Width=width, Height=height, Text=title)
 
+        let bottomTips = getTabPanel 2 1
+        let labTime = new Label()
+        let labSize = new Label()
+        let timer = new Timer()
+
         /// the back panel which receive all the controls
         let backPanel = createPanel(form)
+
+        let refreshTips() =
+            let now = DateTime.Now
+            labSize.Text <- (sprintf "%4d x %4d" form.Width form.Height)
+            labTime.Text <- (sprintf "%02d:%02d:%02d" now.Hour now.Minute now.Second)
 
         /// a resize callback to ensure the back panel is always of the good size
         /// <remarks>not sure it's useful</remarks>
         let basicResize() =
-            backPanel.Width <- form.Width
-            backPanel.Height <- form.Height
+            refreshTips()
             doLog (sprintf "basic resize of %s %d %d" title form.Width form.Height) |> ignore
+
+        let onTimerClick _ =
+            timer.Stop()
+            refreshTips()
+            timer.Enabled <- true
 
         /// initialize the form
         member this.initialize() =
             form.Font <- smallFont
+            form.Controls.Add bottomTips
+            // bottomTips.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Bottom)
+            bottomTips.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            bottomTips.Dock <- DockStyle.Bottom
+
+            labTime.Dock <- DockStyle.Right
+            labTime.Anchor <- AnchorStyles.Right
+            labSize.Dock <- DockStyle.Left
+            labSize.Anchor <- AnchorStyles.Left
+            bottomTips.Controls.Add labSize
+            bottomTips.Controls.Add labTime
+
+            refreshTips()
+
+            timer.Interval <- 1000
+            timer.Tick.Add onTimerClick
+            timer .Start()
+
             form.Resize.Add (fun _ -> basicResize())
 
         /// add a control to the back panel

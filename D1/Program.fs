@@ -43,23 +43,23 @@ module main =
 
     let createMenu (form: DForm) =
         let menu = new MenuStrip ()
+        menu.Font <- smallFont
 
+        let menuHelp =
+            newMenu "&Help"
         let menuAbout =
             newMenuEntry "&About" (fun _ _ -> showAboutForm ())
+        menuHelp.DropDownItems.Add menuAbout |> ignore
 
+        let menuFile =
+            newMenu "&File"
         let menuQuit =
             newMenuEntry "&Quit" (fun _ _ -> form.Close ())
+        menuQuit.ShortcutKeys <- Keys.Control ||| Keys.Q
+        menuFile.DropDownItems.Add menuQuit |> ignore
 
-        let fullMenu = new ToolStripDropDown ()
-        fullMenu.Text <- "Menu"
-        fullMenu.Items.Add menuAbout |> ignore
-        fullMenu.Items.Add menuQuit |> ignore
-        // bien compliqué, tout ça, hein? JE VEUX un truc SIMPLE pour faire un MENU!
-        // does not work
-        // menu.Items.Add fullMenu
-        menu.Items.Add menuQuit |> ignore
-        menu.Items.Add menuAbout |> ignore
-        // form.MainMenuStrip <- menu
+        menu.Items.Add menuFile |> ignore
+        menu.Items.Add menuHelp |> ignore
         form.addMenu menu
         ()
 

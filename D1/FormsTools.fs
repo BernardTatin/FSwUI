@@ -90,7 +90,11 @@ module FormsTools =
         panel.RowCount <- rows
         panel
 
+    let newMenu (text: string) =
+        let menuEntry = new ToolStripMenuItem (text)
+        menuEntry
+
     let newMenuEntry (text: string) onClick =
-        let menuEntry = new ToolStripButton (text)
+        let menuEntry = new ToolStripMenuItem (text)
         menuEntry.Click.Add (fun arg -> onClick menuEntry arg)
         menuEntry

@@ -24,40 +24,43 @@ namespace d1
 
 
 open System
+open System.Drawing
 open System.Windows.Forms
+open System.Drawing.Text
 open StartStateMachines
 open ExitStateMachine
 open LogTools.Logger
 open Tools
 open BasicStuff
 open D1Fonts
+open D1Form
 open FormsTools
 open aboutForm
 
 module main =
     let form =
-        new Form (Width = 500, Height = 700, Visible = true)
+        new DForm ( 500,  700, "D1 is my name")
 
-    let createMenu (form: Form) =
+    let createMenu (form: DForm) =
         let menu = new MenuStrip ()
+        menu.Font <- smallFont
 
+        let menuHelp =
+            newMenu "&Help"
         let menuAbout =
             newMenuEntry "&About" (fun _ _ -> showAboutForm ())
+        menuHelp.DropDownItems.Add menuAbout |> ignore
 
+        let menuFile =
+            newMenu "&File"
         let menuQuit =
             newMenuEntry "&Quit" (fun _ _ -> form.Close ())
+        menuQuit.ShortcutKeys <- Keys.Control ||| Keys.Q
+        menuFile.DropDownItems.Add menuQuit |> ignore
 
-        let fullMenu = new ToolStripDropDown ()
-        fullMenu.Text <- "Menu"
-        fullMenu.Items.Add menuAbout |> ignore
-        fullMenu.Items.Add menuQuit |> ignore
-        // bien compliqué, tout ça, hein? JE VEUX un truc SIMPLE pour faire un MENU!
-        // does not work
-        // menu.Items.Add fullMenu
-        menu.Items.Add menuQuit |> ignore
-        menu.Items.Add menuAbout |> ignore
-        form.MainMenuStrip <- menu
-        form.Controls.Add menu
+        menu.Items.Add menuFile |> ignore
+        menu.Items.Add menuHelp |> ignore
+        form.addMenu menu
         ()
 
     let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
@@ -109,28 +112,33 @@ module main =
 
         ()
 
+    let logFonts() =
+        let iFontCollection = new InstalledFontCollection()
+        let fontCollection = iFontCollection.Families
+        for c in fontCollection do
+            doLog (sprintf "%s %A" c.Name (c.IsStyleAvailable(FontStyle.Italic))) |> ignore
+        ()
+
+
     [<EntryPoint>]
     let main argv =
         try
             openLog () |> ignore
+            logFonts()
             // Windows: first argument is not the name of the program !!
             for a in argv do
                 doLog a |> ignore
-
-            form.Text <- "D1 is my name"
-
-            let panel = createPanel form
-
-            form.Font <- smallFont
-            let getWinDim() = (sprintf "%d x %d" form.Width form.Height)
+            form.initialize()
+            let panel = form.getPanel()
+            let getWinDim() = (sprintf "%d x %d" (form.Width()) (form.Height()))
             let _, yLab = showValueR "Windows dimension" (getWinDim()) panel
             // font: Name != OriginalName sie la font Name  n'existe pas
             //       il y a peut-être d'autres cas
-            showValue "Font" (sprintf "%s - %s" bigFont.Name (bigFont.Style.ToString ())) panel
-            showValue "" bigFont.OriginalFontName panel
-            if bigFont.IsSystemFont then
-                showValue "" bigFont.SystemFontName panel
-            showValue "Font size/unit" (sprintf "%f / %s" bigFont.Size (bigFont.Unit.ToString())) panel
+            showValue "Font" (sprintf "%s - %s" smallFont.Name (smallFont.Style.ToString ())) panel
+            showValue "" smallFont.OriginalFontName panel
+            if smallFont.IsSystemFont then
+                showValue "" smallFont.SystemFontName panel
+            showValue "Font size/unit" (sprintf "%f / %s" smallFont.Size (smallFont.Unit.ToString())) panel
 
             showValue
                 "Operating System"
@@ -177,7 +185,7 @@ module main =
             timer.Start()
 
             createMenu form
-            form.Resize.Add (fun _ ->
+            form.addResize (fun _ ->
                 memLab.Text <- (getMemoryValue())
                 yLab.Text <- (getWinDim()))
             let onAppExit1 _ =
@@ -189,12 +197,12 @@ module main =
                 |> ignore
                 onAppExit1 args)
 
-            form.Closed.Add (fun args ->
+            form.addClosed (fun args ->
                 doLog (sprintf "Form.Closed %A" args) |> ignore
                 onAppExit1 args)
 
             onStart () |> ignore
-            Application.Run form
+            form.run()
 
             if onExit () then
                 (int SYSExit.Success)

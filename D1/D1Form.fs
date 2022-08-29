@@ -30,9 +30,12 @@
 
 namespace d1
 open System
+open System.Drawing
 open System.Windows.Forms
+open Tools.BasicStuff
 open D1Fonts
 open FormsTools
+open FontTools
 open LogTools.Logger
 
 
@@ -60,9 +63,10 @@ module D1Form =
         /// the wrapped form
         let form = new Form(Width=width, Height=height, Text=title)
 
-        let bottomTips = getTabPanel 2 1
+        let bottomTips = getTabPanel (if isUnix() then 2 else 3) 1
         let labTime = new Label()
         let labSize = new Label()
+        let labMemory = new Label()
         let timer = new Timer()
 
         /// the back panel which receive all the controls
@@ -70,6 +74,8 @@ module D1Form =
 
         let refreshTips() =
             let now = DateTime.Now
+            if (not (isUnix())) then
+                labMemory.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
             labSize.Text <- (sprintf "%4d x %4d" form.Width form.Height)
             labTime.Text <- (sprintf "%02d:%02d:%02d" now.Hour now.Minute now.Second)
 
@@ -91,13 +97,23 @@ module D1Form =
             // bottomTips.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right ||| AnchorStyles.Bottom)
             bottomTips.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
             bottomTips.Dock <- DockStyle.Bottom
+            bottomTips.BorderStyle <- BorderStyle.Fixed3D
+            bottomTips.BackColor <- Color.White
 
             labTime.Dock <- DockStyle.Right
             labTime.Anchor <- AnchorStyles.Right
             labSize.Dock <- DockStyle.Left
             labSize.Anchor <- AnchorStyles.Left
             bottomTips.Controls.Add labSize
+            if not (isUnix()) then
+                bottomTips.Controls.Add labMemory
             bottomTips.Controls.Add labTime
+
+            labTime.Font <- smallerFont FontStyle.Bold
+            labSize.Font <- smallerFont (FontStyle.Bold ||| FontStyle.Italic)
+            if not (isUnix()) then
+                labMemory.Font <- smallerFont (FontStyle.Bold ||| FontStyle.Italic)
+
 
             refreshTips()
 

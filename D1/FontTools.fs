@@ -34,6 +34,7 @@ open System.Drawing
 open Tools.BasicStuff
 module FontTools =
 
+    let smallFontSize = 9.0F
     let defaultFontSize = 10.0F
     let biggerFontSize = 12.0F
 
@@ -55,3 +56,12 @@ module FontTools =
 
     let defaultFont (size: float32) (style: FontStyle) : Font =
         newFont (defaultFontName "") size style
+
+    let smallerFont (style: FontStyle) : Font =
+        defaultFont smallFontSize style
+
+    let normalFont (style: FontStyle) : Font =
+        defaultFont defaultFontSize style
+
+    let biggerFont (style: FontStyle) : Font =
+        defaultFont biggerFontSize style

@@ -39,22 +39,24 @@ open aboutForm
 
 module main =
     let form =
-        new DForm ( 500,  700, "D1 is my name")
+        new DForm (500, 700, "D1 is my name")
 
     let createMenu (form: DForm) =
         let menu = new MenuStrip ()
         menu.Font <- smallFont
 
-        let menuHelp =
-            newMenu "&Help"
+        let menuHelp = newMenu "&Help"
+
         let menuAbout =
             newMenuEntry "&About" (fun _ _ -> showAboutForm ())
+
         menuHelp.DropDownItems.Add menuAbout |> ignore
 
-        let menuFile =
-            newMenu "&File"
+        let menuFile = newMenu "&File"
+
         let menuQuit =
             newMenuEntry "&Quit" (fun _ _ -> form.Close ())
+
         menuQuit.ShortcutKeys <- Keys.Control ||| Keys.Q
         menuFile.DropDownItems.Add menuQuit |> ignore
 
@@ -89,12 +91,15 @@ module main =
         let nameLabel = mkNameLabel name
         let valueLabel = mkValueLabel value
         let lPanel = getTabPanel 2 1
-        if isWindows() then
+
+        if isWindows () then
             lPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+
         lPanel.Controls.Add nameLabel
         lPanel.Controls.Add valueLabel
         panel.Controls.Add lPanel
         (nameLabel, valueLabel)
+
     let showValue (name: string) (value: string) (panel: FlowLayoutPanel) =
         showValueR name value panel |> ignore
         ()
@@ -112,11 +117,17 @@ module main =
 
         ()
 
-    let logFonts() =
-        let iFontCollection = new InstalledFontCollection()
-        let fontCollection = iFontCollection.Families
+    let logFonts () =
+        let iFontCollection =
+            new InstalledFontCollection ()
+
+        let fontCollection =
+            iFontCollection.Families
+
         for c in fontCollection do
-            doLog (sprintf "%s %A" c.Name (c.IsStyleAvailable(FontStyle.Italic))) |> ignore
+            doLog (sprintf "%s %A" c.Name (c.IsStyleAvailable (FontStyle.Italic)))
+            |> ignore
+
         ()
 
 
@@ -124,21 +135,27 @@ module main =
     let main argv =
         try
             openLog () |> ignore
-            logFonts()
+            logFonts ()
             // Windows: first argument is not the name of the program !!
             for a in argv do
                 doLog a |> ignore
-            form.initialize()
-            let panel = form.getPanel()
-            let getWinDim() = (sprintf "%d x %d" (form.Width()) (form.Height()))
-            let _, yLab = showValueR "Windows dimension" (getWinDim()) panel
+
+            let panel = form.Panel
+
+            let getWinDim () =
+                (sprintf "%d x %d" (form.Width) (form.Height))
+
+            let _, yLab =
+                showValueR "Windows dimension" (getWinDim ()) panel
             // font: Name != OriginalName sie la font Name  n'existe pas
             //       il y a peut-être d'autres cas
             showValue "Font" (sprintf "%s - %s" smallFont.Name (smallFont.Style.ToString ())) panel
             showValue "" smallFont.OriginalFontName panel
+
             if smallFont.IsSystemFont then
                 showValue "" smallFont.SystemFontName panel
-            showValue "Font size/unit" (sprintf "%f / %s" smallFont.Size (smallFont.Unit.ToString())) panel
+
+            showValue "Font size/unit" (sprintf "%f / %s" smallFont.Size (smallFont.Unit.ToString ())) panel
 
             showValue
                 "Operating System"
@@ -157,8 +174,11 @@ module main =
 
             showValue "CLI Version" (Environment.Version.ToString ()) panel
 
-            let getMemoryValue() = (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
-            let _, memLab = showValueR "Memory used by this process" (getMemoryValue()) panel
+            let getMemoryValue () =
+                (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+
+            let _, memLab =
+                showValueR "Memory used by this process" (getMemoryValue ()) panel
 
             showValue
                 "64 bits process"
@@ -176,18 +196,22 @@ module main =
             showValue "User name" Environment.UserName panel
             showValue "User domain" Environment.UserDomainName panel
 
-            let timer = new Timer()
+            let timer = new Timer ()
+
             timer.Tick.Add (fun _ ->
-                timer.Stop()
-                memLab.Text <- (getMemoryValue())
+                timer.Stop ()
+                memLab.Text <- (getMemoryValue ())
                 timer.Enabled <- true)
+
             timer.Interval <- 1000
-            timer.Start()
+            timer.Start ()
 
             createMenu form
-            form.addResize (fun _ ->
-                memLab.Text <- (getMemoryValue())
-                yLab.Text <- (getWinDim()))
+
+            form.Resize.Add (fun _ ->
+                memLab.Text <- (getMemoryValue ())
+                yLab.Text <- (getWinDim ()))
+
             let onAppExit1 _ =
                 doLog "onExit1" |> ignore
                 ()
@@ -195,14 +219,15 @@ module main =
             Application.ApplicationExit.Add (fun args ->
                 doLog (sprintf "Application.ApplicationExit %A" args)
                 |> ignore
+
                 onAppExit1 args)
 
-            form.addClosed (fun args ->
+            form.Closed.Add (fun args ->
                 doLog (sprintf "Form.Closed %A" args) |> ignore
                 onAppExit1 args)
 
             onStart () |> ignore
-            form.run()
+            Application.Run form
 
             if onExit () then
                 (int SYSExit.Success)

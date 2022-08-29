@@ -35,6 +35,46 @@
  *)
 open System
 
+let defaultName: string = "<uninitialized>"
+let defaultValue: int = 0
+/// a class
+type ClassBase(newName, newValue) as self =
+    let name: string = newName
+    let mutable value: int = newValue
+
+    new () = ClassBase(defaultName, defaultValue)
+    new ((s: string)) = ClassBase(s, defaultValue)
+    new ((i: int)) = ClassBase(defaultName, i)
+
+    member this.Value with get() = value and set(v)= value <- v
+
+    member this.show (className: string) =
+        printfn "%s(%s, %d)"  className name value
+    abstract member showMe: unit -> unit
+    default this.showMe() =
+        this.show "ClassBase"
+
+type Class1(name, value) as self =
+    inherit ClassBase(name, value)
+    new () = Class1(defaultName, defaultValue)
+    new ((s: string)) = Class1(s, defaultValue)
+    new ((i: int)) = Class1(defaultName, i)
+    override this.showMe() =
+        self.Value <- self.Value + 100
+        this.show "Class1"
+
+
+let testMe() =
+    let all = [
+        new ClassBase()
+        new ClassBase ("b1", 1)
+        new Class1()
+        new Class1("c1", 11)
+    ]
+    for v in all do
+        v.showMe()
+
+
 
 [<EntryPoint>]
 let main argv =
@@ -53,9 +93,9 @@ let main argv =
         // Console.CancelKeyPress.AddHandler onExit
         write "Waiting for Ctrl+C !!!!!"
         // let r = Console.ReadKey()
-        let r = System.Console.In.ReadLine()
-
-        write (sprintf "J'ai lu: <%A>" r)
+        // let r = System.Console.In.ReadLine()
+        // write (sprintf "J'ai lu: <%A>" r)
+        testMe()
     finally
         write "Try Finally"
     0

@@ -42,16 +42,16 @@ module aboutForm =
 
     let showAboutForm () =
         try
-            let form = DForm ( 330,  200,  "About D1")
-            form.initialize()
+            let form = new DForm (330, 200, "About D1")
 
             let panel = getTabPanel 1 5
             panel.Dock <- DockStyle.Fill
             form.addControl panel
+
             let addControl (control: Control) : bool =
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
                 // control.Dock <- DockStyle.Fill
-                control.Size <- Size(panel.Size.Width, control.MaximumSize.Height)
+                control.Size <- Size (panel.Size.Width, control.MaximumSize.Height)
                 // form.addControl control
                 panel.Controls.Add control
                 true

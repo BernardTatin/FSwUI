@@ -71,12 +71,12 @@ module FormsTools =
         let panel = new FlowLayoutPanel ()
 
         // Works on Linux, not sure on Windows
-        panel.Dock <- DockStyle.None
         panel.AutoSize <- true
         panel.WrapContents <- false
         panel.FlowDirection <- FlowDirection.LeftToRight
         if isWindows() then
             panel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        panel.Dock <- DockStyle.None
 
         // for debug purpose
         // panel.BackColor <- Color.Crimson

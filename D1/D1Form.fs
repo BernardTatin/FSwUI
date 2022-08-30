@@ -32,6 +32,7 @@ namespace d1
 
 open System.Windows.Forms
 open D1Fonts
+open D1BaseControls
 open D1Controls
 open LogTools.Logger
 
@@ -42,16 +43,17 @@ module D1Form =
     type DForm(width: int, height: int, title: string) as self =
         inherit Form(Width = width, Height = height, Text = title)
 
-        let bottomTips = new BottomTips(self)
+        let bottomTips = new BottomTips (self)
 
         /// the back panel which receive all the controls
-        let backPanel = new BackPanel (self)
+        let mutable backPanel: Panel = new BackPanel (self)
 
 
         /// a resize callback to ensure the back panel is always of the good size
         /// <remarks>not sure it's useful</remarks>
         let basicResize () =
             bottomTips.RefreshText ()
+
             doLog (sprintf "basic resize of %s %d %d" title self.Width self.Height)
             |> ignore
 
@@ -71,7 +73,9 @@ module D1Form =
 
         /// back panel getter
         /// <remarks>must disappear</remarks>
-        member this.Panel = backPanel
+        member this.Panel
+            with get () = backPanel
+            and set (panel) = backPanel <- panel; self.Controls.Add panel
 
         /// set the form as a dialog box
         member this.setToDialog() =

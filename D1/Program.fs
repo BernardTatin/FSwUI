@@ -35,7 +35,6 @@ open BasicStuff
 open D1Fonts
 open D1BaseControls
 open D1Form
-open FormsTools
 open aboutForm
 
 module main =
@@ -46,30 +45,26 @@ module main =
         let menu = new MenuStrip ()
         menu.Font <- smallFont
 
-        let menuHelp = newMenu "&Help"
+        let menuHelp = new MenuHead ("&Help")
 
         let menuAbout =
-            newMenuEntry "&About" (fun _ _ -> showAboutForm ())
+            new MenuEntry ("&About", (fun _ _ -> showAboutForm ()))
 
         menuHelp.DropDownItems.Add menuAbout |> ignore
 
-        let menuFile = newMenu "&File"
+        let menuFile = new MenuHead ("&File")
 
         let menuQuit =
-            newMenuEntry "&Quit" (fun _ _ -> form.Close ())
+            new MenuEntryWithK ("&Quit",
+                                (fun _ _ -> form.Close ()),
+                                Keys.Control ||| Keys.Q)
 
-        menuQuit.ShortcutKeys <- Keys.Control ||| Keys.Q
         menuFile.DropDownItems.Add menuQuit |> ignore
 
         menu.Items.Add menuFile |> ignore
         menu.Items.Add menuHelp |> ignore
         form.addMenu menu
         ()
-
-    // let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
-    //     element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-    //     panel.Controls.Add element
-    //     true
 
     let mkNameLabel (name: string) : Label =
         // casting, cf
@@ -85,11 +80,11 @@ module main =
         valueLabel.Font <- smallFont
         valueLabel :> Label
 
-    let showValueR (name: string) (value: string) (panel: FlowLayoutPanel) =
+    let showValueR (name: string) (value: string) (panel: Panel) =
 
         let nameLabel = mkNameLabel name
         let valueLabel = mkValueLabel value
-        let lPanel = getTabPanel 2 1
+        let lPanel = new StdTableLayoutPanel (2, 1)
 
         if isWindows () then
             lPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
@@ -99,11 +94,11 @@ module main =
         panel.Controls.Add lPanel
         (nameLabel, valueLabel)
 
-    let showValue (name: string) (value: string) (panel: FlowLayoutPanel) =
+    let showValue (name: string) (value: string) (panel: Panel) =
         showValueR name value panel |> ignore
         ()
 
-    let showValues (name: string) (values: string []) (panel: FlowLayoutPanel) =
+    let showValues (name: string) (values: string []) (panel: Panel) =
         let nameLabel = mkNameLabel name
         panel.Controls.Add nameLabel
 
@@ -133,12 +128,13 @@ module main =
     [<EntryPoint>]
     let main argv =
         try
-            openLog () |> ignore
-            logFonts ()
-            // Windows: first argument is not the name of the program !!
+            // first argument is not the name of the program !!
+            // IT'S NOT UNIX!
             for a in argv do
                 doLog a |> ignore
 
+            openLog () |> ignore
+            // logFonts ()
             let panel = form.Panel
 
             let getWinDim () =

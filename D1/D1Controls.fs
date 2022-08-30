@@ -39,19 +39,9 @@ open FontTools
 open d1.D1BaseControls
 
 module D1Controls =
-    type BackPanel(form: Form) as self =
-        inherit FlowLayoutPanel()
-        do
-            // Works on Linux, not sure on Windows
-            self.Dock <- DockStyle.Fill
-            self.WrapContents <- false
-            self.FlowDirection <- FlowDirection.TopDown
-            // for debug purpose
-            // self.BackColor <- Color.Crimson
-            form.Controls.Add self
 
     type BottomTips(form: Form) as self =
-        inherit TableLayoutPanel()
+        inherit TableLayoutPanel3D(3, 1)
         let labTime = new Label3D ()
         let labSize = new Label3D ()
         let labMemory = new Label3D ()
@@ -72,14 +62,9 @@ module D1Controls =
             timer.Enabled <- true
 
         do
-            self.AutoSize <- true
-            self.ColumnCount <- 3
-            self.RowCount <- 1
             // the order is very important: Anchor first, Dock second!
             self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
             self.Dock <- DockStyle.Bottom
-            self.BorderStyle <- BorderStyle.Fixed3D
-            self.BackColor <- Color.White
 
             labTime.DoAnchor LabelAnchor.Right
             labSize.DoAnchor LabelAnchor.Left

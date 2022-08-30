@@ -35,7 +35,6 @@ namespace d1
 open System.Windows.Forms
 open System.Drawing
 open LogTools.Logger
-open FormsTools
 open D1Form
 open d1.D1BaseControls
 
@@ -45,8 +44,11 @@ module aboutForm =
         try
             let form = new DForm (330, 200, "About D1")
 
-            let panel = getTabPanel 1 5
+            let panel = new StdTableLayoutPanel (1, 5)
             panel.Dock <- DockStyle.Fill
+            // Controls are here (ok button  activated by <Space> or <Enter>
+            // but they are not visible
+            // form.Panel <- panel
             form.addControl panel
 
             let addControl (control: Control) : bool =
@@ -64,16 +66,16 @@ module aboutForm =
 
             let controls =
                 [
-                    (new Label3D( "D1, for the fun of Windows Forms in F#"  ) :> StdLabel)
-                    (new StdLabel(   ))
-                    new Label3D( "(c) 2022"  )
-                    new StdLabel(   )
+                    (new Label3D ("D1, for the fun of Windows Forms in F#") :> Control)
+                    (new StdLabel ())
+                    new Label3D ("(c) 2022")
+                    new StdLabel ()
+                    (new StdButton ("Ok", okButtonOnClick))
                 ]
 
             doLog "Start of showAboutForm" |> ignore
 
             List.forall addControl controls |> ignore
-            addControl (newButton "Ok" okButtonOnClick ) |> ignore
 
             form.ShowDialog () |> ignore
         finally

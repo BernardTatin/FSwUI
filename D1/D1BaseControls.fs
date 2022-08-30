@@ -42,6 +42,38 @@ module D1BaseControls =
         | Left = 1
         | Right = 2
 
+    type BackPanel(form: Form) as self =
+        inherit FlowLayoutPanel()
+        do
+            // Works on Linux, not sure on Windows
+            self.Dock <- DockStyle.Fill
+            self.WrapContents <- false
+            self.FlowDirection <- FlowDirection.TopDown
+            // for debug purpose
+            // self.BackColor <- Color.Crimson
+            form.Controls.Add self
+
+    type StdTableLayoutPanel(cols: int, rows: int) as self =
+        inherit TableLayoutPanel()
+        do
+            self.AutoSize <- true
+            self.ColumnCount <- cols
+            self.RowCount <- rows
+
+    type TableLayoutPanel3D(cols: int, rows: int) as self =
+        inherit StdTableLayoutPanel(cols, rows)
+        do
+            self.BorderStyle <- BorderStyle.Fixed3D
+            self.BackColor <- Color.White
+
+
+    type StdButton(text: string, onClick: Button -> EventArgs -> unit) as self =
+        inherit Button()
+        do
+            self.Text <- text
+            self.AutoSize <- true
+            self.Click.Add (fun event -> onClick self event)
+
     type StdLabel(text: string) as self =
         inherit Label()
         do
@@ -66,3 +98,17 @@ module D1BaseControls =
             self.BorderStyle <- BorderStyle.Fixed3D
             self.BackColor <- Color.White
         new () = new Label3D("")
+
+    type MenuHead(text:string) =
+        inherit ToolStripMenuItem (text)
+
+    type MenuEntry(text: string, onClick: ToolStripMenuItem -> EventArgs -> unit) as self =
+        inherit MenuHead(text)
+        do
+            self.Click.Add (fun arg -> onClick self arg)
+    type MenuEntryWithK(text: string,
+                        onClick: ToolStripMenuItem -> EventArgs -> unit,
+                        shortCutK: Keys) as self =
+        inherit MenuEntry(text, onClick)
+        do
+            self.ShortcutKeys <- shortCutK

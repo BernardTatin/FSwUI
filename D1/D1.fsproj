@@ -13,7 +13,6 @@
     <Compile Include="ExitStateMachine.fs" />
     <Compile Include="FontTools.fs" />
     <Compile Include="D1Fonts.fs" />
-    <Compile Include="FormsTools.fs" />
     <Compile Include="D1BaseControls.fs" />
     <Compile Include="D1Controls.fs" />
     <Compile Include="D1Form.fs" />

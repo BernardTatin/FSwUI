@@ -37,6 +37,7 @@ open System.Drawing
 open LogTools.Logger
 open FormsTools
 open D1Form
+open d1.D1BaseControls
 
 module aboutForm =
 
@@ -63,16 +64,17 @@ module aboutForm =
 
             let controls =
                 [
-                    makeLabel "D1, for the fun of Windows Forms in F#" true
-                    makeLabel "" false
-                    makeLabel "(c) 2022" true
-                    makeLabel "" false
-                    newButton "Ok" okButtonOnClick
+                    (new Label3D( "D1, for the fun of Windows Forms in F#"  ) :> StdLabel)
+                    (new StdLabel(   ))
+                    new Label3D( "(c) 2022"  )
+                    new StdLabel(   )
                 ]
 
             doLog "Start of showAboutForm" |> ignore
 
             List.forall addControl controls |> ignore
+            addControl (newButton "Ok" okButtonOnClick ) |> ignore
+
             form.ShowDialog () |> ignore
         finally
             doLog "End of showAboutForm" |> ignore

@@ -30,84 +30,14 @@
 
 namespace d1
 
-open System
-open System.Drawing
 open System.Windows.Forms
-open Tools.BasicStuff
 open D1Fonts
-open FormsTools
-open FontTools
+open D1Controls
 open LogTools.Logger
 
 
 module D1Form =
 
-    (*
-    I CANNOT do that
-*)
-    type BackPanel(form: Form) as self =
-        inherit FlowLayoutPanel()
-        do
-            // Works on Linux, not sure on Windows
-            self.Dock <- DockStyle.Fill
-            self.WrapContents <- false
-            self.FlowDirection <- FlowDirection.TopDown
-            // for debug purpose
-            // self.BackColor <- Color.Crimson
-            form.Controls.Add self
-
-    type BottomTips(form: Form) as self =
-        inherit TableLayoutPanel()
-        let labTime = new Label ()
-        let labSize = new Label ()
-        let labMemory = new Label ()
-        let timer = new Timer ()
-        let refreshTips () =
-            let now = DateTime.Now
-
-            if (isUnix ()) then
-                labMemory.Text <- ""
-            else
-                labMemory.Text <- (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
-
-            labSize.Text <- (sprintf "%4d x %4d" (form.Width) (form.Height))
-            labTime.Text <- (sprintf "%02d:%02d:%02d" now.Hour now.Minute now.Second)
-        let onTimerClick _ =
-            timer.Stop ()
-            refreshTips ()
-            timer.Enabled <- true
-
-        do
-            self.AutoSize <- true
-            self.ColumnCount <- 3
-            self.RowCount <- 1
-            // the order is very important: Anchor first, Dock second!
-            self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-            self.Dock <- DockStyle.Bottom
-            self.BorderStyle <- BorderStyle.Fixed3D
-            self.BackColor <- Color.White
-
-            labTime.Dock <- DockStyle.Right
-            labTime.Anchor <- AnchorStyles.Right
-            labSize.Dock <- DockStyle.Left
-            labSize.Anchor <- AnchorStyles.Left
-
-            self.Controls.Add labSize
-            self.Controls.Add labMemory
-            self.Controls.Add labTime
-
-            labTime.Font <- smallerFont FontStyle.Bold
-            labSize.Font <- smallerFont (FontStyle.Bold ||| FontStyle.Italic)
-            labMemory.Font <- smallerFont (FontStyle.Bold ||| FontStyle.Italic)
-
-            refreshTips ()
-
-            timer.Interval <- 1000
-            timer.Tick.Add onTimerClick
-            timer.Start ()
-
-        member this.RefreshText() =
-            refreshTips()
 
     type DForm(width: int, height: int, title: string) as self =
         inherit Form(Width = width, Height = height, Text = title)

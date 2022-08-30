@@ -33,6 +33,7 @@ open LogTools.Logger
 open Tools
 open BasicStuff
 open D1Fonts
+open D1BaseControls
 open D1Form
 open FormsTools
 open aboutForm
@@ -65,26 +66,24 @@ module main =
         form.addMenu menu
         ()
 
-    let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
-        element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-        panel.Controls.Add element
-        true
+    // let setUIStyleAndShow (panel: FlowLayoutPanel) (element: Control) : bool =
+    //     element.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+    //     panel.Controls.Add element
+    //     true
 
     let mkNameLabel (name: string) : Label =
-        let nameLabel = newLabel name :?> Label
-        nameLabel.Anchor <- AnchorStyles.Left
-        nameLabel.Font <- bigFont
         // casting, cf
         //   https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/casting-and-conversions
-        nameLabel
+        let nameLabel = new StdLabel (name)
+        nameLabel.DoAnchor LabelAnchor.Left
+        nameLabel.Font <- bigFont
+        nameLabel :> Label
 
     let mkValueLabel (value: string) : Label =
-        let valueLabel =
-            makeLabel value true :?> Label
-
-        valueLabel.Anchor <- AnchorStyles.Right
+        let valueLabel = new Label3D(value)
+        valueLabel.DoAnchor LabelAnchor.Right
         valueLabel.Font <- smallFont
-        valueLabel
+        valueLabel :> Label
 
     let showValueR (name: string) (value: string) (panel: FlowLayoutPanel) =
 

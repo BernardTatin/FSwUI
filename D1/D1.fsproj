@@ -14,6 +14,8 @@
     <Compile Include="FontTools.fs" />
     <Compile Include="D1Fonts.fs" />
     <Compile Include="FormsTools.fs" />
+    <Compile Include="D1BaseControls.fs" />
+    <Compile Include="D1Controls.fs" />
     <Compile Include="D1Form.fs" />
     <Compile Include="AboutForm.fs" />
     <Compile Include="Program.fs" />

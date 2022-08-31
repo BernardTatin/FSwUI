@@ -1,6 +1,6 @@
 ﻿(*
     Project:    D1
-    File name:  FontTools.fs
+    File name:  D1Fonts.fs
     User:       berna
     Date:       2022-08-27
 
@@ -28,40 +28,15 @@
 
  *)
 
-namespace d1
+namespace GUITools
 
 open System.Drawing
-open Tools.BasicStuff
-module FontTools =
+open FontTools
 
-    let smallFontSize = 9.0F
-    let defaultFontSize = 10.0F
-    let biggerFontSize = 12.0F
+module Fonts =
+    let fontName = "Verdana"
+    let bigFont =
+        newFont fontName biggerFontSize FontStyle.Italic
 
-    let defaultFontName(defaultName: string) : string =
-        match getOSFamily() with
-        | OSFamily.Windows ->
-            "Calibri"
-        | OSFamily.Unix ->
-            "Fira Sans"
-        | _ ->
-            defaultName
-
-    let newFont(fontName: string) (size: float32) (style: FontStyle) : Font =
-        let font = new Font(fontName, size, style)
-        if fontName <> font.Name then
-            new Font(defaultFontName(fontName), size, style)
-        else
-            font
-
-    let defaultFont (size: float32) (style: FontStyle) : Font =
-        newFont (defaultFontName "") size style
-
-    let smallerFont (style: FontStyle) : Font =
-        defaultFont smallFontSize style
-
-    let normalFont (style: FontStyle) : Font =
-        defaultFont defaultFontSize style
-
-    let biggerFont (style: FontStyle) : Font =
-        defaultFont biggerFontSize style
+    let smallFont =
+        newFont fontName defaultFontSize FontStyle.Regular

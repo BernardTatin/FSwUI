@@ -30,10 +30,11 @@
 
 namespace d1
 
+open System.Drawing
 open System.Windows.Forms
-open D1Fonts
-open D1BaseControls
-open D1Controls
+open GUITools.Fonts
+open GUITools.BaseControls
+open GUITools.Controls
 open LogTools.Logger
 
 
@@ -57,6 +58,12 @@ module D1Form =
             doLog (sprintf "basic resize of %s %d %d" title self.Width self.Height)
             |> ignore
 
+        let changeBackPanel(panel: Panel) =
+            backPanel.Hide()
+            backPanel <- panel
+            backPanel.Dock <- DockStyle.Fill
+            self.Controls.Add panel
+
 
         do
             self.Font <- smallFont
@@ -75,7 +82,7 @@ module D1Form =
         /// <remarks>must disappear</remarks>
         member this.Panel
             with get () = backPanel
-            and set (panel) = backPanel <- panel; self.Controls.Add panel
+            and set (panel) =  changeBackPanel panel
 
         /// set the form as a dialog box
         member this.setToDialog() =

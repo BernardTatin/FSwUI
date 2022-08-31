@@ -28,7 +28,7 @@
 
  *)
 
-namespace d1
+namespace GUITools
 
 open System
 open System.Drawing
@@ -36,7 +36,7 @@ open System.Windows.Forms
 open Tools.BasicStuff
 open FontTools
 
-module D1BaseControls =
+module BaseControls =
     type LabelAnchor =
         | None = 0
         | Left = 1
@@ -50,7 +50,7 @@ module D1BaseControls =
             self.WrapContents <- false
             self.FlowDirection <- FlowDirection.TopDown
             // for debug purpose
-            // self.BackColor <- Color.Crimson
+            // self.BackColor <- Color.PaleGreen
             form.Controls.Add self
 
     type StdTableLayoutPanel(cols: int, rows: int) as self =

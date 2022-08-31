@@ -28,17 +28,16 @@
 
  *)
 
-namespace d1
+namespace GUITools
 
 open System
 open System.Drawing
 open System.Windows.Forms
-open D1BaseControls
 open Tools.BasicStuff
-open FontTools
-open d1.D1BaseControls
+open GUITools.FontTools
+open GUITools.BaseControls
 
-module D1Controls =
+module Controls =
 
     type BottomTips(form: Form) as self =
         inherit TableLayoutPanel3D(3, 1)

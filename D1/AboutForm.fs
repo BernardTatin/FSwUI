@@ -36,7 +36,7 @@ open System.Windows.Forms
 open System.Drawing
 open LogTools.Logger
 open D1Form
-open d1.D1BaseControls
+open GUITools.BaseControls
 
 module aboutForm =
 
@@ -46,10 +46,7 @@ module aboutForm =
 
             let panel = new StdTableLayoutPanel (1, 5)
             panel.Dock <- DockStyle.Fill
-            // Controls are here (ok button  activated by <Space> or <Enter>
-            // but they are not visible
-            // form.Panel <- panel
-            form.addControl panel
+            form.Panel <- panel
 
             let addControl (control: Control) : bool =
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)

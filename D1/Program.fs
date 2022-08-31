@@ -30,10 +30,9 @@ open System.Drawing.Text
 open StartStateMachines
 open ExitStateMachine
 open LogTools.Logger
-open Tools
-open BasicStuff
-open D1Fonts
-open D1BaseControls
+open Tools.BasicStuff
+open GUITools.Fonts
+open GUITools.BaseControls
 open D1Form
 open aboutForm
 

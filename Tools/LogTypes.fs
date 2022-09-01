@@ -64,15 +64,13 @@ module LogTypes =
 
         abstract member start : unit -> bool
         default this.start() =
-            printfn "LogBase.start()"
             false
 
         abstract member stop: unit -> bool
         default this.stop() = false
 
         abstract member write: string -> bool
-        default this.write message : bool =
-            printfn "LogBase.write %s" message
+        default this.write _ : bool =
             false
 
     type LogWithStream() as self =

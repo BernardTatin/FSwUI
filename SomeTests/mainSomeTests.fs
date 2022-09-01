@@ -34,11 +34,13 @@
     I don't know why!
  *)
 open System
+open LogTools.LogTypes
 
+let write v = printfn "%s" v
 let defaultName: string = "<uninitialized>"
 let defaultValue: int = 0
 /// a class
-type ClassBase(newName, newValue) as self =
+type ClassBase(newName, newValue) =
     let name: string = newName
     let mutable value: int = newValue
 
@@ -75,11 +77,23 @@ let testMe() =
         v.showMe()
 
 
+type LogSample(name: string, log: LogBase, loops: int) =
+    do
+        log.start() |> ignore
+    let rec test (k: int) =
+        log.write (sprintf "%3d:%s" k name) |> ignore
+        if k > 0 then
+            test (k - 1)
+        else
+            ()
+    member this.run() =
+        write (sprintf "runnin test %3d:%s" loops name)
+        test loops
+
 
 [<EntryPoint>]
 let main argv =
     // let write v = System.IO.File.AppendAllText("test.txt", v + "\n")
-    let write v = printfn "%s" v
     try
         write "Starting a Test 2"
         // not sure if the arg.Cancel has the same behavior and on Linux
@@ -96,6 +110,14 @@ let main argv =
         // let r = System.Console.In.ReadLine()
         // write (sprintf "J'ai lu: <%A>" r)
         testMe()
+
+        let t = new  LogSample("Console", new LogConsole(), 5)
+        t.run()
+        let t = new  LogSample("File t.txt", new LogTextFile("t.txt"), 5)
+        t.run()
+        let t = new  LogSample("UDP 2345", new LogUDP(2345), 5)
+        t.run()
+
     finally
         write "Try Finally"
     0

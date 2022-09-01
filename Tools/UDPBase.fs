@@ -1,8 +1,8 @@
 ﻿(*
-    Project:    D1
-    File name:  Logger.fs
+    Project:    Tools
+    File name:  UDPBase.fs
     User:       berna
-    Date:       2022-08-11
+    Date:       2022-09-01
 
     The MIT License (MIT)
 
@@ -28,36 +28,27 @@
 
  *)
 
-(*
- This code is more about to learn F# types than anything else. To get something
- really usable, some more works must be done. Perhaps in the next days.
+namespace UDPTools
 
- From Windows application, I tried to write on the equivalent of <stdout>,
- which would be great for debug, but it's really too shitty,
- I made an UDP ShTTY server for that.
- *)
+open System.Net
+open System.Net.Sockets
 
-(*
-    TODO: must disappear when LogTypes.fs will have some classes
- *)
+module UDPBase =
 
-namespace LogTools
+    type UDPDirection =
+        | Nothing = 0
+        | Sender = 1
+        | Receiver = 2
 
-open LogTypes
-open Tools.BasicStuff
+    type UDPBase(address: IPAddress, port: int, direction: UDPDirection) =
+        let client = if direction = UDPDirection.Sender then new UdpClient(port) else new UdpClient()
 
-module Logger =
+        let endPoint = new IPEndPoint(address, port)
 
-    let mutable private log: LogBase =
-        new LogConsole ()
+        member this.Port with get() = port
 
-    let openLog () : bool =
-        if isUnix() then
-            log <- new LogConsole()
-        else
-            log <- new LogUDP(2345)
-        log.start()
+        member this.Client with get() = client
 
-    let closeLog () = log.stop ()
+        member this.EndPoint with get() = endPoint
 
-    let doLog (message: string) : bool = log.write message
+        member this.Close() = client.Close ()

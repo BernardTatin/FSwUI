@@ -41,7 +41,7 @@ module mainShTTY =
         let onCtrlC () =
             cancellation.Cancel();
             Console.WriteLine "Closing application..."
-            receiver.close ()
+            receiver.Close ()
             Console.WriteLine "exiting..."
             exit (int SYSExit.Success)
 
@@ -54,7 +54,7 @@ module mainShTTY =
         // why I had to put () around  receiver.getPort() ?
         // perhaps membership is done by a sort of a preprocessor
         // strange and disturbing and sort of 'not natural'
-        printfn "Listening on port %d" (receiver.getPort())
+        printfn "Listening on port %d" (receiver.Port)
         printfn "Run loop"
         loop receiver
 

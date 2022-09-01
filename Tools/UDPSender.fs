@@ -30,28 +30,21 @@
 
 namespace UDPTools
 
+open System.Net
+open System.Text
+open UDPTools.UDPBase
+
 module UDPSenderTools =
-    open System
-    open System.Net
-    open System.Net.Sockets
-    open System.Text
 
-
-    type UDPSender(newPort: int) =
-        let mutable port: int = newPort
-
-        let mutable client: UdpClient =
-            new UdpClient ()
-
-        let mutable address: IPEndPoint =
-            new IPEndPoint (IPAddress.Loopback, newPort)
+    type UDPSender(newPort: int) as self =
+        inherit UDPBase(IPAddress.Loopback, newPort, UDPDirection.Receiver)
 
         member this.send(message: string) =
-            let sClient = client
-            let sAddress = address
+            let sClient = self.Client
+            let sAddress = self.EndPoint
 
             let (sendBytes: byte array) =
-                Encoding.ASCII.GetBytes (message)
+                Encoding.ASCII.GetBytes message
 
             try
                 sClient.Send (sendBytes, sendBytes.Length, sAddress)

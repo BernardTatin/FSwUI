@@ -30,42 +30,27 @@
 
 namespace UDPTools
 
+open System.Net
+open System.Text
+open UDPTools.UDPBase
+
 module UDPRecieverTools =
-    open System
-    open System.Net
-    open System.Net.Sockets
-    open System.Text
 
-    type UDPReceiver(newPort: int) =
-        let mutable port: int = newPort
-
-        let mutable client: UdpClient =
-            new UdpClient (port)
-
-        let mutable address: IPEndPoint =
-            new IPEndPoint (IPAddress.Any, port)
-
-        member this.getPort () : int =
-            port
-        member this.setPort(newPort: int) =
-            port <- newPort
-            client <- new UdpClient (port)
-            address <- new IPEndPoint (IPAddress.Any, port)
+    type UDPReceiver(port: int) as self =
+        inherit UDPBase(IPAddress.Any, port, UDPDirection.Sender)
 
         member this.receive() =
-            let receivingClient = client
+            let receivingClient = self.Client
 
-            let mutable receivingIpEndPoint = address
+            let mutable receivingIpEndPoint = self.EndPoint
 
             try
                 let receiveBytes =
                     receivingClient.Receive (&receivingIpEndPoint)
 
                 let returnData =
-                    Encoding.ASCII.GetString (receiveBytes)
+                    Encoding.ASCII.GetString receiveBytes
 
                 printfn "%s" returnData
             with
                 | error -> eprintfn "%s" error.Message
-
-        member this.close() = client.Close ()

@@ -28,31 +28,24 @@
 
  *)
 
+(*
+    TODO: rewrite all with classes
+ *)
 namespace LogTools
 
 open System
 open System.IO
 open UDPTools.UDPSenderTools
+open Tools.BasicStuff
 
 module LogTypes =
+
+    // TODO: c'est l'bordel, la didans!
 
     type LogState =
         | Start = 0
         | Opened = 2
         | InError = 3
-
-    type ILogger =
-        abstract member currentState : LogState
-        abstract member start : unit -> bool
-        abstract member stop : unit -> bool
-        abstract member write : string -> bool
-
-    type LogNothing() =
-        interface ILogger with
-            member this.currentState = LogState.Opened
-            member this.start() = false
-            member this.stop() = false
-            member this.write(message : string) = false
 
     let formatMessage (message: string) (withEOL: bool): string =
         let tm = DateTime.Now
@@ -61,38 +54,79 @@ module LogTypes =
         else
             sprintf "%02d:%02d:%02d: %s" tm.Hour tm.Minute tm.Second message
 
-    type LogConsole() =
-        let stream: TextWriter = Console.Out
-        interface ILogger with
-            member this.currentState = LogState.Opened
-            member this.start() = true
-            member this.stop() = true
-            member this.write(message : string) =
-                stream.Write (formatMessage message true)
-                stream.Flush()
-                true
 
-    type LogTextFile(fileName: string) =
-        let stream: TextWriter =  new StreamWriter (fileName, false)
-        interface ILogger with
-            member this.currentState = LogState.Opened
-            member this.start() = true
-            member this.stop() =
+    [<AbstractClass>]
+    type LogBase() =
+        let mutable state: LogState = LogState.Start
+        member this.isOpen() : bool = state = LogState.Opened
+        member this.isIdle() : bool = state = LogState.Start
+        member this.State with get() = state and set(s: LogState) = state <- s
+
+        abstract member start : unit -> bool
+        default this.start() =
+            printfn "LogBase.start()"
+            false
+
+        abstract member stop: unit -> bool
+        default this.stop() = false
+
+        abstract member write: string -> bool
+        default this.write message : bool =
+            printfn "LogBase.write %s" message
+            false
+
+    type LogWithStream() as self =
+        inherit LogBase()
+        let mutable stream: TextWriter = Console.Out
+
+        member this.Stream with get() = stream and set(s: TextWriter) = stream <- s
+        override this.stop() =
+            if self.isOpen() then
                 stream.Close ()
                 stream.Dispose ()
+                self.State <- LogState.Start
                 true
-            member this.write(message : string) =
-                stream.Write (formatMessage message true)
+            else
+                false
+
+        override this.write(message : string) : bool =
+            if self.isOpen() then
+                stream.WriteLine (formatMessage message false)
                 stream.Flush()
                 true
+            else
+                false
 
-    type LogUDP(port: int) =
+    type LogConsole() as self =
+        inherit LogWithStream()
+        override this.start() =
+            self.State <- LogState.Opened
+            true
+
+    type LogTextFile(fileName: string) as self =
+        inherit LogWithStream()
+        override this.start() =
+            if self.isIdle() then
+                self.Stream <- new StreamWriter (fileName, false)
+                self.State <- LogState.Opened
+            self.isOpen()
+
+
+    type LogUDP(port: int) as self =
+        inherit LogBase()
         let sender = new UDPSender(port)
-        interface ILogger with
-            member this.currentState = LogState.Opened
-            member this.start() = true
-            member this.stop() =
+        override this.start() =
+            self.State <- LogState.Opened
+            true
+        override this.stop() =
+            if self.isOpen() then
+                sender.Close()
+                self.State <- LogState.Start
+            self.isIdle()
+
+        override this.write(message : string) =
+            if self.isOpen() then
+                sender.send (formatMessage message (isUnix()))
                 true
-            member this.write(message : string) =
-                sender.send (formatMessage message true)
-                true
+            else
+                false

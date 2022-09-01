@@ -6,13 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\Tools\BasicStuff.fs">
-          <Link>BasicStuff.fs</Link>
-        </Compile>
-        <Compile Include="..\Tools\UDPSender.fs">
-          <Link>UDPSender.fs</Link>
-        </Compile>
-        <Compile Include="mainTest.fs" />
+        <Compile Include="mainTestShTTY.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Tools\Tools.fsproj" />
     </ItemGroup>
 
 </Project>

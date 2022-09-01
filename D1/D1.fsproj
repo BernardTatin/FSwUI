@@ -13,7 +13,7 @@
     <Compile Include="ExitStateMachine.fs" />
     <Compile Include="D1Form.fs" />
     <Compile Include="AboutForm.fs" />
-    <Compile Include="Program.fs" />
+    <Compile Include="mainD1.fs" />
   </ItemGroup>
 
   <ItemGroup>

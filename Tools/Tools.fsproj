@@ -3,11 +3,12 @@
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <RootNamespace>ClassLibrary1</RootNamespace>
-        <TargetFrameworks>net48;net6.0;net6.0-windows</TargetFrameworks>
+        <TargetFrameworks>net48;net6.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="BasicStuff.fs" />
+        <Compile Include="UDPBase.fs" />
         <Compile Include="UDPReciever.fs" />
         <Compile Include="UDPSender.fs" />
         <Compile Include="LogTypes.fs" />

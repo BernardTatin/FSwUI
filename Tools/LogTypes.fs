@@ -40,7 +40,7 @@ open Tools.BasicStuff
 
 module LogTypes =
 
-    // TODO: c'est l'bordel, la didans!
+    // TODO: error management
 
     type LogState =
         | Start = 0
@@ -56,7 +56,7 @@ module LogTypes =
 
 
     [<AbstractClass>]
-    type LogBase() =
+    type LogBase() as self =
         let mutable state: LogState = LogState.Start
         member this.isOpen() : bool = state = LogState.Opened
         member this.isIdle() : bool = state = LogState.Start
@@ -64,10 +64,11 @@ module LogTypes =
 
         abstract member start : unit -> bool
         default this.start() =
-            false
+            self.isOpen()
 
         abstract member stop: unit -> bool
-        default this.stop() = false
+        default this.stop() =
+            self.isIdle()
 
         abstract member write: string -> bool
         default this.write _ : bool =
@@ -83,9 +84,7 @@ module LogTypes =
                 stream.Close ()
                 stream.Dispose ()
                 self.State <- LogState.Start
-                true
-            else
-                false
+            self.isIdle()
 
         override this.write(message : string) : bool =
             if self.isOpen() then
@@ -99,7 +98,7 @@ module LogTypes =
         inherit LogWithStream()
         override this.start() =
             self.State <- LogState.Opened
-            true
+            self.isOpen()
 
     type LogTextFile(fileName: string) as self =
         inherit LogWithStream()
@@ -115,7 +114,7 @@ module LogTypes =
         let sender = new UDPSender(port)
         override this.start() =
             self.State <- LogState.Opened
-            true
+            self.isOpen()
         override this.stop() =
             if self.isOpen() then
                 sender.Close()

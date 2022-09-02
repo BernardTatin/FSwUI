@@ -43,21 +43,25 @@
 
 namespace LogTools
 
+open LogTools.LogTypes
 open LogTypes
 open Tools.BasicStuff
 
 module Logger =
 
-    let mutable private log: LogBase =
-        new LogConsole ()
+    type OLogger = LogBase option
+
+    let mutable private log =
+        OLogger.None
+
 
     let openLog () : bool =
         if isUnix() then
-            log <- new LogConsole()
+            log <- Some (new LogConsole())
         else
-            log <- new LogUDP(2345)
-        log.start()
+            log <- Some (new LogUDP(2345))
+        log.Value.start()
 
-    let closeLog () = log.stop ()
+    let closeLog () = log.Value.stop ()
 
-    let doLog (message: string) : bool = log.write message
+    let doLog (message: string) : bool = log.Value.write message

@@ -127,12 +127,13 @@ module main =
     [<EntryPoint>]
     let main argv =
         try
+            openLog () |> ignore
+
             // first argument is not the name of the program !!
             // IT'S NOT UNIX!
             for a in argv do
                 doLog a |> ignore
 
-            openLog () |> ignore
             // logFonts ()
             let panel = form.Panel
 
@@ -228,5 +229,5 @@ module main =
             else
                 (int SYSExit.Failure)
         finally
-            doLog "Finally, exit!" |> ignore
+            doLog "Finally, exit!\n\n" |> ignore
             closeLog () |> ignore

@@ -30,7 +30,6 @@
 
 namespace d1
 
-open System.Drawing
 open System.Windows.Forms
 open GUITools.Fonts
 open GUITools.BaseControls
@@ -40,6 +39,8 @@ open LogTools.Logger
 
 module D1Form =
 
+    let private DEFAULT_WIDTH = 640
+    let private DEFAULT_HEIGHT = 480
 
     type DForm(width: int, height: int, title: string) as self =
         inherit Form(Width = width, Height = height, Text = title)
@@ -70,6 +71,10 @@ module D1Form =
             self.Controls.Add bottomTips
             self.Resize.Add (fun _ -> basicResize ())
 
+
+        new () = new DForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, "<no tile!>")
+        new (title: string) = new DForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title)
+
         /// add a control to the back panel
         /// <param name="control">the control to add</param>
         member this.addControl(control: Control) = backPanel.Controls.Add control
@@ -82,7 +87,7 @@ module D1Form =
         /// <remarks>must disappear</remarks>
         member this.Panel
             with get () = backPanel
-            and set (panel) =  changeBackPanel panel
+            and set panel =  changeBackPanel panel
 
         /// set the form as a dialog box
         member this.setToDialog() =

@@ -51,10 +51,3 @@ module UDPSenderTools =
                 |> ignore
             with
                 | error -> eprintfn "ERROR UDPSender: %s" error.Message
-
-    let mutable private sender =
-        new UDPSender (1)
-
-    let setPort (port: int) = sender <- new UDPSender (port)
-
-    let send (message: string) = sender.send message

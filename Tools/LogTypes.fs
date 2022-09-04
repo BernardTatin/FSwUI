@@ -58,9 +58,9 @@ module LogTypes =
     [<AbstractClass>]
     type LogBase() as self =
         let mutable state: LogState = LogState.Start
-        member this.isOpen() : bool = state = LogState.Opened
-        member this.isIdle() : bool = state = LogState.Start
-        member this.State with get() = state and set(s: LogState) = state <- s
+        member inline internal this.State with get() = state and set(s: LogState) = state <- s
+        member inline internal this.isOpen() : bool = state = LogState.Opened
+        member inline internal this.isIdle() : bool = state = LogState.Start
 
         abstract member start : unit -> bool
         default this.start() =

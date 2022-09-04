@@ -49,14 +49,14 @@ open Tools.BasicStuff
 
 module Logger =
 
-    type OLogger = LogBase option
+    type private OLogger = LogBase option
 
     let mutable private log =
         OLogger.None
 
 
     let openLog () : bool =
-        if isUnix() then
+        if not(isWindows()) then
             log <- Some (new LogConsole())
         else
             log <- Some (new LogUDP(2345))

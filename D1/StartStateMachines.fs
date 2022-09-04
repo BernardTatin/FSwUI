@@ -34,7 +34,7 @@ module StartStateMachines =
     open System
     open LogTools.Logger
 
-    type private StartingStates =
+    type StartingStates =
         | Start
         | Error
         | ConfigSearch
@@ -44,8 +44,8 @@ module StartStateMachines =
         | StartEnd
 
     // bad stuff
-    let private printState (state: StartingStates) =
-        let i_print_State (stateName: string) = doLog stateName
+    let StateToString (state: StartingStates) =
+        let inline i_print_State (stateName: string) = stateName
 
         match state with
         | Start -> i_print_State (sprintf "-> %s" "Start")
@@ -56,7 +56,10 @@ module StartStateMachines =
         | ConfigLoaded -> i_print_State (sprintf "-> %s" "ConfigLoaded")
         | StartEnd -> i_print_State (sprintf "-> %s" "StartEnd")
 
+
     let onStart () : bool =
+        let printState (state: StartingStates) =
+            doLog (StateToString(state))
         let rec run newState isOK : bool =
             printState newState |> ignore
 

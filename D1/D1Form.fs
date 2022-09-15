@@ -56,14 +56,16 @@ module D1Form =
         let basicResize () =
             bottomTips.RefreshText ()
 
+            backPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            backPanel.Dock <- DockStyle.Fill
             doLog (sprintf "basic resize of %s %d %d" title self.Width self.Height)
             |> ignore
 
         let changeBackPanel(panel: Panel) =
             backPanel.Hide()
-            backPanel <- panel
-            backPanel.Dock <- DockStyle.Fill
+            panel.Dock <- DockStyle.Fill
             self.Controls.Add panel
+            backPanel <- panel
 
 
         do

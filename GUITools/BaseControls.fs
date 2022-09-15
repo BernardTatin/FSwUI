@@ -45,6 +45,7 @@ module BaseControls =
     type BackPanel(form: Form) as self =
         inherit FlowLayoutPanel()
         do
+            self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
             // Works on Linux, not sure on Windows
             self.Dock <- DockStyle.Fill
             self.WrapContents <- false

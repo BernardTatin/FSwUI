@@ -87,7 +87,7 @@ module main =
 
         if isWindows () then
             lPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-
+        lPanel.Dock <- DockStyle.None
         lPanel.Controls.Add nameLabel
         lPanel.Controls.Add valueLabel
         panel.Controls.Add lPanel

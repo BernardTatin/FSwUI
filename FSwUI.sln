@@ -17,6 +17,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "D2", "D2\D2.fsproj", "{5606
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GUITools", "GUITools\GUITools.fsproj", "{93A93C79-788E-4C83-9FEC-BD4EEE376431}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FImage", "FImage\FImage.fsproj", "{F4888882-D567-496C-AF25-911FA21A0EDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{93A93C79-788E-4C83-9FEC-BD4EEE376431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93A93C79-788E-4C83-9FEC-BD4EEE376431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93A93C79-788E-4C83-9FEC-BD4EEE376431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4888882-D567-496C-AF25-911FA21A0EDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4888882-D567-496C-AF25-911FA21A0EDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4888882-D567-496C-AF25-911FA21A0EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4888882-D567-496C-AF25-911FA21A0EDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

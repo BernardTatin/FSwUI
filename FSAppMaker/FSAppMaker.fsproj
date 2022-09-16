@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+
+    <WarnOn>3390;$(WarnOn)</WarnOn>
+
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="FSAppMaker.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Reflection.Context" />
+    <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net472'" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>

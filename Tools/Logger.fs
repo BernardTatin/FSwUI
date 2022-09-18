@@ -58,10 +58,14 @@ module Logger =
     let openLog () : bool =
         if not(isWindows()) then
             log <- Some (new LogConsole())
+            // log <- Some (new LogUDP(2345))
         else
             log <- Some (new LogUDP(2345))
+            // log <- Some (new LogConsole())
         log.Value.start()
 
     let closeLog () = log.Value.stop ()
 
     let doLog (message: string) : bool = log.Value.write message
+
+    let doLogError message = doLog (sprintf "ERROR >>> %s\n" message)

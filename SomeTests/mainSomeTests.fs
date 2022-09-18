@@ -35,6 +35,7 @@
  *)
 open System
 open LogTools.LogTypes
+open LogTools.Logger
 
 let write v = printfn "%s" v
 let defaultName: string = "<uninitialized>"
@@ -90,6 +91,18 @@ type LogSample(name: string, log: LogBase, loops: int) =
         write (sprintf "runnin test %3d:%s" loops name)
         test loops
 
+let tryDoLog (loops:int) =
+    let name = "doLog"
+    let rec test (k: int) =
+        doLog (sprintf "%3d:%s" k name) |> ignore
+        if k > 0 then
+            test (k - 1)
+        else
+            ()
+
+    write (sprintf "runnin test %3d:%s" loops name)
+    openLog () |> ignore
+    test loops
 
 [<EntryPoint>]
 let main argv =
@@ -117,6 +130,7 @@ let main argv =
         t.run()
         let t = new  LogSample("UDP 2345", new LogUDP(2345), 5)
         t.run()
+        tryDoLog 5
 
     finally
         write "Try Finally"

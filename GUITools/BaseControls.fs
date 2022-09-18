@@ -42,7 +42,7 @@ module BaseControls =
         | Left = 1
         | Right = 2
 
-    type BackPanel(form: Form) as self =
+    type BackPanel() as self =
         inherit FlowLayoutPanel()
         do
             self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
@@ -52,7 +52,6 @@ module BaseControls =
             self.FlowDirection <- FlowDirection.TopDown
             // for debug purpose
             // self.BackColor <- Color.PaleGreen
-            form.Controls.Add self
 
     type StdTableLayoutPanel(cols: int, rows: int) as self =
         inherit TableLayoutPanel()

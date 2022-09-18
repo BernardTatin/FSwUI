@@ -1,7 +1,7 @@
-(*
-    Project:    FSAppMaker
-    File name:  FSAppMaker.fs
-    User:       bernard
+﻿(*
+    Project:    GUITools
+    File name:  BasicForm.fs
+    User:       berna
     Date:       2022-09-16
 
     The MIT License (MIT)
@@ -28,15 +28,38 @@
 
  *)
 
+module GUITools.BasicForm
 
-open System
-open System.Drawing
 open System.Windows.Forms
+open GUITools.Fonts
+open GUITools.BaseControls
+open GUITools.Controls
+open LogTools.Logger
 
-module main =
+let DEFAULT_WIDTH = 640
+let DEFAULT_HEIGHT = 480
 
-    [<EntryPoint>]
-    let main argv =
-        let form = new Form(Text="FSAppMaker")
-        Application.Run form
-        0
+
+type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
+    inherit Form(Width = width, Height = height, Text = title)
+    let mutable backPanel: Panel = panel
+    let bottomTips = new BottomTips(self)
+
+    let changeBackPanel(panel: Panel) =
+        backPanel.Hide()
+        panel.Dock <- DockStyle.Fill
+        self.Controls.Add panel
+        backPanel <- panel
+
+    do
+        self.Controls.Add panel
+        self.Controls.Add bottomTips
+
+    /// back panel getter
+    /// <remarks>must disappear</remarks>
+    member this.ThePanel
+        with get () = backPanel
+        and set panel =  changeBackPanel panel
+
+    member this.Tips
+        with get() = bottomTips

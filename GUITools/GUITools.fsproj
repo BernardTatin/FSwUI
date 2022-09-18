@@ -10,6 +10,7 @@
         <Compile Include="Fonts.fs" />
         <Compile Include="BaseControls.fs" />
         <Compile Include="Controls.fs" />
+        <Compile Include="BasicForm.fs" />
     </ItemGroup>
 
     <ItemGroup>

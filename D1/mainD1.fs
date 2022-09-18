@@ -127,106 +127,123 @@ module main =
     [<EntryPoint>]
     let main argv =
         try
-            openLog () |> ignore
+            try
+                openLog () |> ignore
 
-            // first argument is not the name of the program !!
-            // IT'S NOT UNIX!
-            for a in argv do
-                doLog a |> ignore
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
 
-            // logFonts ()
-            let panel = form.Panel
+                // first argument is not the name of the program !!
+                // IT'S NOT UNIX!
+                for a in argv do
+                    doLog a |> ignore
 
-            let getWinDim () =
-                (sprintf "%d x %d" (form.Width) (form.Height))
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                // logFonts ()
+                let panel = form.ThePanel
 
-            let _, yLab =
-                showValueR "Windows dimension" (getWinDim ()) panel
-            // font: Name != OriginalName sie la font Name  n'existe pas
-            //       il y a peut-être d'autres cas
-            showValue "Font" (sprintf "%s - %s" smallFont.Name (smallFont.Style.ToString ())) panel
-            showValue "" smallFont.OriginalFontName panel
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                let getWinDim () =
+                    (sprintf "%d x %d" (form.Width) (form.Height))
 
-            if smallFont.IsSystemFont then
-                showValue "" smallFont.SystemFontName panel
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                let _, yLab =
+                    showValueR "Windows dimension" (getWinDim ()) panel
+                // font: Name != OriginalName sie la font Name  n'existe pas
+                //       il y a peut-être d'autres cas
+                showValue "Font" (sprintf "%s - %s" smallFont.Name (smallFont.Style.ToString ())) panel
+                showValue "" smallFont.OriginalFontName panel
 
-            showValue "Font size/unit" (sprintf "%f / %s" smallFont.Size (smallFont.Unit.ToString ())) panel
+                if smallFont.IsSystemFont then
+                    showValue "" smallFont.SystemFontName panel
 
-            showValue
-                "Operating System"
-                (sprintf
-                    "%s (%s bits)"
-                    (Environment.OSVersion.ToString ())
-                    (if Environment.Is64BitOperatingSystem then
-                         "64"
+                showValue "Font size/unit" (sprintf "%f / %s" smallFont.Size (smallFont.Unit.ToString ())) panel
+
+                showValue
+                    "Operating System"
+                    (sprintf
+                        "%s (%s bits)"
+                        (Environment.OSVersion.ToString ())
+                        (if Environment.Is64BitOperatingSystem then
+                             "64"
+                         else
+                             "32"))
+                    panel
+
+                showValue "Machine" Environment.MachineName panel
+                showValue "Processors" (sprintf "%d" Environment.ProcessorCount) panel
+                showValue "Page size" (sprintf "%d" Environment.SystemPageSize) panel
+
+                showValue "CLI Version" (Environment.Version.ToString ()) panel
+
+                let getMemoryValue () =
+                    (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+
+                let _, memLab =
+                    showValueR "Memory used by this process" (getMemoryValue ()) panel
+
+                showValue
+                    "64 bits process"
+                    (if Environment.Is64BitProcess then
+                         "yes"
                      else
-                         "32"))
-                panel
+                         "no")
+                    panel
 
-            showValue "Machine" Environment.MachineName panel
-            showValue "Processors" (sprintf "%d" Environment.ProcessorCount) panel
-            showValue "Page size" (sprintf "%d" Environment.SystemPageSize) panel
+                showValue "Directory" Environment.CurrentDirectory panel
 
-            showValue "CLI Version" (Environment.Version.ToString ()) panel
+                showValue "System Directory" Environment.SystemDirectory panel
+                showValues "Logical drives/Mount points" (Environment.GetLogicalDrives ()) panel
 
-            let getMemoryValue () =
-                (sprintf "%d Ko" (Environment.WorkingSet / 1024L))
+                showValue "User name" Environment.UserName panel
+                showValue "User domain" Environment.UserDomainName panel
 
-            let _, memLab =
-                showValueR "Memory used by this process" (getMemoryValue ()) panel
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                let timer = new Timer ()
 
-            showValue
-                "64 bits process"
-                (if Environment.Is64BitProcess then
-                     "yes"
-                 else
-                     "no")
-                panel
+                timer.Tick.Add (fun _ ->
+                    timer.Stop ()
+                    memLab.Text <- (getMemoryValue ())
+                    timer.Enabled <- true)
 
-            showValue "Directory" Environment.CurrentDirectory panel
+                timer.Interval <- 1000
+                timer.Start ()
 
-            showValue "System Directory" Environment.SystemDirectory panel
-            showValues "Logical drives/Mount points" (Environment.GetLogicalDrives ()) panel
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                createMenu form
 
-            showValue "User name" Environment.UserName panel
-            showValue "User domain" Environment.UserDomainName panel
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                form.Resize.Add (fun _ ->
+                    memLab.Text <- (getMemoryValue ())
+                    yLab.Text <- (getWinDim ()))
 
-            let timer = new Timer ()
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                let onAppExit1 _ =
+                    doLog "onExit1" |> ignore
+                    ()
 
-            timer.Tick.Add (fun _ ->
-                timer.Stop ()
-                memLab.Text <- (getMemoryValue ())
-                timer.Enabled <- true)
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                Application.ApplicationExit.Add (fun args ->
+                    doLog (sprintf "Application.ApplicationExit %A" args)
+                    |> ignore
 
-            timer.Interval <- 1000
-            timer.Start ()
+                    onAppExit1 args)
 
-            createMenu form
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                form.Closed.Add (fun args ->
+                    doLog (sprintf "Form.Closed %A" args) |> ignore
+                    onAppExit1 args)
 
-            form.Resize.Add (fun _ ->
-                memLab.Text <- (getMemoryValue ())
-                yLab.Text <- (getWinDim ()))
+                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
+                onStart () |> ignore
+                Application.Run form
 
-            let onAppExit1 _ =
-                doLog "onExit1" |> ignore
-                ()
-
-            Application.ApplicationExit.Add (fun args ->
-                doLog (sprintf "Application.ApplicationExit %A" args)
-                |> ignore
-
-                onAppExit1 args)
-
-            form.Closed.Add (fun args ->
-                doLog (sprintf "Form.Closed %A" args) |> ignore
-                onAppExit1 args)
-
-            onStart () |> ignore
-            Application.Run form
-
-            if onExit () then
-                (int SYSExit.Success)
-            else
+                if onExit () then
+                    (int SYSExit.Success)
+                else
+                    (int SYSExit.Failure)
+            with
+            | :? System.InvalidOperationException as ex ->
+                doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
                 (int SYSExit.Failure)
         finally
             doLog "Finally, exit!\n\n" |> ignore

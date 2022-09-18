@@ -46,7 +46,7 @@ module aboutForm =
 
             let panel = new StdTableLayoutPanel (1, 5)
             panel.Dock <- DockStyle.Fill
-            form.Panel <- panel
+            form.ThePanel <- panel
 
             let addControl (control: Control) : bool =
                 control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)

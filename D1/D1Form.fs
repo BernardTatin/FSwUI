@@ -34,43 +34,29 @@ open System.Windows.Forms
 open GUITools.Fonts
 open GUITools.BaseControls
 open GUITools.Controls
+open GUITools.BasicForm
 open LogTools.Logger
 
 
 module D1Form =
 
-    let private DEFAULT_WIDTH = 640
-    let private DEFAULT_HEIGHT = 480
-
     type DForm(width: int, height: int, title: string) as self =
-        inherit Form(Width = width, Height = height, Text = title)
-
-        let bottomTips = new BottomTips (self)
-
-        /// the back panel which receive all the controls
-        let mutable backPanel: Panel = new BackPanel (self)
+        inherit BasicForm(width, height, title, new BackPanel())
+        // inherit Form(Width = width, Height = height, Text = title)
 
 
         /// a resize callback to ensure the back panel is always of the good size
         /// <remarks>not sure it's useful</remarks>
         let basicResize () =
-            bottomTips.RefreshText ()
+            self.Tips.RefreshText ()
 
-            backPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-            backPanel.Dock <- DockStyle.Fill
+            self.ThePanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            self.ThePanel.Dock <- DockStyle.Fill
             doLog (sprintf "basic resize of %s %d %d" title self.Width self.Height)
             |> ignore
 
-        let changeBackPanel(panel: Panel) =
-            backPanel.Hide()
-            panel.Dock <- DockStyle.Fill
-            self.Controls.Add panel
-            backPanel <- panel
-
-
         do
             self.Font <- smallFont
-            self.Controls.Add bottomTips
             self.Resize.Add (fun _ -> basicResize ())
 
 
@@ -79,17 +65,11 @@ module D1Form =
 
         /// add a control to the back panel
         /// <param name="control">the control to add</param>
-        member this.addControl(control: Control) = backPanel.Controls.Add control
+        member this.addControl(control: Control) = self.ThePanel.Controls.Add control
 
         /// add a menu to the form
         /// <remarks>bad stuff</remarks>
         member this.addMenu(menu) = self.Controls.Add menu
-
-        /// back panel getter
-        /// <remarks>must disappear</remarks>
-        member this.Panel
-            with get () = backPanel
-            and set panel =  changeBackPanel panel
 
         /// set the form as a dialog box
         member this.setToDialog() =

@@ -34,6 +34,7 @@ namespace d1
 
 open System.Windows.Forms
 open System.Drawing
+open GUITools.BasicForm
 open LogTools.Logger
 open D1Form
 open GUITools.BaseControls
@@ -42,37 +43,8 @@ module aboutForm =
 
     let showAboutForm () =
         try
-            let form = new DForm (330, 200, "About D1")
+            let form = new AboutForm (330, 200, "D1", "D1, forms and F# for fun")
 
-            let panel = new StdTableLayoutPanel (1, 5)
-            panel.Dock <- DockStyle.Fill
-            form.ThePanel <- panel
-
-            let addControl (control: Control) : bool =
-                control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-                // control.Dock <- DockStyle.Fill
-                control.Size <- Size (panel.Size.Width, control.MaximumSize.Height)
-                // form.addControl control
-                panel.Controls.Add control
-                true
-            // because of the form.AcceptButton, had to do this...
-            let okButtonOnClick =
-                (fun _ _ ->
-                    doLog "about Form: click OK button" |> ignore
-                    form.Close ())
-
-            let controls =
-                [
-                    (new Label3D ("D1, for the fun of Windows Forms in F#") :> Control)
-                    (new StdLabel ())
-                    new Label3D ("(c) 2022")
-                    new StdLabel ()
-                    (new StdButton ("Ok", okButtonOnClick))
-                ]
-
-            doLog "Start of showAboutForm" |> ignore
-
-            List.forall addControl controls |> ignore
 
             form.ShowDialog () |> ignore
         finally

@@ -30,8 +30,8 @@
 
 module GUITools.BasicForm
 
+open System
 open System.Windows.Forms
-open GUITools.Fonts
 open GUITools.BaseControls
 open GUITools.Controls
 open LogTools.Logger
@@ -43,10 +43,10 @@ let DEFAULT_HEIGHT = 480
 type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
     inherit Form(Width = width, Height = height, Text = title)
     let mutable backPanel: Panel = panel
-    let bottomTips = new BottomTips(self)
+    let bottomTips = new BottomTips (self)
 
-    let changeBackPanel(panel: Panel) =
-        backPanel.Hide()
+    let changeBackPanel (panel: Panel) =
+        backPanel.Hide ()
         panel.Dock <- DockStyle.Fill
         self.Controls.Add panel
         backPanel <- panel
@@ -59,7 +59,54 @@ type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
     /// <remarks>must disappear</remarks>
     member this.ThePanel
         with get () = backPanel
-        and set panel =  changeBackPanel panel
+        and set panel = changeBackPanel panel
 
-    member this.Tips
-        with get() = bottomTips
+    member this.Tips = bottomTips
+
+
+    /// add a control to the back panel
+    /// <param name="control">the control to add</param>
+    member this.addControl(control: Control) = self.ThePanel.Controls.Add control
+
+    /// add a menu to the form
+    /// <remarks>bad stuff</remarks>
+    member this.addMenu(menu) = self.Controls.Add menu
+
+    member this.setToDialog() =
+        // Define the border style of the form to a dialog box.
+        self.FormBorderStyle <- FormBorderStyle.FixedDialog
+        // Set the MaximizeBox to false to remove the maximize box.
+        self.MaximizeBox <- false
+        // Set the MinimizeBox to false to remove the minimize box.
+        self.MinimizeBox <- false
+
+type AboutForm(width: int, height: int, appName: string, text: string) as self =
+    inherit BasicForm(width, height, (sprintf "About %s" appName), new StdTableLayoutPanel (1, 5))
+
+    let createAddControl (control: Control) : bool =
+        control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        // control.Dock <- DockStyle.Fill
+        // control.Size <- Size (panel.Size.Width, control.MaximumSize.Height)
+        self.ThePanel.Controls.Add control
+        true
+
+    let okButtonOnClick =
+        (fun _ _ ->
+            doLog "about Form: click OK button" |> ignore
+            self.Close ())
+
+    let year = DateTime.Now.Year
+
+    let controls =
+        [
+            (new Label3D (text) :> Control)
+            (new StdLabel ())
+            new Label3D (sprintf "(c) %d" year)
+            new StdLabel ()
+            (new StdButton ("Ok", okButtonOnClick))
+        ]
+
+    do
+        let bPanel = self.ThePanel
+        bPanel.Dock <- DockStyle.Fill
+        List.forall createAddControl controls |> ignore

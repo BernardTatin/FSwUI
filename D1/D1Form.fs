@@ -62,20 +62,3 @@ module D1Form =
 
         new () = new DForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, "<no tile!>")
         new (title: string) = new DForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title)
-
-        /// add a control to the back panel
-        /// <param name="control">the control to add</param>
-        member this.addControl(control: Control) = self.ThePanel.Controls.Add control
-
-        /// add a menu to the form
-        /// <remarks>bad stuff</remarks>
-        member this.addMenu(menu) = self.Controls.Add menu
-
-        /// set the form as a dialog box
-        member this.setToDialog() =
-            // Define the border style of the form to a dialog box.
-            self.FormBorderStyle <- FormBorderStyle.FixedDialog
-            // Set the MaximizeBox to false to remove the maximize box.
-            self.MaximizeBox <- false
-            // Set the MinimizeBox to false to remove the minimize box.
-            self.MinimizeBox <- false

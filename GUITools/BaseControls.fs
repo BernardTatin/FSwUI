@@ -98,17 +98,3 @@ module BaseControls =
             self.BorderStyle <- BorderStyle.Fixed3D
             self.BackColor <- Color.White
         new () = new Label3D("")
-
-    type MenuHead(text:string) =
-        inherit ToolStripMenuItem (text)
-
-    type MenuEntry(text: string, onClick: ToolStripMenuItem -> EventArgs -> unit) as self =
-        inherit MenuHead(text)
-        do
-            self.Click.Add (fun arg -> onClick self arg)
-    type MenuEntryWithK(text: string,
-                        onClick: ToolStripMenuItem -> EventArgs -> unit,
-                        shortCutK: Keys) as self =
-        inherit MenuEntry(text, onClick)
-        do
-            self.ShortcutKeys <- shortCutK

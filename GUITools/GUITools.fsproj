@@ -11,6 +11,7 @@
         <Compile Include="BaseControls.fs" />
         <Compile Include="Controls.fs" />
         <Compile Include="BasicForm.fs" />
+        <Compile Include="Menus.fs" />
     </ItemGroup>
 
     <ItemGroup>

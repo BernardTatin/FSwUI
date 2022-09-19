@@ -33,6 +33,7 @@ open LogTools.Logger
 open Tools.BasicStuff
 open GUITools.Fonts
 open GUITools.BaseControls
+open GUITools.Menus
 open D1Form
 open aboutForm
 
@@ -41,7 +42,7 @@ module main =
         new DForm (500, 700, "D1 is my name")
 
     let createMenu (form: DForm) =
-        let menu = new MenuStrip ()
+        let menu = new MenuBar ()
         menu.Font <- smallFont
 
         let menuHelp = new MenuHead ("&Help")
@@ -60,9 +61,9 @@ module main =
 
         menuFile.DropDownItems.Add menuQuit |> ignore
 
-        menu.Items.Add menuFile |> ignore
-        menu.Items.Add menuHelp |> ignore
-        form.addMenu menu
+        menu.AddHead menuFile |> ignore
+        menu.AddHead menuHelp |> ignore
+        menu.Attach form
         ()
 
     let mkNameLabel (name: string) : Label =
@@ -130,22 +131,18 @@ module main =
             try
                 openLog () |> ignore
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
 
                 // first argument is not the name of the program !!
                 // IT'S NOT UNIX!
                 for a in argv do
                     doLog a |> ignore
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 // logFonts ()
                 let panel = form.ThePanel
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 let getWinDim () =
                     (sprintf "%d x %d" (form.Width) (form.Height))
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 let _, yLab =
                     showValueR "Windows dimension" (getWinDim ()) panel
                 // font: Name != OriginalName sie la font Name  n'existe pas
@@ -197,7 +194,6 @@ module main =
                 showValue "User name" Environment.UserName panel
                 showValue "User domain" Environment.UserDomainName panel
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 let timer = new Timer ()
 
                 timer.Tick.Add (fun _ ->
@@ -208,32 +204,26 @@ module main =
                 timer.Interval <- 1000
                 timer.Start ()
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 createMenu form
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 form.Resize.Add (fun _ ->
                     memLab.Text <- (getMemoryValue ())
                     yLab.Text <- (getWinDim ()))
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 let onAppExit1 _ =
                     doLog "onExit1" |> ignore
                     ()
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 Application.ApplicationExit.Add (fun args ->
                     doLog (sprintf "Application.ApplicationExit %A" args)
                     |> ignore
 
                     onAppExit1 args)
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 form.Closed.Add (fun args ->
                     doLog (sprintf "Form.Closed %A" args) |> ignore
                     onAppExit1 args)
 
-                doLog (sprintf "DEBUG - %5s" __LINE__) |> ignore
                 onStart () |> ignore
                 Application.Run form
 

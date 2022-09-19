@@ -4,7 +4,7 @@
 
     <WarnOn>3390;$(WarnOn)</WarnOn>
 
-    <TargetFrameworks>net472;net48</TargetFrameworks>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

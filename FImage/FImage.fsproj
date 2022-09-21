@@ -4,7 +4,7 @@
 
     <WarnOn>3390;$(WarnOn)</WarnOn> 
 
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,10 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="PresentationFramework" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Reflection.Context" />
-    <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net472'" />
+    <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net48'" />
     <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GUITools\GUITools.fsproj" />
+    <ProjectReference Include="..\Tools\Tools.fsproj" />
   </ItemGroup>
 
 </Project>

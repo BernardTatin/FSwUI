@@ -29,14 +29,111 @@
  *)
 
 
+
 open System
 open System.Drawing
 open System.Windows.Forms
+open System.Drawing.Text
+
+open LogTools.Logger
+open Tools.BasicStuff
+open GUITools.Fonts
+open GUITools.BaseControls
+open GUITools.Menus
+open GUITools.BasicForm
 
 module main =
+    let appName = "FSImage"
+    let showAboutForm () =
+        try
+            let form = new AboutForm (330, 200, appName, (sprintf "%s, creating F# projects" appName))
 
-    [<EntryPoint>]
+            form.ShowDialog () |> ignore
+        finally
+            doLog "End of showAboutForm" |> ignore
+
+    let createMenu (form: BasicForm) (pic: PictureBox) =
+
+        let loadImage () =
+            let ofd = new OpenFileDialog()
+            ofd.DefaultExt <- "*.jpg"
+            try
+                ofd.Filter <- "Image Files (*.jpg)|*.JPG;*.JPEG"
+                if isWindows() then
+                    ofd.InitialDirectory <- "c:\\"
+                else
+                    ofd.InitialDirectory <- "./"
+            with
+            | :? ArgumentOutOfRangeException as ex ->
+                doLog (sprintf "unexpected ArgumentOutOfRangeException %s" ex.Message) |> ignore
+            | :? ArgumentNullException as ex ->
+                doLog (sprintf "unexpected ArgumentNullException %s" ex.Message) |> ignore
+            | :? ArgumentException as ex ->
+                doLog (sprintf "unexpected ArgumentException %s" ex.Message) |> ignore
+            | ex ->
+                doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
+            ofd.FilterIndex <- 1
+            let result = ofd.ShowDialog()
+            if result = DialogResult.OK then
+                let bmp=new System.Drawing.Bitmap(ofd.FileName)
+                bmp.RotateFlip(RotateFlipType.RotateNoneFlipNone)
+                pic.Image <- bmp
+                // pic.ImageLocation <- ofd.FileName
+            ()
+
+        let menu = new MenuBar ()
+        menu.Font <- smallFont
+
+        let menuHelp = new MenuHead ("&Help")
+
+        let menuAbout =
+            new MenuEntry ("&About", (fun _ _ -> showAboutForm ()))
+
+        menuHelp.DropDownItems.Add menuAbout |> ignore
+
+        let menuFile = new MenuHead ("&File")
+
+        let menuOpen =
+            new MenuEntryWithK ("&Open...",
+                                (fun _ _ -> loadImage()),
+                                Keys.Control ||| Keys.O)
+        menuFile.DropDownItems.Add menuOpen |> ignore
+
+        let menuQuit =
+            new MenuEntryWithK ("&Quit",
+                                (fun _ _ -> form.Close ()),
+                                Keys.Control ||| Keys.Q)
+
+        menuFile.DropDownItems.Add menuQuit |> ignore
+
+        menu.AddHead menuFile
+        menu.AddHead menuHelp
+        menu.Attach form
+        ()
+
+    let addPictureBox (form: BasicForm) : PictureBox =
+        let pic = new PictureBox()
+        pic.SizeMode <- PictureBoxSizeMode.CenterImage
+        pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        pic.Dock <- DockStyle.Fill
+        form.addControl pic
+        pic
+
+    // [<EntryPoint>]
     let main argv =
-        let form = new Form(Text="FImage")
-        Application.Run form
-        0
+
+        try
+            openLog () |> ignore
+
+            let form = new BasicForm(appName)
+            let pic = addPictureBox form
+            createMenu form pic
+            Application.Run form
+            (int SYSExit.Success)
+        with
+        | :? System.InvalidOperationException as ex ->
+            doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
+            (int SYSExit.Failure)
+
+    [<STAThread>]
+    do main("<nothing>")

@@ -14,7 +14,7 @@
   <ItemGroup>
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Reflection.Context" />
-    <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net472'" />
+    <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net48'" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 

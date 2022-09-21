@@ -20,94 +20,64 @@
  *          - "System.Drawing"
  *)
 
-namespace d2
 
-module main =
 
-// Flappy bird prototype using Windows Forms
-// Note: no collision detection
+open System
+open System.Windows.Forms
+open System.ComponentModel
+open System.Drawing
+open System.Drawing.Printing
+open System.Drawing.Imaging
 
-   open System.IO
-   open System.Drawing
-   open System.Windows.Forms
-   open System.Net
+// [<EntryPoint>]
+let main () =
+ let loadimgform = new Form(Text="Printing Documents")
+ loadimgform.BackColor<-Color.Cornsilk
 
-   /// Double-buffered form
-   type CompositedForm () =
-      inherit Form()
-      override this.CreateParams =
-         let cp = base.CreateParams
-         cp.ExStyle <- cp.ExStyle ||| 0x02000000
-         cp
+ let picbox=new PictureBox(SizeMode=PictureBoxSizeMode.StretchImage,Top=40,Left=320,Height=200,Width=300,BorderStyle=BorderStyle.FixedSingle)
+ let lblfilename=new Label(AutoSize=true,Top=240,Width=400,Left=320,BorderStyle=BorderStyle.FixedSingle)
+ let printbtn=new Button(Text="Print",Top=270,Left=70)
 
-   /// Loads an image from a file or url
-   let load (file:string) (url:string) =
-      let path = Path.Combine(__SOURCE_DIRECTORY__, file)
-      if File.Exists path then Image.FromFile path
-      else
-         let request = HttpWebRequest.Create(url)
-         use response = request.GetResponse()
-         use stream = response.GetResponseStream()
-         Image.FromStream(stream)
+ printbtn.BackColor<-Color.Ivory
+ printbtn.ForeColor<-Color.Brown
 
-   let bg = load "bg.png" "http://flappycreator.com/default/bg.png"
-   let ground = load "ground.png" "http://flappycreator.com/default/ground.png"
-   let tube1 = load "tube1.png" "http://flappycreator.com/default/tube1.png"
-   let tube2 = load "tube2.png" "http://flappycreator.com/default/tube2.png"
-   let bird_sing = load "bird_sing.png" "http://flappycreator.com/default/bird_sing.png"
+ let loadbtn=new Button(Text="Load",Top=270,Left=150)
+ loadbtn.BackColor<-Color.Ivory
+ loadbtn.ForeColor<-Color.Brown
 
-   /// Bird type
-   type Bird = { X:float; Y:float; VY:float }
-   /// Respond to flap command
-   let flap (bird:Bird) = { bird with VY = - System.Math.PI }
-   /// Applies gravity to bird
-   let gravity (bird:Bird) = { bird with VY = bird.VY + 0.1 }
-   /// Applies physics to bird
-   let physics (bird:Bird) = { bird with Y = bird.Y + bird.VY }
-   /// Updates bird with gravity & physics
-   let update = gravity >> physics
+ let exitbtn=new Button(Text="Exit",Top=270,Left=230)
+ exitbtn.BackColor<-Color.Ivory
+ exitbtn.ForeColor<-Color.Red
 
-   /// Paints the game scene
-   let paint (graphics:PaintEventArgs) scroll level (flappy:Bird) =
-      let draw (image:Image) (x,y) =
-         graphics.Graphics.DrawImage(image,x,y,image.Width,image.Height)
-         // graphics.DrawImage(image,x,y,image.Width,image.Height)
-      draw bg (0,0)
-      draw bird_sing (int flappy.X, int flappy.Y)
-      let drawTube (x,y) =
-         draw tube1 (x-scroll,-320+y)
-         draw tube2 (x-scroll,y+100)
-      for (x,y) in level do drawTube (x,y)
-      draw ground (0,340)
+ let opnfiledlg=new OpenFileDialog()
+ let gr=loadimgform.CreateGraphics()
+ let prndoc=new System.Drawing.Printing.PrintDocument()
 
-   /// Generates the level's tube positions
-   let generateLevel n =
-      let rand = System.Random()
-      [for i in 1..n -> 50+(i*150), 32+rand.Next(160)]
+ loadimgform .Controls.Add(picbox)
+ loadimgform.Controls.Add(loadbtn)
+ loadimgform.Controls.Add(lblfilename)
+ loadimgform.Controls.Add(printbtn)
+ loadimgform.Controls.Add(exitbtn)
 
-   let level = generateLevel 10
-   let scroll = ref 0
-   let flappy = ref { X = 30.0; Y = 150.0; VY = 0.0}
+ printbtn.Click.Add(fun printing->prndoc.Print())
 
-   let x = 1
-   let rePaint args =
-      flappy.Value <- update flappy.Value
-      // paint args.Graphics !scroll level !flappy;
-      paint args scroll.Value level flappy.Value
-      scroll.Value <- scroll.Value
-   let form = new CompositedForm(Text="Flap me",Width=288,Height=440)
-   form.Paint.Add rePaint
+ loadbtn.Click.Add(fun load->
 
-   let flapme () =  flappy.Value <- flap flappy.Value
-   // Respond to mouse clicks
-   form.Click.Add(fun _ -> flapme())
-   // Respond to space key
-   form.KeyDown.Add(fun args -> if args.KeyCode = Keys.Space then flapme())
-   // Show form
-   form.Show()
-   // Update form asynchronously every 18ms
-   async {
-      while true do
-         do! Async.Sleep(18)
-         form.Invalidate()
-   } |> Async.StartImmediate
+ opnfiledlg.Filter <- "JPEG Images (*.jpg,*.jpeg)|*.jpg;*.jpeg|Image Files (*.gif)|*.gif"
+ opnfiledlg.Title<-"Choose Image File"
+
+ if opnfiledlg.ShowDialog()=DialogResult.OK then
+  let bmp=new System.Drawing.Bitmap(opnfiledlg.FileName)
+  bmp.RotateFlip(RotateFlipType.RotateNoneFlipNone)
+  picbox.Image<-bmp
+  lblfilename.Text<-"\t\tFilename:" + Convert.ToString(Convert.ToChar(32))+ (opnfiledlg.FileName))
+
+ prndoc.PrintPage.Add(fun printdata -> (gr.DrawImage(picbox.Image,10,10)))
+
+ exitbtn.Click.Add(fun quit->loadimgform.Close())
+
+ Application.Run(loadimgform)
+ // 0
+
+[<STAThread>]
+do main()

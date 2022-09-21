@@ -28,15 +28,62 @@
 
  *)
 
+namespace FSAppMaker
 
 open System
 open System.Drawing
 open System.Windows.Forms
+open System.Drawing.Text
+open LogTools.Logger
+open Tools.BasicStuff
+open GUITools.Fonts
+open GUITools.BaseControls
+open GUITools.Menus
+open GUITools.BasicForm
 
 module main =
+    let appName = "FSAppMaker"
+    let showAboutForm () =
+        try
+            let form = new AboutForm (330, 200, appName, (sprintf "%s, creating F# projects" appName))
+
+            form.ShowDialog () |> ignore
+        finally
+            doLog "End of showAboutForm" |> ignore
+    let createMenu (form: BasicForm) =
+        let menu = new MenuBar ()
+        menu.Font <- smallFont
+
+        let menuHelp = new MenuHead ("&Help")
+
+        let menuAbout =
+            new MenuEntry ("&About", (fun _ _ -> showAboutForm ()))
+
+        menuHelp.DropDownItems.Add menuAbout |> ignore
+
+        let menuFile = new MenuHead ("&File")
+
+        let menuQuit =
+            new MenuEntryWithK ("&Quit",
+                                (fun _ _ -> form.Close ()),
+                                Keys.Control ||| Keys.Q)
+
+        menuFile.DropDownItems.Add menuQuit |> ignore
+
+        menu.AddHead menuFile |> ignore
+        menu.AddHead menuHelp |> ignore
+        menu.Attach form
+        ()
 
     [<EntryPoint>]
     let main argv =
-        let form = new Form(Text="FSAppMaker")
-        Application.Run form
-        0
+        try
+            openLog () |> ignore
+            let form = new BasicForm(appName)
+            createMenu form
+            Application.Run form
+            (int SYSExit.Success)
+        with
+        | :? System.InvalidOperationException as ex ->
+            doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
+            (int SYSExit.Failure)

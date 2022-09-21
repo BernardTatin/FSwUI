@@ -50,11 +50,12 @@ type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
         panel.Dock <- DockStyle.Fill
         self.Controls.Add panel
         backPanel <- panel
-
     do
         self.Controls.Add panel
         self.Controls.Add bottomTips
 
+    new (width: int, height: int, title: string) = new BasicForm(width, height, title, new BackPanel())
+    new (title: string) = new BasicForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, new BackPanel())
     /// back panel getter
     /// <remarks>must disappear</remarks>
     member this.ThePanel

@@ -113,9 +113,15 @@ module main =
 
     let addPictureBox (form: BasicForm) : PictureBox =
         let pic = new PictureBox()
-        pic.SizeMode <- PictureBoxSizeMode.CenterImage
-        pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        pic.SizeMode <- PictureBoxSizeMode.StretchImage     // CenterImage
+        // pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         pic.Dock <- DockStyle.Fill
+        pic.BorderStyle <- BorderStyle.Fixed3D
+        pic.Width <- DEFAULT_WIDTH - 8
+        pic.Height <- DEFAULT_HEIGHT - 8
+        pic.Top <- 4
+        pic.Left <- 4
+        pic.BackColor <- Color.Coral
         form.addControl pic
         pic
 
@@ -125,7 +131,7 @@ module main =
         try
             openLog () |> ignore
 
-            let form = new BasicForm(appName)
+            let form = new BasicForm(appName, StdTableLayoutPanel (1, 1))
             let pic = addPictureBox form
             createMenu form pic
             Application.Run form

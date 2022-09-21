@@ -31,6 +31,7 @@
 module GUITools.BasicForm
 
 open System
+open System.Drawing
 open System.Windows.Forms
 open GUITools.BaseControls
 open GUITools.Controls
@@ -53,9 +54,11 @@ type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
     do
         self.Controls.Add panel
         self.Controls.Add bottomTips
+        panel.BackColor <- Color.Chartreuse
 
     new (width: int, height: int, title: string) = new BasicForm(width, height, title, new BackPanel())
     new (title: string) = new BasicForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, new BackPanel())
+    new (title: string, panel: Panel) = new BasicForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, panel)
     /// back panel getter
     /// <remarks>must disappear</remarks>
     member this.ThePanel

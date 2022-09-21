@@ -31,10 +31,10 @@ open System.Drawing.Imaging
 
 // [<EntryPoint>]
 let main () =
- let loadimgform = new Form(Text="Printing Documents")
+ let loadimgform = new Form(Text="Printing Documents", Width=600, Height=800)
  loadimgform.BackColor<-Color.Cornsilk
 
- let picbox=new PictureBox(SizeMode=PictureBoxSizeMode.StretchImage,Top=40,Left=320,Height=200,Width=300,BorderStyle=BorderStyle.FixedSingle)
+ let picBox=new PictureBox(SizeMode=PictureBoxSizeMode.StretchImage,Top=40,Left=320,Height=200,Width=300,BorderStyle=BorderStyle.FixedSingle)
  let lblfilename=new Label(AutoSize=true,Top=240,Width=400,Left=320,BorderStyle=BorderStyle.FixedSingle)
  let printbtn=new Button(Text="Print",Top=270,Left=70)
 
@@ -53,7 +53,7 @@ let main () =
  let gr=loadimgform.CreateGraphics()
  let prndoc=new System.Drawing.Printing.PrintDocument()
 
- loadimgform .Controls.Add(picbox)
+ loadimgform .Controls.Add(picBox)
  loadimgform.Controls.Add(loadbtn)
  loadimgform.Controls.Add(lblfilename)
  loadimgform.Controls.Add(printbtn)
@@ -69,10 +69,10 @@ let main () =
  if opnfiledlg.ShowDialog()=DialogResult.OK then
   let bmp=new System.Drawing.Bitmap(opnfiledlg.FileName)
   bmp.RotateFlip(RotateFlipType.RotateNoneFlipNone)
-  picbox.Image<-bmp
+  picBox.Image<-bmp
   lblfilename.Text<-"\t\tFilename:" + Convert.ToString(Convert.ToChar(32))+ (opnfiledlg.FileName))
 
- prndoc.PrintPage.Add(fun printdata -> (gr.DrawImage(picbox.Image,10,10)))
+ prndoc.PrintPage.Add(fun printdata -> (gr.DrawImage(picBox.Image,10,10)))
 
  exitbtn.Click.Add(fun quit->loadimgform.Close())
 

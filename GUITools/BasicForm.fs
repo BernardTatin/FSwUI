@@ -54,7 +54,6 @@ type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
     do
         self.Controls.Add panel
         self.Controls.Add bottomTips
-        panel.BackColor <- Color.Chartreuse
 
     new (width: int, height: int, title: string) = new BasicForm(width, height, title, new BackPanel())
     new (title: string) = new BasicForm(DEFAULT_WIDTH, DEFAULT_HEIGHT, title, new BackPanel())

@@ -117,11 +117,12 @@ module main =
         // pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         pic.Dock <- DockStyle.Fill
         pic.BorderStyle <- BorderStyle.Fixed3D
-        pic.Width <- DEFAULT_WIDTH - 8
-        pic.Height <- DEFAULT_HEIGHT - 8
-        pic.Top <- 4
-        pic.Left <- 4
-        pic.BackColor <- Color.Coral
+        let delta1 = 16
+        let delta2 = 2 * delta1
+        pic.Width <- DEFAULT_WIDTH - delta2
+        pic.Height <- DEFAULT_HEIGHT - delta2
+        pic.Top <- delta1
+        pic.Left <- delta1
         form.addControl pic
         pic
 
@@ -131,7 +132,7 @@ module main =
         try
             openLog () |> ignore
 
-            let form = new BasicForm(appName, StdTableLayoutPanel (1, 1))
+            let form = new BasicForm(appName, new StdTableLayoutPanel (1, 1))
             let pic = addPictureBox form
             createMenu form pic
             Application.Run form

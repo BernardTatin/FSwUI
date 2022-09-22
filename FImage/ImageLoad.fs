@@ -37,7 +37,7 @@ open LogTools.Logger
 
 open FSImage.helpers
 
-let mutable private startDir = getHome()
+let mutable private startDir = getPicturesDir()
 
 let loadImage () =
     let ofd = new OpenFileDialog()

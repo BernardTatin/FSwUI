@@ -39,9 +39,9 @@ let dirSep = if isWindows() then
                 '\\'
              else
                  '/'
-let getDirName (str: string) =
-    let parts = str.Split  dirSep
-    let mutable l = parts.Length
+let getDirName (filePath: string) =
+    let parts: string[] = filePath.Split  dirSep
+    let l = parts.Length
     if l > 1 then
         let mutable result = ""
         for i in 0..l-2 do
@@ -53,5 +53,13 @@ let getDirName (str: string) =
     else
         "."
 
-let getHome () =
+let getBaseName (filePath: string) : string =
+    let parts: string[] = filePath.Split  dirSep
+    let l = parts.Length
+    if l > 0 then
+        parts[l - 1]
+    else
+        filePath
+
+let getPicturesDir () =
     Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)

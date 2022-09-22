@@ -34,6 +34,8 @@ open System
 open System.Drawing
 open System.Windows.Forms
 open System.Drawing.Text
+open System.IO
+open System.Text
 
 open LogTools.Logger
 open Tools.BasicStuff
@@ -45,14 +47,15 @@ open GUITools.BasicForm
 open FSImage.FImNames
 open FSImage.FImMenus
 open FSImage.ImageLoad
+open FSImage.helpers
 
 module main =
 
     let resizePicture (form: BasicForm) (pic: PictureBox) =
         let delta1 = 16
         let delta2 = 2 * delta1
-        pic.Width <- form.Width - delta2
-        pic.Height <- form.Height - delta2 - (4 * form.Tips.Height)
+        pic.Width <- form.Width - delta2 - 200
+        pic.Height <- form.Height - delta2 - (3 * form.Tips.Height)
         pic.Top <- delta1 + form.Tips.Height
         pic.Left <- delta1
 
@@ -63,27 +66,38 @@ module main =
         // pic.Dock <- DockStyle.Fill
         pic.BorderStyle <- BorderStyle.Fixed3D
         resizePicture form pic
+        pic.Image <- new System.Drawing.Bitmap(pic.Width, pic.Height)
         pic
 
     // [<EntryPoint>]
     let main argv =
+        let form = new BasicForm(appName, new TableLayoutPanel3D (2, 2))
+        let mutable currentImage = ""
+        let imageProps = new StdLabel (currentImage)
         let loadShowImage (pic: PictureBox) =
-            let (fileName: string, ok: bool) = loadImage ()
+            let (filePath: string, ok: bool) = loadImage ()
 
             if ok then
-                let bmp = new System.Drawing.Bitmap(fileName)
+                let fileName = (getBaseName filePath)
+                let fi: FileInfo = new FileInfo(filePath)
+                let bmp = new System.Drawing.Bitmap(filePath)
                 bmp.RotateFlip(RotateFlipType.RotateNoneFlipNone)
+                pic.Image.Dispose()
                 pic.Image <- bmp
-                // pic.ImageLocation <- ofd.FileName
+                form.Text <- (sprintf "%s - %s" appName fileName)
+                currentImage <- filePath
+                imageProps.Text <- (sprintf "%s - %d" fileName fi.Length)
             ()
 
         try
             openLog () |> ignore
 
-            let form = new BasicForm(appName, new StdTableLayoutPanel (1, 1))
             let pic = createPictureBox form
             createMenu form (fun () -> loadShowImage pic)
             form.addControl pic
+            form.addControl (new StdLabel("Filtering"))
+            form.addControl imageProps
+
             form.Resize.Add (fun _ -> resizePicture form pic)
             Application.Run form
             (int SYSExit.Success)

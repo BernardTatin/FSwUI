@@ -1,8 +1,8 @@
-﻿(*
-    Project:    GUITools
-    File name:  Menus.fs
-    User:       berna
-    Date:       2022-09-19
+(*
+    Project:    FImage
+    File name:  ImageLoad.fs
+    User:       bernard
+    Date:       2022-09-22
 
     The MIT License (MIT)
 
@@ -28,43 +28,36 @@
 
  *)
 
-module GUITools.Menus
+module FSImage.ImageLoad
 
 open System
-open System.Drawing
 open System.Windows.Forms
-open System.Drawing.Text
-open GUITools.BaseControls
 
-type MenuHead(text:string) as self =
-    inherit ToolStripMenuItem (text)
-    do
-        self.Anchor <- AnchorStyles.Top
+open LogTools.Logger
 
-type MenuEntry(text: string, onClick: ToolStripMenuItem -> EventArgs -> unit) as self =
-    inherit MenuHead(text)
-    do
-        self.Click.Add (fun arg -> onClick self arg)
-type MenuEntryWithK(text: string,
-                    onClick: ToolStripMenuItem -> EventArgs -> unit,
-                    shortCutK: Keys) as self =
-    inherit MenuEntry(text, onClick)
-    do
-        self.ShortcutKeys <- shortCutK
+open FSImage.helpers
 
-type MenuBar() as self =
-    inherit MenuStrip()
-    let mutable heads: MenuHead List  = []
+let mutable private startDir = getHome()
 
-    member this.AddHead head =
-        heads <- heads @ [ head ]
-
-    member this.Attach (form: Form) =
-        let rec attachHeads (heads: MenuHead List) =
-            match heads with
-            | h :: t ->
-                self.Items.Add h |> ignore
-                attachHeads t
-            | [] -> ()
-        attachHeads heads
-        form.Controls.Add self
+let loadImage () =
+    let ofd = new OpenFileDialog()
+    ofd.DefaultExt <- "*.jpg"
+    try
+        ofd.Filter <- "Image Files (*.jpg)|*.jpg;*.jpeg;*.JPG;*.JPEG|All files (*.*)|*.*"
+        ofd.InitialDirectory <- startDir
+    with
+    | :? ArgumentOutOfRangeException as ex ->
+        doLog (sprintf "unexpected ArgumentOutOfRangeException %s" ex.Message) |> ignore
+    | :? ArgumentNullException as ex ->
+        doLog (sprintf "unexpected ArgumentNullException %s" ex.Message) |> ignore
+    | :? ArgumentException as ex ->
+        doLog (sprintf "unexpected ArgumentException %s" ex.Message) |> ignore
+    | ex ->
+        doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
+    ofd.FilterIndex <- 1
+    let result = ofd.ShowDialog()
+    if result = DialogResult.OK then
+        startDir <- getDirName (ofd.FileName)
+        (ofd.FileName, true)
+    else
+        ("", false)

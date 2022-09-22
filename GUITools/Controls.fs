@@ -64,6 +64,7 @@ module Controls =
             // the order is very important: Anchor first, Dock second!
             self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
             self.Dock <- DockStyle.Bottom
+            self.AutoSize <- true
 
             labTime.DoAnchor LabelAnchor.Right
             labSize.DoAnchor LabelAnchor.Left

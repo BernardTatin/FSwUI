@@ -89,6 +89,7 @@ module main =
         if isWindows () then
             lPanel.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         lPanel.Dock <- DockStyle.None
+        lPanel.AutoSize <- true
         lPanel.Controls.Add nameLabel
         lPanel.Controls.Add valueLabel
         panel.Controls.Add lPanel
@@ -189,6 +190,11 @@ module main =
                 showValue "Directory" Environment.CurrentDirectory panel
 
                 showValue "System Directory" Environment.SystemDirectory panel
+                showValue "System dir" (Environment.GetFolderPath(Environment.SpecialFolder.System)) panel
+                showValue "LocalApplicationData" (Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)) panel
+                showValue "ApplicationData" (Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)) panel
+                showValue "MyPictures" (Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)) panel
+
                 showValues "Logical drives/Mount points" (Environment.GetLogicalDrives ()) panel
 
                 showValue "User name" Environment.UserName panel

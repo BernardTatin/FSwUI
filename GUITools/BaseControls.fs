@@ -56,7 +56,10 @@ module BaseControls =
     type StdTableLayoutPanel(cols: int, rows: int) as self =
         inherit TableLayoutPanel()
         do
-            self.AutoSize <- true
+            // self.AutoSize <- true
+            self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            // Works on Linux, not sure on Windows
+            self.Dock <- DockStyle.Fill
             self.ColumnCount <- cols
             self.RowCount <- rows
 

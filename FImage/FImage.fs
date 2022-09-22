@@ -111,18 +111,21 @@ module main =
         menu.Attach form
         ()
 
+    let resizePicture (form: BasicForm) (pic: PictureBox) =
+        let delta1 = 16
+        let delta2 = 2 * delta1
+        pic.Width <- form.Width - delta2
+        pic.Height <- form.Height - delta2 - (2 * form.Tips.Height)
+        pic.Top <- delta1
+        pic.Left <- delta1
+
     let addPictureBox (form: BasicForm) : PictureBox =
         let pic = new PictureBox()
-        pic.SizeMode <- PictureBoxSizeMode.StretchImage     // CenterImage
+        pic.SizeMode <- PictureBoxSizeMode.Zoom     // CenterImage
         // pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         pic.Dock <- DockStyle.Fill
         pic.BorderStyle <- BorderStyle.Fixed3D
-        let delta1 = 16
-        let delta2 = 2 * delta1
-        pic.Width <- DEFAULT_WIDTH - delta2
-        pic.Height <- DEFAULT_HEIGHT - delta2
-        pic.Top <- delta1
-        pic.Left <- delta1
+        resizePicture form pic
         form.addControl pic
         pic
 
@@ -135,6 +138,7 @@ module main =
             let form = new BasicForm(appName, new StdTableLayoutPanel (1, 1))
             let pic = addPictureBox form
             createMenu form pic
+            form.Resize.Add (fun _ -> resizePicture form pic)
             Application.Run form
             (int SYSExit.Success)
         with

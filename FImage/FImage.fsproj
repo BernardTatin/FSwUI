@@ -11,6 +11,7 @@
     <Compile Include="helpers.fs" />
     <Compile Include="FImNames.fs" />
     <Compile Include="ImageLoad.fs" />
+    <Compile Include="ThePicture.fs" />
     <Compile Include="FImMenus.fs" />
     <Compile Include="FImage.fs" />
   </ItemGroup>

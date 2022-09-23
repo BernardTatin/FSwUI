@@ -46,6 +46,7 @@ open GUITools.BasicForm
 open FSImage.FImNames
 open FSImage.helpers
 open FSImage.ImageLoad
+open FSImage.ThePicture
 
 let showAboutForm () =
     try
@@ -55,35 +56,47 @@ let showAboutForm () =
     finally
         doLog "End of showAboutForm" |> ignore
 
-let createMenu (form: BasicForm) loadShowImage =
+type TMenuHead (text) as self  =
+    let mutable subs: MenuEntry List = []
+    member this.AddEntry(entry) =
+        subs <- subs @ [ entry ]
+        ()
+    member this.AttachToBar (bar: MenuBar) =
+        let m = new MenuHead (text)
+        for e in subs do
+            m.DropDownItems.Add e |> ignore
+        bar.AddHead m
+
+
+let createMenu (form: BasicForm) (image: ThePicture) =
 
 
     let menu = new MenuBar ()
     menu.Font <- smallFont
 
-    let menuHelp = new MenuHead ("&Help")
 
-    let menuAbout =
-        new MenuEntry ("&About", (fun _ _ -> showAboutForm ()))
 
-    menuHelp.DropDownItems.Add menuAbout |> ignore
+    let menuEdit = new TMenuHead ("&Edit")
+    menuEdit.AddEntry (new MenuEntryWithK ("&Rotate",
+                                         (fun _ _ -> image.Rotate()),
+                                         Keys.Control ||| Keys.R))
+    menuEdit.AddEntry (new MenuEntryWithK ("Shift Color Left",
+                                         (fun _ _ -> image.ShiftColorsLeft()),
+                                         Keys.Control ||| Keys.L))
 
-    let menuFile = new MenuHead ("&File")
-
-    let menuOpen =
-        new MenuEntryWithK ("&Open...",
-                            (fun _ _ -> loadShowImage()),
-                            Keys.Control ||| Keys.O)
-    menuFile.DropDownItems.Add menuOpen |> ignore
-
-    let menuQuit =
-        new MenuEntryWithK ("&Quit",
+    let menuFile = new TMenuHead("&File")
+    menuFile.AddEntry (new MenuEntryWithK ("&Open...",
+                            (fun _ _ -> image.LoadImage()),
+                            Keys.Control ||| Keys.O))
+    menuFile.AddEntry (new MenuEntryWithK ("&Quit",
                             (fun _ _ -> form.Close ()),
-                            Keys.Control ||| Keys.Q)
+                            Keys.Control ||| Keys.Q))
+    let menuHelp = new TMenuHead("&Help")
+    menuHelp.AddEntry (new MenuEntry ("&About", (fun _ _ -> showAboutForm ())))
 
-    menuFile.DropDownItems.Add menuQuit |> ignore
+    menuFile.AttachToBar menu
+    menuEdit.AttachToBar menu
+    menuHelp.AttachToBar menu
 
-    menu.AddHead menuFile
-    menu.AddHead menuHelp
     menu.Attach form
     ()

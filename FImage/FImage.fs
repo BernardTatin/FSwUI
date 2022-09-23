@@ -55,7 +55,7 @@ module main =
         let delta1 = 16
         let delta2 = 2 * delta1
         pic.Width <- form.Width - delta2 - 200
-        pic.Height <- form.Height - delta2 - (3 * form.Tips.Height)
+        pic.Height <- form.Height - delta2 - (4 * form.Tips.Height)
         pic.Top <- delta1 + form.Tips.Height
         pic.Left <- delta1
 
@@ -73,7 +73,7 @@ module main =
     let main argv =
         let form = new BasicForm(appName, new TableLayoutPanel3D (2, 2))
         let mutable currentImage = ""
-        let imageProps = new StdLabel (currentImage)
+        let imageProps = new Label3D (currentImage)
         let loadShowImage (pic: PictureBox) =
             let (filePath: string, ok: bool) = loadImage ()
 
@@ -86,12 +86,17 @@ module main =
                 pic.Image <- bmp
                 form.Text <- (sprintf "%s - %s" appName fileName)
                 currentImage <- filePath
-                imageProps.Text <- (sprintf "%s - %d" fileName fi.Length)
+                imageProps.Text <- (sprintf "%s - %d Ko %d x %d pixels"
+                                        fileName (fi.Length / 1024L)
+                                        (bmp.Width) (bmp.Height) )
             ()
 
         try
             openLog () |> ignore
 
+            // form.Font <- smallFont
+            imageProps.Font <- smallFont
+            imageProps.AutoSize <- true
             let pic = createPictureBox form
             createMenu form (fun () -> loadShowImage pic)
             form.addControl pic

@@ -30,30 +30,107 @@
 
 module FSImage.ThePicture
 
-open System
 open System.Drawing
 open System.Windows.Forms
-open System.Drawing.Text
+open System.Drawing.Imaging
 open System.IO
-open System.Text
 
 open LogTools.Logger
-open Tools.BasicStuff
 open GUITools.Fonts
 open GUITools.BaseControls
-open GUITools.Menus
 open GUITools.BasicForm
 
 open FSImage.FImNames
 open FSImage.ImageLoad
 open FSImage.helpers
+open FSImage.BMPStates
+open FSImage.BitmapTools
 
 type ThePicture(form: BasicForm) as self =
+    let mutable bmpState: BMPState =
+        BMPState.NothingToSee
+
     let mutable currentImageFile = ""
-    let mutable imageLoaded = false
-    let mutable bmp = new System.Drawing.Bitmap(20, 20)
-    let pic = new PictureBox()
+
+    let mutable bmp =
+        new Bitmap (20, 20)
+
+    let mutable pixels: byte [] = [||]
+    let pic = new PictureBox ()
     let imageProps = new Label3D ("")
+    let mutable bmpRect = Rectangle(0, 0, 20, 20)
+    let setBitmap (newBMP: Bitmap) =
+        bmp.Dispose ()
+        bmp <- newBMP
+        bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
+        bmpRect <- Rectangle(0, 0, bmp.Width, bmp.Height)
+        pic.Image <- bmp
+
+    let bmpToPixels () =
+
+        use ms = new MemoryStream ()
+        bmp.Save (ms, ImageFormat.Bmp)
+        pixels <- ms.ToArray ()
+
+    let pixelsToBMP () =
+        use ms = new MemoryStream (pixels)
+        setBitmap (new Bitmap (ms))
+
+    let isReady() = bmpState = BMPState.Ready
+    let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
+        if isReady() then
+            doLog $"{message}..." |> ignore
+            let pix = new LockContext(bmp)
+            pix.ForEach f
+            pix.Unlock()
+            pic.Image <- bmp
+            doLog $"{message} OK" |> ignore
+            ()
+        else
+            doLog $"Cannot {message}..." |> ignore
+            ()
+
+    let rec changeState (newState: BMPState) : bool =
+        // doLog (sprintf "Change state %A -> %A..." bmpState newState) |> ignore
+        let result =
+            match newState with
+            | NothingToSee ->
+                if bmpState <> BMPState.NothingToSee then
+                    setBitmap (new Bitmap (20, 20))
+                bmpState <- newState
+                true
+            | NewBMPFromFile ->
+                setBitmap (new Bitmap (currentImageFile))
+                bmpState <- newState
+                changeState NewPixFromBMP
+            | NewPixFromBMP ->
+                bmpToPixels ()
+                bmpState <- newState
+                changeState Ready
+            | NewBMPFromPix ->
+                pixelsToBMP()
+                bmpState <- newState
+                changeState Ready
+            | Ready ->
+                bmpState <- newState
+                true
+            | DirtyBMP ->
+                if bmpState = Ready then
+                    bmpState <- newState
+                    changeState NewPixFromBMP
+                else
+                    false
+            | DirtyPixels ->
+                if bmpState = Ready then
+                    bmpState <- newState
+                    changeState NewBMPFromPix
+                else
+                    false
+
+        // doLog (sprintf "After changing state %A -> %A" bmpState newState) |> ignore
+        result
+
+
     let resizePicture () =
         let delta1 = 16
         let delta2 = 2 * delta1
@@ -62,61 +139,91 @@ type ThePicture(form: BasicForm) as self =
         pic.Top <- delta1 + form.Tips.Height
         pic.Left <- delta1
 
+    let time f =
+        let sw = System.Diagnostics.Stopwatch()
+        sw.Start()
+        let res = f()
+        sw.Stop()
+        (res, sw.Elapsed.TotalMilliseconds)
+    let newLocker() = new LockContext(bmp)
     do
-        pic.SizeMode <- PictureBoxSizeMode.Zoom     // CenterImage
-        // pic.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-        // pic.Dock <- DockStyle.Fill
+        pic.SizeMode <- PictureBoxSizeMode.Zoom // CenterImage
         pic.BorderStyle <- BorderStyle.Fixed3D
         resizePicture ()
-        pic.Image <- new System.Drawing.Bitmap(pic.Width, pic.Height)
+        setBitmap (new Bitmap (pic.Width, pic.Height))
         imageProps.Font <- smallFont
         imageProps.AutoSize <- true
 
         form.addControl pic
         form.addControl imageProps
 
+
+
     member this.GetPicture() = pic
     member this.GetBMP() = pic.Image
     member this.ImageProps() = imageProps
+
     member this.OnNewImage(filePath: string) =
         let fileName = (getBaseName filePath)
-        let fi: FileInfo = new FileInfo(filePath)
-        bmp <- new System.Drawing.Bitmap(filePath)
-        bmp.RotateFlip(RotateFlipType.RotateNoneFlipNone)
-        pic.Image.Dispose()
-        pic.Image <- bmp
-        form.Text <- (sprintf "%s - %s" appName fileName)
+        let fi: FileInfo = FileInfo filePath
         currentImageFile <- filePath
-        imageProps.Text <- (sprintf "%s - %d Ko %d x %d pixels %s"
-                                fileName (fi.Length / 1024L)
-                                (bmp.Width) (bmp.Height)
-                                (bmp.PixelFormat.ToString()))
-        imageLoaded <- true
+        changeState BMPState.NewBMPFromFile |> ignore
+        form.Text <- (sprintf "%s - %s" appName fileName)
+
+        imageProps.Text <-
+            (sprintf
+                "%s - %d Ko %d x %d pixels %s"
+                fileName
+                (fi.Length / 1024L)
+                bmp.Width
+                bmp.Height
+                (bmp.PixelFormat.ToString ()))
+
         ()
+
     member this.LoadImage() =
-        let (filePath: string, ok: bool) = loadImage ()
+        let (filePath: string, ok: bool) =
+            loadImage ()
 
-        if ok then
-            self.OnNewImage  filePath
+        if ok then self.OnNewImage filePath
         ()
 
-    member this.Resize() = resizePicture()
-    member this.Rotate () =
-        if imageLoaded then
-           bmp.RotateFlip(RotateFlipType.Rotate90FlipNone)
-           pic.Image <- bmp
+    member this.ReLoadImage() =
+        self.OnNewImage currentImageFile
+
+    member this.Resize() = resizePicture ()
+
+    member this.Rotate() =
+        if isReady() then
+            doLog "Rotate..." |> ignore
+            bmp.RotateFlip RotateFlipType.Rotate90FlipNone
+            pic.Image <- bmp
+            changeState BMPState.DirtyBMP |> ignore
+            doLog "Rotate OK" |> ignore
+        else
+            doLog (sprintf "Cannot Rotate... state: %A" bmpState) |> ignore
         ()
 
     member this.ShiftColorsLeft() =
-        if imageLoaded then
-            doLog "ShiftColorsLeft..." |> ignore
-            for x in 0..(bmp.Width-1) do
-                for y in 0..(bmp.Height-1) do
-                    let c: Color = bmp.GetPixel (x, y)
-                    let nc = Color.FromArgb(int c.A, int c.B, int c.R, int c.G)
-                    bmp.SetPixel (x, y, nc)
-            pic.Image <- bmp
-            doLog "ShiftColorsLeft OK" |> ignore
-            ()
-        else
-            ()
+        let f() = doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
+        let _, t = time f
+        doLog $"ShiftColorsLeft {t}" |> ignore
+
+    member this.ShiftColorsRight() =
+        let f() = doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
+        let _, t = time f
+        doLog $"ShiftColorsRight {t}" |> ignore
+
+    member this.CutColors(limit: byte) =
+        let white = (byte 255, byte 255, byte 255)
+        let black = (byte 0, byte 0, byte 0)
+        let cutCol(r: byte, g: byte, b: byte) =
+            if r>limit then
+                white
+            else if g>limit then
+                white
+            else if b>limit then
+                white
+            else
+                black
+        doFilter cutCol "CutColors"

@@ -11,17 +11,23 @@
     <Compile Include="helpers.fs" />
     <Compile Include="FImNames.fs" />
     <Compile Include="ImageLoad.fs" />
+    <Compile Include="BMPStates.fs" />
+    <Compile Include="BitmapTools.fs" />
     <Compile Include="ThePicture.fs" />
     <Compile Include="FImMenus.fs" />
     <Compile Include="FImage.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System.Drawing.Design" />
     <Reference Include="System.Reflection.Context" />
     <Reference Include="System.Windows" Condition="'$(TargetFramework)' == 'net48'" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase">
+      <HintPath>..\..\..\.nuget\packages\microsoft.netframework.referenceassemblies.net48\1.0.2\build\.NETFramework\v4.8\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

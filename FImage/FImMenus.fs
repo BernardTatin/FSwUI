@@ -80,17 +80,33 @@ let createMenu (form: BasicForm) (image: ThePicture) =
     menuEdit.AddEntry (new MenuEntryWithK ("&Rotate",
                                          (fun _ _ -> image.Rotate()),
                                          Keys.Control ||| Keys.R))
+    menuEdit.AddEntry (new MenuEntryWithK ("Shift Color Right",
+                                         (fun _ _ -> image.ShiftColorsRight()),
+                                         Keys.Control ||| Keys.T))
     menuEdit.AddEntry (new MenuEntryWithK ("Shift Color Left",
                                          (fun _ _ -> image.ShiftColorsLeft()),
                                          Keys.Control ||| Keys.L))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut (63)",
+                                         (fun _ _ -> image.CutColors (byte 63)),
+                                         Keys.Control ||| Keys.G))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut (127)",
+                                         (fun _ _ -> image.CutColors (byte 127)),
+                                         Keys.Control ||| Keys.K))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut (191)",
+                                         (fun _ _ -> image.CutColors (byte 191)),
+                                         Keys.Control ||| Keys.H))
 
     let menuFile = new TMenuHead("&File")
     menuFile.AddEntry (new MenuEntryWithK ("&Open...",
                             (fun _ _ -> image.LoadImage()),
                             Keys.Control ||| Keys.O))
+    menuFile.AddEntry (new MenuEntryWithK ("&Reload...",
+                            (fun _ _ -> image.ReLoadImage()),
+                            Keys.Control ||| Keys.D))
     menuFile.AddEntry (new MenuEntryWithK ("&Quit",
                             (fun _ _ -> form.Close ()),
                             Keys.Control ||| Keys.Q))
+
     let menuHelp = new TMenuHead("&Help")
     menuHelp.AddEntry (new MenuEntry ("&About", (fun _ _ -> showAboutForm ())))
 

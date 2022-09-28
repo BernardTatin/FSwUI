@@ -86,15 +86,24 @@ let createMenu (form: BasicForm) (image: ThePicture) =
     menuEdit.AddEntry (new MenuEntryWithK ("Shift Color Left",
                                          (fun _ _ -> image.ShiftColorsLeft()),
                                          Keys.Control ||| Keys.L))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut (63)",
-                                         (fun _ _ -> image.CutColors (byte 63)),
+    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (63)",
+                                         (fun _ _ -> image.RawBW (byte 63)),
                                          Keys.Control ||| Keys.G))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut (127)",
-                                         (fun _ _ -> image.CutColors (byte 127)),
+    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (127)",
+                                         (fun _ _ -> image.RawBW (byte 127)),
                                          Keys.Control ||| Keys.K))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut (191)",
-                                         (fun _ _ -> image.CutColors (byte 191)),
+    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (191)",
+                                         (fun _ _ -> image.RawBW (byte 191)),
                                          Keys.Control ||| Keys.H))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors (63)",
+                                         (fun _ _ -> image.CutColors (byte 63)),
+                                         Keys.Control ||| Keys.X))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors (127)",
+                                         (fun _ _ -> image.CutColors (byte 127)),
+                                         Keys.Control ||| Keys.C))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors (191)",
+                                         (fun _ _ -> image.CutColors (byte 191)),
+                                         Keys.Control ||| Keys.V))
 
     let menuFile = new TMenuHead("&File")
     menuFile.AddEntry (new MenuEntryWithK ("&Open...",

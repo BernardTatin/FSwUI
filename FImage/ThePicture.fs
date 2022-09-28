@@ -146,24 +146,7 @@ type ThePicture(form: BasicForm) as self =
         sw.Stop()
         (res, sw.Elapsed.TotalMilliseconds)
     let newLocker() = new LockContext(bmp)
-    do
-        pic.SizeMode <- PictureBoxSizeMode.Zoom // CenterImage
-        pic.BorderStyle <- BorderStyle.Fixed3D
-        resizePicture ()
-        setBitmap (new Bitmap (pic.Width, pic.Height))
-        imageProps.Font <- smallFont
-        imageProps.AutoSize <- true
-
-        form.addControl pic
-        form.addControl imageProps
-
-
-
-    member this.GetPicture() = pic
-    member this.GetBMP() = pic.Image
-    member this.ImageProps() = imageProps
-
-    member this.OnNewImage(filePath: string) =
+    let onNewImage(filePath: string) =
         let fileName = (getBaseName filePath)
         let fi: FileInfo = FileInfo filePath
         currentImageFile <- filePath
@@ -181,15 +164,36 @@ type ThePicture(form: BasicForm) as self =
 
         ()
 
+    let reloadImage() =
+        changeState BMPState.NewBMPFromFile |> ignore
+
+    do
+        pic.SizeMode <- PictureBoxSizeMode.Zoom // CenterImage
+        pic.BorderStyle <- BorderStyle.Fixed3D
+        resizePicture ()
+        setBitmap (new Bitmap (pic.Width, pic.Height))
+        imageProps.Font <- smallFont
+        imageProps.AutoSize <- true
+
+        form.addControl pic
+        form.addControl imageProps
+
+
+
+    member this.GetPicture() = pic
+    member this.GetBMP() = pic.Image
+    member this.ImageProps() = imageProps
+
+
     member this.LoadImage() =
         let (filePath: string, ok: bool) =
             loadImage ()
 
-        if ok then self.OnNewImage filePath
+        if ok then onNewImage filePath
         ()
 
     member this.ReLoadImage() =
-        self.OnNewImage currentImageFile
+        reloadImage()
 
     member this.Resize() = resizePicture ()
 
@@ -214,7 +218,7 @@ type ThePicture(form: BasicForm) as self =
         let _, t = time f
         doLog $"ShiftColorsRight {t}" |> ignore
 
-    member this.CutColors(limit: byte) =
+    member this.RawBW(limit: byte) =
         let white = (byte 255, byte 255, byte 255)
         let black = (byte 0, byte 0, byte 0)
         let cutCol(r: byte, g: byte, b: byte) =
@@ -224,6 +228,22 @@ type ThePicture(form: BasicForm) as self =
                 white
             else if b>limit then
                 white
+            else
+                black
+        doFilter cutCol "CutColors"
+
+    member this.CutColors(limit: byte) =
+        let white = (byte 255, byte 255, byte 255)
+        let black = (byte 0, byte 0, byte 0)
+        let cutCol(r: byte, g: byte, b: byte) =
+            if r>limit && g>limit && b >limit then
+                white
+            else if r>limit && g<=r && b<=r then
+                (r, byte 0, byte 0)
+            else if g>limit && r<=g && b<=g then
+                (byte 0, g, byte 0)
+            else if b>limit && r<=b && g<=b then
+                (byte 0, byte 0, b)
             else
                 black
         doFilter cutCol "CutColors"

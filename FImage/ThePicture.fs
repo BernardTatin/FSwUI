@@ -46,7 +46,7 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
-type ThePicture(form: BasicForm) as self =
+type ThePicture(form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
 
@@ -79,19 +79,27 @@ type ThePicture(form: BasicForm) as self =
     let isReady() = bmpState = BMPState.Ready
     let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
         if isReady() then
+#if DEBUG
             doLog $"{message}..." |> ignore
+#endif
             let pix = new LockContext(bmp)
             pix.ForEach f
             pix.Unlock()
             pic.Image <- bmp
+#if DEBUG
             doLog $"{message} OK" |> ignore
+#endif
             ()
         else
+#if DEBUG
             doLog $"Cannot {message}..." |> ignore
+#endif
             ()
 
     let rec changeState (newState: BMPState) : bool =
-        // doLog (sprintf "Change state %A -> %A..." bmpState newState) |> ignore
+#if DEBUG
+        doLog (sprintf "Change state %A -> %A..." bmpState newState) |> ignore
+#endif
         let result =
             match newState with
             | NothingToSee ->
@@ -127,7 +135,9 @@ type ThePicture(form: BasicForm) as self =
                 else
                     false
 
-        // doLog (sprintf "After changing state %A -> %A" bmpState newState) |> ignore
+#if DEBUG
+        doLog (sprintf "After changing state %A -> %A" bmpState newState) |> ignore
+#endif
         result
 
 
@@ -145,7 +155,6 @@ type ThePicture(form: BasicForm) as self =
         let res = f()
         sw.Stop()
         (res, sw.Elapsed.TotalMilliseconds)
-    let newLocker() = new LockContext(bmp)
     let onNewImage(filePath: string) =
         let fileName = (getBaseName filePath)
         let fi: FileInfo = FileInfo filePath
@@ -193,30 +202,47 @@ type ThePicture(form: BasicForm) as self =
         ()
 
     member this.ReLoadImage() =
+#if DEBUG
+        let _, t0 = time reloadImage
+        doLog $"ReLoadImage {t0}" |> ignore
+#else
         reloadImage()
+#endif
 
     member this.Resize() = resizePicture ()
 
     member this.Rotate() =
         if isReady() then
+#if DEBUG
             doLog "Rotate..." |> ignore
+#endif
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.DirtyBMP |> ignore
+#if DEBUG
             doLog "Rotate OK" |> ignore
         else
             doLog (sprintf "Cannot Rotate... state: %A" bmpState) |> ignore
+#endif
         ()
 
     member this.ShiftColorsLeft() =
+#if DEBUG
         let f() = doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
         let _, t = time f
         doLog $"ShiftColorsLeft {t}" |> ignore
+#else
+        doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
+#endif
 
     member this.ShiftColorsRight() =
+#if DEBUG
         let f() = doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
         let _, t = time f
         doLog $"ShiftColorsRight {t}" |> ignore
+#else
+        doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
+#endif
 
     member this.RawBW(limit: byte) =
         let white = (byte 255, byte 255, byte 255)
@@ -230,7 +256,13 @@ type ThePicture(form: BasicForm) as self =
                 white
             else
                 black
-        doFilter cutCol "CutColors"
+
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "RawBW")
+        doLog $"RawBW: {t0}" |> ignore
+#else
+        doFilter cutCol "RawBW"
+#endif
 
     member this.CutColors(limit: byte) =
         let white = (byte 255, byte 255, byte 255)
@@ -246,4 +278,9 @@ type ThePicture(form: BasicForm) as self =
                 (byte 0, byte 0, b)
             else
                 black
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColors")
+        doLog $"CutColors: {t0}" |> ignore
+#else
         doFilter cutCol "CutColors"
+#endif

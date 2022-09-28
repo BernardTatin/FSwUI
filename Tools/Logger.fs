@@ -64,8 +64,18 @@ module Logger =
             // log <- Some (new LogConsole())
         log.Value.start()
 
-    let closeLog () = log.Value.stop ()
+    let closeLog () =
+#if DEBUG
+        log.Value.stop ()
+#else
+        true
+#endif
 
-    let doLog (message: string) : bool = log.Value.write message
+    let doLog (message: string) : bool =
+#if DEBUG
+        log.Value.write message
+#else
+        true
+#endif
 
     let doLogError message = doLog (sprintf "ERROR >>> %s\n" message)

@@ -58,8 +58,10 @@ module main =
         let image = new ThePicture (form)
 
         try
+#if DEBUG
             openLog () |> ignore
-
+            doLog $"Running {appName}" |> ignore
+#endif
             // form.Font <- smallFont
             createMenu form image
 

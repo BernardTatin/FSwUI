@@ -50,6 +50,9 @@ type LockContext(bitmap:Bitmap) =
      let mutable isLocked = true
 
      let unlockTheBits() =
+#if DEBUG
+        doLog $"Unlock bits isLocked = {isLocked}" |> ignore
+#endif
         if isLocked then
            bitmap.UnlockBits(data)
            isLocked <- false
@@ -91,25 +94,6 @@ type LockContext(bitmap:Bitmap) =
            getRGB <- getRGB32
         | _ -> failwith formatNotSupportedMessage
 
-     let getColorAddress idx =
-        NativePtr.add<byte>
-                       (NativePtr.ofNativeInt data.Scan0)
-                       idx
-
-     let getColor address =
-        Color.FromRgb(NativePtr.get address 2,
-                      NativePtr.get address 1,
-                      NativePtr.read address)
-
-     let getPixelAddress x y =
-        getColorAddress ((y * data.Stride) + (x * sizeofColor))
-
-     let getPixelColor x y =
-        getColor (getPixelAddress x y)
-
-
-     let setPixelRGB x y (r,g,b) =
-        setRGB (getPixelAddress x y) (r, g, b)
 
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
         let len = ((bitmap.Width * bitmap.Height) - 1)
@@ -122,8 +106,6 @@ type LockContext(bitmap:Bitmap) =
              loop (idx + sizeofColor) (k + 1)
         loop 0 0
 
-     member this.SetPixel(x,y,color:Color) = setPixelRGB x y (color.R, color.G, color.B)
-     member this.GetPixel(x,y) = getPixelColor x y
      member this.ForEach f =
         forEachPixels f
 

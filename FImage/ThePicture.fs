@@ -55,26 +55,19 @@ type ThePicture(form: BasicForm) =
     let mutable bmp =
         new Bitmap (20, 20)
 
-    let mutable pixels: byte [] = [||]
     let pic = new PictureBox ()
     let imageProps = new Label3D ("")
-    let mutable bmpRect = Rectangle(0, 0, 20, 20)
     let setBitmap (newBMP: Bitmap) =
         bmp.Dispose ()
         bmp <- newBMP
         bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
-        bmpRect <- Rectangle(0, 0, bmp.Width, bmp.Height)
         pic.Image <- bmp
 
     let bmpToPixels () =
-
-        use ms = new MemoryStream ()
-        bmp.Save (ms, ImageFormat.Bmp)
-        pixels <- ms.ToArray ()
+        ()
 
     let pixelsToBMP () =
-        use ms = new MemoryStream (pixels)
-        setBitmap (new Bitmap (ms))
+        ()
 
     let isReady() = bmpState = BMPState.Ready
     let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
@@ -97,9 +90,6 @@ type ThePicture(form: BasicForm) =
             ()
 
     let rec changeState (newState: BMPState) : bool =
-#if DEBUG
-        doLog (sprintf "Change state %A -> %A..." bmpState newState) |> ignore
-#endif
         let result =
             match newState with
             | NothingToSee ->
@@ -135,9 +125,6 @@ type ThePicture(form: BasicForm) =
                 else
                     false
 
-#if DEBUG
-        doLog (sprintf "After changing state %A -> %A" bmpState newState) |> ignore
-#endif
         result
 
 

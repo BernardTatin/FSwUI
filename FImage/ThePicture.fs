@@ -32,7 +32,6 @@ module FSImage.ThePicture
 
 open System.Drawing
 open System.Windows.Forms
-open System.Drawing.Imaging
 open System.IO
 
 open LogTools.Logger
@@ -63,13 +62,7 @@ type ThePicture(form: BasicForm) =
         bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
         pic.Image <- bmp
 
-    let bmpToPixels () =
-        ()
-
-    let pixelsToBMP () =
-        ()
-
-    let isReady() = bmpState = BMPState.Ready
+    let isReady() = bmpState <> BMPState.NothingToSee
     let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
         if isReady() then
 #if DEBUG
@@ -95,36 +88,21 @@ type ThePicture(form: BasicForm) =
             | NothingToSee ->
                 if bmpState <> BMPState.NothingToSee then
                     setBitmap (new Bitmap (20, 20))
-                bmpState <- newState
+                    bmpState <- newState
                 true
             | NewBMPFromFile ->
                 setBitmap (new Bitmap (currentImageFile))
                 bmpState <- newState
-                changeState NewPixFromBMP
-            | NewPixFromBMP ->
-                bmpToPixels ()
-                bmpState <- newState
-                changeState Ready
-            | NewBMPFromPix ->
-                pixelsToBMP()
-                bmpState <- newState
-                changeState Ready
-            | Ready ->
+                changeState Loaded
+            | Loaded ->
                 bmpState <- newState
                 true
-            | DirtyBMP ->
-                if bmpState = Ready then
+            | Modified ->
+                if bmpState = Loaded then
                     bmpState <- newState
-                    changeState NewPixFromBMP
+                    true
                 else
                     false
-            | DirtyPixels ->
-                if bmpState = Ready then
-                    bmpState <- newState
-                    changeState NewBMPFromPix
-                else
-                    false
-
         result
 
 
@@ -147,16 +125,10 @@ type ThePicture(form: BasicForm) =
         let fi: FileInfo = FileInfo filePath
         currentImageFile <- filePath
         changeState BMPState.NewBMPFromFile |> ignore
-        form.Text <- (sprintf "%s - %s" appName fileName)
+        form.Text <- $"{appName} - {fileName}"
 
         imageProps.Text <-
-            (sprintf
-                "%s - %d Ko %d x %d pixels %s"
-                fileName
-                (fi.Length / 1024L)
-                bmp.Width
-                bmp.Height
-                (bmp.PixelFormat.ToString ()))
+                $"{fileName} - {fi.Length / 1024L} Ko {bmp.Width} x {bmp.Height} pixels {bmp.PixelFormat.ToString ()}"
 
         ()
 
@@ -205,11 +177,11 @@ type ThePicture(form: BasicForm) =
 #endif
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
-            changeState BMPState.DirtyBMP |> ignore
+            changeState BMPState.Modified |> ignore
 #if DEBUG
             doLog "Rotate OK" |> ignore
         else
-            doLog (sprintf "Cannot Rotate... state: %A" bmpState) |> ignore
+            doLog $"Cannot Rotate... state: {bmpState}" |> ignore
 #endif
         ()
 

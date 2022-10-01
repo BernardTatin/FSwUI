@@ -33,8 +33,5 @@ module FSImage.BMPStates
 type BMPState =
     | NothingToSee
     | NewBMPFromFile
-    | NewPixFromBMP
-    | NewBMPFromPix
-    | Ready
-    | DirtyBMP
-    | DirtyPixels
+    | Loaded
+    | Modified

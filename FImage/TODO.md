@@ -12,7 +12,7 @@
 
 ## code
 - ***TODO*** Modifier, voire supprimer la machine d'état de `ThePicture`
-- ***TODO*** Supprimer l'inutile dans `BitmapTools`
+- ***DONE*** Supprimer l'inutile dans `BitmapTools`
 - ***DONE*** Supprimer l'inutile dans `ThePicture`
 - ***PARTIAL*** Logging, timing uniquement si l'option de ligne de commande le permet ou si debug il y a
   - ***DONE*** pour le mode DEBUG

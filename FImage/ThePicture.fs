@@ -45,6 +45,15 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
+let inline mmin x y =
+    if x<y then
+        x
+    else
+        y
+
+let mmmin x y z =
+    min (min x y) z
+
 type ThePicture(form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
@@ -63,6 +72,12 @@ type ThePicture(form: BasicForm) =
         pic.Image <- bmp
 
     let isReady() = bmpState <> BMPState.NothingToSee
+    let getMeanTone() =
+        let pix  = new LockContext(bmp)
+        try
+            pix.getMeanTone()
+        finally
+            pix.Unlock()
     let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
         if isReady() then
 #if DEBUG
@@ -132,6 +147,9 @@ type ThePicture(form: BasicForm) =
 
         ()
 
+    let onSaveImage(filePath: string) =
+        bmp.Save filePath
+
     let reloadImage() =
         changeState BMPState.NewBMPFromFile |> ignore
 
@@ -158,6 +176,13 @@ type ThePicture(form: BasicForm) =
             loadImage ()
 
         if ok then onNewImage filePath
+        ()
+
+    member this.SaveImage() =
+        let (filePath: string, ok: bool) =
+            saveImage(currentImageFile)
+        if ok then
+            onSaveImage filePath
         ()
 
     member this.ReLoadImage() =
@@ -224,22 +249,46 @@ type ThePicture(form: BasicForm) =
 #endif
 
     member this.CutColors(limit: byte) =
-        let white = (byte 255, byte 255, byte 255)
         let black = (byte 0, byte 0, byte 0)
         let cutCol(r: byte, g: byte, b: byte) =
-            if r>limit && g>limit && b >limit then
-                white
-            else if r>limit && g<=r && b<=r then
-                (r, byte 0, byte 0)
+            // if r>limit && g>limit && b >limit then
+            //     white
+            // else
+            let m = mmmin r g b
+            if r>limit && g<=r && b<=r then
+                (r, m, m)
             else if g>limit && r<=g && b<=g then
-                (byte 0, g, byte 0)
+                (m, g, m)
             else if b>limit && r<=b && g<=b then
-                (byte 0, byte 0, b)
+                (m, m, b)
             else
                 black
 #if DEBUG
         let _, t0 = time (fun() -> doFilter cutCol "CutColors")
         doLog $"CutColors: {t0}" |> ignore
+#else
+        doFilter cutCol "CutColors"
+#endif
+    member this.CutColorsMean() =
+        let black = (byte 0, byte 0, byte 0)
+        let limit = getMeanTone()
+        let limit = (byte limit)
+        let cutCol(r: byte, g: byte, b: byte) =
+            // if r>limit && g>limit && b >limit then
+            //     white
+            // else
+            let m = mmmin r g b
+            if r>limit && g<=r && b<=r then
+                (r, m, m)
+            else if g>limit && r<=g && b<=g then
+                (m, g, m)
+            else if b>limit && r<=b && g<=b then
+                (m, m, b)
+            else
+                black
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
+        doLog $"CutColorsMean: {t0}" |> ignore
 #else
         doFilter cutCol "CutColors"
 #endif

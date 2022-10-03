@@ -14,6 +14,7 @@
     <Compile Include="BMPStates.fs" />
     <Compile Include="BitmapTools.fs" />
     <Compile Include="ThePicture.fs" />
+    <Compile Include="HelpMe.fs" />
     <Compile Include="FImMenus.fs" />
     <Compile Include="FImage.fs" />
     <Content Include="TODO.md" />

@@ -43,7 +43,7 @@ let loadImage () =
     let ofd = new OpenFileDialog()
     ofd.DefaultExt <- "*.jpg"
     try
-        ofd.Filter <- "Image Files (*.jpg)|*.jpg;*.jpeg;*.JPG;*.JPEG|All files (*.*)|*.*"
+        ofd.Filter <- "Image Files (*.jpg;*.png)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.png;*.PNG|All files (*.*)|*.*"
         ofd.InitialDirectory <- startDir
     with
     | :? ArgumentOutOfRangeException as ex ->
@@ -59,5 +59,16 @@ let loadImage () =
     if result = DialogResult.OK then
         startDir <- getDirName (ofd.FileName)
         (ofd.FileName, true)
+    else
+        ("", false)
+
+let saveImage (fileName: string) =
+    let sfd = new SaveFileDialog()
+    sfd.DefaultExt <- "*.jpg"
+    sfd.Filter <- "Image Files (*.jpg;*.png)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.png;*.PNG|All files (*.*)|*.*"
+    sfd.InitialDirectory <- startDir
+    let result = sfd.ShowDialog()
+    if result = DialogResult.OK then
+        (sfd.FileName, true)
     else
         ("", false)

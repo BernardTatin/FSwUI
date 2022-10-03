@@ -47,6 +47,7 @@ open FSImage.FImNames
 open FSImage.helpers
 open FSImage.ImageLoad
 open FSImage.ThePicture
+open FSImage.HelpMe
 
 let showAboutForm () =
     try
@@ -104,6 +105,9 @@ let createMenu (form: BasicForm) (image: ThePicture) =
     menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors (191)",
                                          (fun _ _ -> image.CutColors (byte 191)),
                                          Keys.Control ||| Keys.V))
+    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors (Mean)",
+                                         (fun _ _ -> image.CutColorsMean()),
+                                         Keys.Control ||| Keys.M))
 
     let menuFile = new TMenuHead("&File")
     menuFile.AddEntry (new MenuEntryWithK ("&Open...",
@@ -112,11 +116,15 @@ let createMenu (form: BasicForm) (image: ThePicture) =
     menuFile.AddEntry (new MenuEntryWithK ("&Reload...",
                             (fun _ _ -> image.ReLoadImage()),
                             Keys.Control ||| Keys.D))
+    menuFile.AddEntry (new MenuEntryWithK ("&Save...",
+                            (fun _ _ -> image.SaveImage()),
+                            Keys.Control ||| Keys.S))
     menuFile.AddEntry (new MenuEntryWithK ("&Quit",
                             (fun _ _ -> form.Close ()),
                             Keys.Control ||| Keys.Q))
 
     let menuHelp = new TMenuHead("&Help")
+    menuHelp.AddEntry (new MenuEntryWithK ("&Help", (fun _ _ -> showHelp appName), Keys.F1))
     menuHelp.AddEntry (new MenuEntry ("&About", (fun _ _ -> showAboutForm ())))
 
     menuFile.AttachToBar menu

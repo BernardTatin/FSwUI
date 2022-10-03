@@ -5,7 +5,7 @@
 ## fonctionalités
 - ***TODO*** Sauvegarde de l'image
 - ***TODO*** Afficher les métadonnées de l'image
-- ***TODO*** Afficher une page d'aide
+- ***TODO*** Afficher une page d'aide, F1
 
 ## distribution
 - ***TODO*** faire un `.zip`pour *Windows*

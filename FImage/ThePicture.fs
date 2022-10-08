@@ -45,14 +45,39 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
-let inline mmin x y =
-    if x<y then
-        x
-    else
-        y
-
-let mmmin x y z =
+let inline private mMMin x y z =
     min (min x y) z
+let inline private mMMax x y z =
+    max (max x y) z
+
+let private white = (byte 255, byte 255, byte 255)
+let private black = (byte 0, byte 0, byte 0)
+
+let inline private cutColLow (limit: byte) (r: byte, g: byte, b: byte) =
+    let M = mMMax r g b
+    let m = mMMin r g b
+    if M<=limit then
+        black
+    else if r>limit && g<=r && b<=r then
+        (r, m, m)
+    else if g>limit && r<=g && b<=g then
+        (m, g, m)
+    else
+        (m, m, b)
+
+let inline private cutColHigh (limit: byte) (r: byte, g: byte, b: byte) =
+    let m = mMMax r g b
+    if m<=limit then
+        black
+    else if r>limit && g<=r && b<=r then
+        let n = max g b
+        (r, n, n)
+    else if g>limit && r<=g && b<=g then
+        let n = max  r b
+        (n, g, n)
+    else
+        let n = max r g
+        (n, n, b)
 
 type ThePicture(form: BasicForm) =
     let mutable bmpState: BMPState =
@@ -71,13 +96,38 @@ type ThePicture(form: BasicForm) =
         bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
         pic.Image <- bmp
 
-    let isReady() = bmpState <> BMPState.NothingToSee
+    let isReady() =
+        doLog $"isReady %A{bmpState}" |>ignore
+        bmpState <> BMPState.NothingToSee
+    let isModified() =
+        doLog $"isModified %A{bmpState}" |>ignore
+        bmpState = BMPState.Modified
+
     let getMeanTone() =
         let pix  = new LockContext(bmp)
         try
             pix.getMeanTone()
         finally
             pix.Unlock()
+    let rec changeState (newState: BMPState) : bool =
+            match newState with
+            | NothingToSee ->
+                if bmpState <> BMPState.NothingToSee then
+                    setBitmap (new Bitmap (20, 20))
+                bmpState <- NothingToSee
+                true
+            | NewBMPFromFile ->
+                setBitmap (new Bitmap (currentImageFile))
+                bmpState <- NewBMPFromFile
+                changeState Loaded
+            | Loaded ->
+                bmpState <- Loaded
+                true
+            | Modified ->
+                if bmpState = Loaded then
+                    bmpState <- Modified
+                newState <> NothingToSee
+
     let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
         if isReady() then
 #if DEBUG
@@ -87,6 +137,7 @@ type ThePicture(form: BasicForm) =
             pix.ForEach f
             pix.Unlock()
             pic.Image <- bmp
+            changeState BMPState.Modified |> ignore
 #if DEBUG
             doLog $"{message} OK" |> ignore
 #endif
@@ -96,29 +147,6 @@ type ThePicture(form: BasicForm) =
             doLog $"Cannot {message}..." |> ignore
 #endif
             ()
-
-    let rec changeState (newState: BMPState) : bool =
-        let result =
-            match newState with
-            | NothingToSee ->
-                if bmpState <> BMPState.NothingToSee then
-                    setBitmap (new Bitmap (20, 20))
-                    bmpState <- newState
-                true
-            | NewBMPFromFile ->
-                setBitmap (new Bitmap (currentImageFile))
-                bmpState <- newState
-                changeState Loaded
-            | Loaded ->
-                bmpState <- newState
-                true
-            | Modified ->
-                if bmpState = Loaded then
-                    bmpState <- newState
-                    true
-                else
-                    false
-        result
 
 
     let resizePicture () =
@@ -149,9 +177,11 @@ type ThePicture(form: BasicForm) =
 
     let onSaveImage(filePath: string) =
         bmp.Save filePath
+        changeState BMPState.Loaded |> ignore
 
     let reloadImage() =
         changeState BMPState.NewBMPFromFile |> ignore
+        doLog $"reloadImage {bmpState}"
 
     do
         pic.SizeMode <- PictureBoxSizeMode.Zoom // CenterImage
@@ -165,6 +195,10 @@ type ThePicture(form: BasicForm) =
         form.addControl imageProps
 
 
+    member this.IsReady() =
+        isReady()
+    member this.IsModified() =
+        isModified()
 
     member this.GetPicture() = pic
     member this.GetBMP() = pic.Image
@@ -179,10 +213,11 @@ type ThePicture(form: BasicForm) =
         ()
 
     member this.SaveImage() =
-        let (filePath: string, ok: bool) =
-            saveImage(currentImageFile)
-        if ok then
-            onSaveImage filePath
+        if isReady() then
+            let (filePath: string, ok: bool) =
+                saveImage(currentImageFile)
+            if ok then
+                onSaveImage filePath |> ignore
         ()
 
     member this.ReLoadImage() =
@@ -229,8 +264,6 @@ type ThePicture(form: BasicForm) =
 #endif
 
     member this.RawBW(limit: byte) =
-        let white = (byte 255, byte 255, byte 255)
-        let black = (byte 0, byte 0, byte 0)
         let cutCol(r: byte, g: byte, b: byte) =
             if r>limit then
                 white
@@ -249,43 +282,28 @@ type ThePicture(form: BasicForm) =
 #endif
 
     member this.CutColors(limit: byte) =
-        let black = (byte 0, byte 0, byte 0)
-        let cutCol(r: byte, g: byte, b: byte) =
-            // if r>limit && g>limit && b >limit then
-            //     white
-            // else
-            let m = mmmin r g b
-            if r>limit && g<=r && b<=r then
-                (r, m, m)
-            else if g>limit && r<=g && b<=g then
-                (m, g, m)
-            else if b>limit && r<=b && g<=b then
-                (m, m, b)
-            else
-                black
+        let cutCol =
+            cutColLow limit
 #if DEBUG
         let _, t0 = time (fun() -> doFilter cutCol "CutColors")
         doLog $"CutColors: {t0}" |> ignore
 #else
         doFilter cutCol "CutColors"
 #endif
-    member this.CutColorsMean() =
-        let black = (byte 0, byte 0, byte 0)
+    member this.CutColorsMeanLow() =
         let limit = getMeanTone()
-        let limit = (byte limit)
-        let cutCol(r: byte, g: byte, b: byte) =
-            // if r>limit && g>limit && b >limit then
-            //     white
-            // else
-            let m = mmmin r g b
-            if r>limit && g<=r && b<=r then
-                (r, m, m)
-            else if g>limit && r<=g && b<=g then
-                (m, g, m)
-            else if b>limit && r<=b && g<=b then
-                (m, m, b)
-            else
-                black
+        let cutCol =
+            cutColLow (byte limit)
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
+        doLog $"CutColorsMean: {t0}" |> ignore
+#else
+        doFilter cutCol "CutColors"
+#endif
+    member this.CutColorsMeanHigh() =
+        let limit = getMeanTone()
+        let cutCol =
+            cutColHigh (byte limit)
 #if DEBUG
         let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
         doLog $"CutColorsMean: {t0}" |> ignore

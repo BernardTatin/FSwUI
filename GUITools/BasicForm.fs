@@ -32,6 +32,7 @@ module GUITools.BasicForm
 
 open System
 open System.Drawing
+open System.Windows
 open System.Windows.Forms
 open GUITools.BaseControls
 open GUITools.Controls
@@ -83,20 +84,22 @@ type BasicForm(width: int, height: int, title: string, panel: Panel) as self =
         // Set the MinimizeBox to false to remove the minimize box.
         self.MinimizeBox <- false
 
+type SimpleOKForm(width: int, height: int, title: string, panel: Panel) as self =
+    inherit BasicForm(width, height, title, panel)
+    let okButtonOnClick =
+        (fun _ _ ->
+            self.Close ())
+    let okButton = new StdButton ("Ok", okButtonOnClick)
+    member this.GetOKButton() = okButton
+
+
 type AboutForm(width: int, height: int, appName: string, text: string) as self =
-    inherit BasicForm(width, height, (sprintf "About %s" appName), new StdTableLayoutPanel (1, 5))
+    inherit SimpleOKForm(width, height, $"About {appName}", new StdTableLayoutPanel (1, 5))
 
     let createAddControl (control: Control) : bool =
         control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
-        // control.Dock <- DockStyle.Fill
-        // control.Size <- Size (panel.Size.Width, control.MaximumSize.Height)
         self.ThePanel.Controls.Add control
         true
-
-    let okButtonOnClick =
-        (fun _ _ ->
-            doLog "about Form: click OK button" |> ignore
-            self.Close ())
 
     let year = DateTime.Now.Year
 
@@ -104,12 +107,33 @@ type AboutForm(width: int, height: int, appName: string, text: string) as self =
         [
             (new Label3D (text) :> Control)
             (new StdLabel ())
-            new Label3D (sprintf "(c) %d" year)
+            new Label3D $"(c) {year}"
             new StdLabel ()
-            (new StdButton ("Ok", okButtonOnClick))
+            self.GetOKButton()
         ]
 
     do
-        let bPanel = self.ThePanel
-        bPanel.Dock <- DockStyle.Fill
+        self.ThePanel.Dock <- DockStyle.Fill
+        List.forall createAddControl controls |> ignore
+
+type HelpForm(width: int, height: int, appName: string, text: string) as self =
+    inherit SimpleOKForm(width, height, $"A little help for {appName}", new StdTableLayoutPanel (1, 2))
+
+    let createAddControl (control: Control) : bool =
+        control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+        self.ThePanel.Controls.Add control
+        true
+
+    let helpBox = new Label3D (text)
+
+    let controls =
+        [
+            (helpBox :> Control)
+            new StdLabel ()
+            self.GetOKButton()
+        ]
+
+    do
+        self.ThePanel.Dock <- DockStyle.Fill
+        // helpBox.text <- TextWrapping.WrapWithOverflow
         List.forall createAddControl controls |> ignore

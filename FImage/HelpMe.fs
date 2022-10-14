@@ -1,8 +1,8 @@
 ﻿(*
     Project:    FImage
-    File name:  BMPStates.fs
+    File name:  HelpMe.fs
     User:       berna
-    Date:       2022-09-24
+    Date:       2022-10-02
 
     The MIT License (MIT)
 
@@ -28,10 +28,22 @@
 
  *)
 
-module FSImage.BMPStates
+module FSImage.HelpMe
 
-type BMPState =
-    | NothingToSee
-    | NewBMPFromFile
-    | Loaded
-    | Modified
+open GUITools.BasicForm
+
+let internal helpText = """
+Un peu d'aide
+
+Ctrl+O: ouvrir un fichier image (jpeg et png)
+Ctrl+S: sauver un fichier; si l'image s'appelle 'image.jpg',
+     sauvegarde sous le nom de 'image-001.jpg'
+Ctrl+Q: quitter l'appliication
+
+Le menu 'Edit' propose plusieurs filtres amusants.
+"""
+
+let showHelp (appName: string) =
+    let form = new HelpForm(DEFAULT_WIDTH, DEFAULT_HEIGHT,
+                            appName, helpText)
+    form.ShowDialog() |> ignore

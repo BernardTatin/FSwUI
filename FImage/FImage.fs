@@ -58,8 +58,10 @@ module main =
         let image = new ThePicture (form)
 
         try
+#if DEBUG
             openLog () |> ignore
-
+            doLog $"Running {appName}" |> ignore
+#endif
             // form.Font <- smallFont
             createMenu form image
 
@@ -68,7 +70,9 @@ module main =
             (int SYSExit.Success)
         with
         | :? System.InvalidOperationException as ex ->
+#if DEBUG
             doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
+#endif
             (int SYSExit.Failure)
 
     [<STAThread>]

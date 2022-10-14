@@ -34,6 +34,7 @@ open System
 open System.Drawing
 open System.Windows.Forms
 open System.Drawing.Text
+open LogTools.Logger
 open GUITools.BaseControls
 
 type MenuHead(text:string) as self =
@@ -41,16 +42,27 @@ type MenuHead(text:string) as self =
     do
         self.Anchor <- AnchorStyles.Top
 
-type MenuEntry(text: string, onClick: ToolStripMenuItem -> EventArgs -> unit) as self =
+let internal defaultAmIEnabled() =
+    true
+
+type MenuEntry(text: string,
+               onClick: ToolStripMenuItem -> EventArgs -> unit,
+               amIEnabled: unit -> bool) as self =
     inherit MenuHead(text)
     do
         self.Click.Add (fun arg -> onClick self arg)
+        self.Paint.Add (fun _ -> self.Enabled <- amIEnabled())
+    new (text, onClick) = new MenuEntry(text, onClick, defaultAmIEnabled)
+
 type MenuEntryWithK(text: string,
                     onClick: ToolStripMenuItem -> EventArgs -> unit,
-                    shortCutK: Keys) as self =
-    inherit MenuEntry(text, onClick)
+                    shortCutK: Keys,
+                    amIEnabled: unit -> bool) as self =
+    inherit MenuEntry(text, onClick, amIEnabled)
     do
         self.ShortcutKeys <- shortCutK
+    new (text, onClick, shortCutK) = new MenuEntryWithK(text, onClick, shortCutK, defaultAmIEnabled)
+
 
 type MenuBar() as self =
     inherit MenuStrip()

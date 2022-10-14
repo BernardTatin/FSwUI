@@ -32,10 +32,11 @@ module FSImage.ThePicture
 
 open System.Drawing
 open System.Windows.Forms
-open System.Drawing.Imaging
 open System.IO
 
+#if DEBUG
 open LogTools.Logger
+#endif
 open GUITools.Fonts
 open GUITools.BaseControls
 open GUITools.BasicForm
@@ -46,7 +47,41 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
-type ThePicture(form: BasicForm) as self =
+let inline private mMMin x y z =
+    min (min x y) z
+let inline private mMMax x y z =
+    max (max x y) z
+
+let private white = (byte 255, byte 255, byte 255)
+let private black = (byte 0, byte 0, byte 0)
+
+let inline private cutColLow (limit: byte) (r: byte, g: byte, b: byte) =
+    let M = mMMax r g b
+    let m = mMMin r g b
+    if M<=limit then
+        black
+    else if r>limit && g<=r && b<=r then
+        (r, m, m)
+    else if g>limit && r<=g && b<=g then
+        (m, g, m)
+    else
+        (m, m, b)
+
+let inline private cutColHigh (limit: byte) (r: byte, g: byte, b: byte) =
+    let m = mMMax r g b
+    if m<=limit then
+        black
+    else if r>limit && g<=r && b<=r then
+        let n = max g b
+        (r, n, n)
+    else if g>limit && r<=g && b<=g then
+        let n = max  r b
+        (n, g, n)
+    else
+        let n = max r g
+        (n, n, b)
+
+type ThePicture(form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
 
@@ -55,80 +90,63 @@ type ThePicture(form: BasicForm) as self =
     let mutable bmp =
         new Bitmap (20, 20)
 
-    let mutable pixels: byte [] = [||]
     let pic = new PictureBox ()
     let imageProps = new Label3D ("")
-    let mutable bmpRect = Rectangle(0, 0, 20, 20)
     let setBitmap (newBMP: Bitmap) =
         bmp.Dispose ()
         bmp <- newBMP
         bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
-        bmpRect <- Rectangle(0, 0, bmp.Width, bmp.Height)
         pic.Image <- bmp
 
-    let bmpToPixels () =
+    let isReady() =
+        bmpState <> BMPState.NothingToSee
+    let isModified() =
+        bmpState = BMPState.Modified
 
-        use ms = new MemoryStream ()
-        bmp.Save (ms, ImageFormat.Bmp)
-        pixels <- ms.ToArray ()
-
-    let pixelsToBMP () =
-        use ms = new MemoryStream (pixels)
-        setBitmap (new Bitmap (ms))
-
-    let isReady() = bmpState = BMPState.Ready
-    let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
-        if isReady() then
-            doLog $"{message}..." |> ignore
-            let pix = new LockContext(bmp)
-            pix.ForEach f
+    let getMeanTone() =
+        let pix  = new LockContext(bmp)
+        try
+            pix.getMeanTone()
+        finally
             pix.Unlock()
-            pic.Image <- bmp
-            doLog $"{message} OK" |> ignore
-            ()
-        else
-            doLog $"Cannot {message}..." |> ignore
-            ()
-
     let rec changeState (newState: BMPState) : bool =
-        // doLog (sprintf "Change state %A -> %A..." bmpState newState) |> ignore
-        let result =
             match newState with
             | NothingToSee ->
                 if bmpState <> BMPState.NothingToSee then
                     setBitmap (new Bitmap (20, 20))
-                bmpState <- newState
+                bmpState <- NothingToSee
                 true
             | NewBMPFromFile ->
                 setBitmap (new Bitmap (currentImageFile))
-                bmpState <- newState
-                changeState NewPixFromBMP
-            | NewPixFromBMP ->
-                bmpToPixels ()
-                bmpState <- newState
-                changeState Ready
-            | NewBMPFromPix ->
-                pixelsToBMP()
-                bmpState <- newState
-                changeState Ready
-            | Ready ->
-                bmpState <- newState
+                bmpState <- NewBMPFromFile
+                changeState Loaded
+            | Loaded ->
+                bmpState <- Loaded
                 true
-            | DirtyBMP ->
-                if bmpState = Ready then
-                    bmpState <- newState
-                    changeState NewPixFromBMP
-                else
-                    false
-            | DirtyPixels ->
-                if bmpState = Ready then
-                    bmpState <- newState
-                    changeState NewBMPFromPix
-                else
-                    false
+            | Modified ->
+                if bmpState = Loaded then
+                    bmpState <- Modified
+                newState <> NothingToSee
 
-        // doLog (sprintf "After changing state %A -> %A" bmpState newState) |> ignore
-        result
+    let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
+        if isReady() then
+#if DEBUG
+            doLog $"{message}..." |> ignore
+#endif
+            let pix = new LockContext(bmp)
+            pix.ForEach f
+            pix.Unlock()
+            pic.Image <- bmp
+            changeState BMPState.Modified |> ignore
+#if DEBUG
+            doLog $"{message} OK" |> ignore
+#endif
+            ()
+        else
+#if DEBUG
+            doLog $"Cannot {message}..." |> ignore
+#endif
+            ()
 
 
     let resizePicture () =
@@ -145,24 +163,21 @@ type ThePicture(form: BasicForm) as self =
         let res = f()
         sw.Stop()
         (res, sw.Elapsed.TotalMilliseconds)
-    let newLocker() = new LockContext(bmp)
     let onNewImage(filePath: string) =
         let fileName = (getBaseName filePath)
         let fi: FileInfo = FileInfo filePath
         currentImageFile <- filePath
         changeState BMPState.NewBMPFromFile |> ignore
-        form.Text <- (sprintf "%s - %s" appName fileName)
+        form.Text <- $"{appName} - {fileName}"
 
         imageProps.Text <-
-            (sprintf
-                "%s - %d Ko %d x %d pixels %s"
-                fileName
-                (fi.Length / 1024L)
-                bmp.Width
-                bmp.Height
-                (bmp.PixelFormat.ToString ()))
+                $"{fileName} - {fi.Length / 1024L} Ko {bmp.Width} x {bmp.Height} pixels {bmp.PixelFormat.ToString ()}"
 
         ()
+
+    let onSaveImage(filePath: string) =
+        bmp.Save filePath
+        changeState BMPState.Loaded |> ignore
 
     let reloadImage() =
         changeState BMPState.NewBMPFromFile |> ignore
@@ -179,6 +194,10 @@ type ThePicture(form: BasicForm) as self =
         form.addControl imageProps
 
 
+    member this.IsReady() =
+        isReady()
+    member this.IsModified() =
+        isModified()
 
     member this.GetPicture() = pic
     member this.GetBMP() = pic.Image
@@ -192,35 +211,58 @@ type ThePicture(form: BasicForm) as self =
         if ok then onNewImage filePath
         ()
 
+    member this.SaveImage() =
+        if isReady() then
+            let (filePath: string, ok: bool) =
+                saveImage(currentImageFile)
+            if ok then
+                onSaveImage filePath
+        ()
+
     member this.ReLoadImage() =
+#if DEBUG
+        let _, t0 = time reloadImage
+        doLog $"ReLoadImage {t0}" |> ignore
+#else
         reloadImage()
+#endif
 
     member this.Resize() = resizePicture ()
 
     member this.Rotate() =
         if isReady() then
+#if DEBUG
             doLog "Rotate..." |> ignore
+#endif
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
-            changeState BMPState.DirtyBMP |> ignore
+            changeState BMPState.Modified |> ignore
+#if DEBUG
             doLog "Rotate OK" |> ignore
         else
-            doLog (sprintf "Cannot Rotate... state: %A" bmpState) |> ignore
+            doLog $"Cannot Rotate... state: {bmpState}" |> ignore
+#endif
         ()
 
     member this.ShiftColorsLeft() =
+#if DEBUG
         let f() = doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
         let _, t = time f
         doLog $"ShiftColorsLeft {t}" |> ignore
+#else
+        doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
+#endif
 
     member this.ShiftColorsRight() =
+#if DEBUG
         let f() = doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
         let _, t = time f
         doLog $"ShiftColorsRight {t}" |> ignore
+#else
+        doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
+#endif
 
     member this.RawBW(limit: byte) =
-        let white = (byte 255, byte 255, byte 255)
-        let black = (byte 0, byte 0, byte 0)
         let cutCol(r: byte, g: byte, b: byte) =
             if r>limit then
                 white
@@ -230,20 +272,40 @@ type ThePicture(form: BasicForm) as self =
                 white
             else
                 black
-        doFilter cutCol "CutColors"
+
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "RawBW")
+        doLog $"RawBW: {t0}" |> ignore
+#else
+        doFilter cutCol "RawBW"
+#endif
 
     member this.CutColors(limit: byte) =
-        let white = (byte 255, byte 255, byte 255)
-        let black = (byte 0, byte 0, byte 0)
-        let cutCol(r: byte, g: byte, b: byte) =
-            if r>limit && g>limit && b >limit then
-                white
-            else if r>limit && g<=r && b<=r then
-                (r, byte 0, byte 0)
-            else if g>limit && r<=g && b<=g then
-                (byte 0, g, byte 0)
-            else if b>limit && r<=b && g<=b then
-                (byte 0, byte 0, b)
-            else
-                black
+        let cutCol =
+            cutColLow limit
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColors")
+        doLog $"CutColors: {t0}" |> ignore
+#else
         doFilter cutCol "CutColors"
+#endif
+    member this.CutColorsMeanLow() =
+        let limit = getMeanTone()
+        let cutCol =
+            cutColLow (byte limit)
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
+        doLog $"CutColorsMean: {t0}" |> ignore
+#else
+        doFilter cutCol "CutColors"
+#endif
+    member this.CutColorsMeanHigh() =
+        let limit = getMeanTone()
+        let cutCol =
+            cutColHigh (byte limit)
+#if DEBUG
+        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
+        doLog $"CutColorsMean: {t0}" |> ignore
+#else
+        doFilter cutCol "CutColors"
+#endif

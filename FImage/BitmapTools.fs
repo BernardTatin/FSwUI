@@ -37,10 +37,11 @@ module FSImage.BitmapTools
 open System
 open System.Drawing
 open System.Drawing.Imaging
- open System.Windows.Media
 open Microsoft.FSharp.NativeInterop
 
- open LogTools.Logger
+#if DEBUG
+open LogTools.Logger
+#endif
 
 type LockContext(bitmap:Bitmap) =
      let data = bitmap.LockBits(Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -50,6 +51,9 @@ type LockContext(bitmap:Bitmap) =
      let mutable isLocked = true
 
      let unlockTheBits() =
+#if DEBUG
+        doLog $"Unlock bits isLocked = {isLocked}" |> ignore
+#endif
         if isLocked then
            bitmap.UnlockBits(data)
            isLocked <- false
@@ -91,28 +95,9 @@ type LockContext(bitmap:Bitmap) =
            getRGB <- getRGB32
         | _ -> failwith formatNotSupportedMessage
 
-     let getColorAddress idx =
-        NativePtr.add<byte>
-                       (NativePtr.ofNativeInt data.Scan0)
-                       idx
-
-     let getColor address =
-        Color.FromRgb(NativePtr.get address 2,
-                      NativePtr.get address 1,
-                      NativePtr.read address)
-
-     let getPixelAddress x y =
-        getColorAddress ((y * data.Stride) + (x * sizeofColor))
-
-     let getPixelColor x y =
-        getColor (getPixelAddress x y)
-
-
-     let setPixelRGB x y (r,g,b) =
-        setRGB (getPixelAddress x y) (r, g, b)
 
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
-        let len = ((bitmap.Width * bitmap.Height) - 1)
+        let len = (bitmap.Width * bitmap.Height) - 1
         let rec loop idx k =
           let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Scan0) idx
           setRGB address (f (getRGB address))
@@ -122,13 +107,26 @@ type LockContext(bitmap:Bitmap) =
              loop (idx + sizeofColor) (k + 1)
         loop 0 0
 
-     member this.SetPixel(x,y,color:Color) = setPixelRGB x y (color.R, color.G, color.B)
-     member this.GetPixel(x,y) = getPixelColor x y
+     let meanTone() =
+        let len = ((bitmap.Width * bitmap.Height) - 1)
+        let rec loop (acc: int64) idx k =
+          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Scan0) idx
+          let r, g, b = getRGB address
+          let m:int64 = (int64 r) + (int64 g) + (int64 b)
+          if k = len then
+             acc / (3L * (int64 len))
+          else
+             loop (acc + m) (idx + sizeofColor) (k + 1)
+        loop 0L 0 0
+
      member this.ForEach f =
         forEachPixels f
 
      member this.Unlock() =
          unlockTheBits()
+
+     member this.getMeanTone() =
+        meanTone()
 
      interface IDisposable with
         member this.Dispose() =

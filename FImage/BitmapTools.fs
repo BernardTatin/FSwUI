@@ -37,10 +37,11 @@ module FSImage.BitmapTools
 open System
 open System.Drawing
 open System.Drawing.Imaging
- open System.Windows.Media
 open Microsoft.FSharp.NativeInterop
 
- open LogTools.Logger
+#if DEBUG
+open LogTools.Logger
+#endif
 
 type LockContext(bitmap:Bitmap) =
      let data = bitmap.LockBits(Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -96,7 +97,7 @@ type LockContext(bitmap:Bitmap) =
 
 
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
-        let len = ((bitmap.Width * bitmap.Height) - 1)
+        let len = (bitmap.Width * bitmap.Height) - 1
         let rec loop idx k =
           let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Scan0) idx
           setRGB address (f (getRGB address))

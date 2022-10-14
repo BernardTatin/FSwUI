@@ -34,7 +34,9 @@ open System.Drawing
 open System.Windows.Forms
 open System.IO
 
+#if DEBUG
 open LogTools.Logger
+#endif
 open GUITools.Fonts
 open GUITools.BaseControls
 open GUITools.BasicForm
@@ -97,10 +99,8 @@ type ThePicture(form: BasicForm) =
         pic.Image <- bmp
 
     let isReady() =
-        doLog $"isReady %A{bmpState}" |>ignore
         bmpState <> BMPState.NothingToSee
     let isModified() =
-        doLog $"isModified %A{bmpState}" |>ignore
         bmpState = BMPState.Modified
 
     let getMeanTone() =
@@ -181,7 +181,6 @@ type ThePicture(form: BasicForm) =
 
     let reloadImage() =
         changeState BMPState.NewBMPFromFile |> ignore
-        doLog $"reloadImage {bmpState}"
 
     do
         pic.SizeMode <- PictureBoxSizeMode.Zoom // CenterImage
@@ -217,7 +216,7 @@ type ThePicture(form: BasicForm) =
             let (filePath: string, ok: bool) =
                 saveImage(currentImageFile)
             if ok then
-                onSaveImage filePath |> ignore
+                onSaveImage filePath
         ()
 
     member this.ReLoadImage() =

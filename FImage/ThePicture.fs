@@ -92,6 +92,7 @@ type ThePicture(form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
 
+    // let mutable context = OLockContext.None
     let mutable currentImageFile = ""
 
     let mutable bmp =
@@ -110,12 +111,6 @@ type ThePicture(form: BasicForm) =
     let isModified() =
         bmpState = BMPState.Modified
 
-    let getMeanTone() =
-        let pix  = new LockContext(bmp)
-        try
-            pix.getMeanTone()
-        finally
-            pix.Unlock()
     let rec changeState (newState: BMPState) : bool =
             match newState with
             | NothingToSee ->
@@ -135,25 +130,26 @@ type ThePicture(form: BasicForm) =
                     bmpState <- Modified
                 newState <> NothingToSee
 
-    let doFilter (f: byte*byte*byte -> byte*byte*byte) (message: string) =
+    let openContext() =
+        new LockContext(bmp)
+
+    let closeContext (context: LockContext) =
+        context.Unlock()
+
+    let withContext doIt =
+        let context = openContext()
+        context.With (fun() -> doIt context)
+        closeContext context
+
+    let getMeanTone (pix: LockContext) =
+        pix.getMeanTone()
+
+    let doFilter (pix: LockContext) (f: byte*byte*byte -> byte*byte*byte) =
         if isReady() then
-#if DEBUG
-            doLog $"{message}..." |> ignore
-#endif
-            let pix = new LockContext(bmp)
             pix.ForEach f
-            pix.Unlock()
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
-#if DEBUG
-            doLog $"{message} OK" |> ignore
-#endif
-            ()
-        else
-#if DEBUG
-            doLog $"Cannot {message}..." |> ignore
-#endif
-            ()
+        ()
 
 
     let resizePicture () =
@@ -232,36 +228,32 @@ type ThePicture(form: BasicForm) =
 
     member this.Rotate() =
         if isReady() then
-#if DEBUG
-            doLog "Rotate..." |> ignore
-#endif
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
-#if DEBUG
-            doLog "Rotate OK" |> ignore
-        else
-            doLog $"Cannot Rotate... state: {bmpState}" |> ignore
-#endif
         ()
 
     member this.ShiftColorsLeft() =
-#if DEBUG
-        let f() = doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
-        let _, t = time f
-        doLog $"ShiftColorsLeft {t}" |> ignore
-#else
-        doFilter (fun (r, g, b) -> (g, b, r)) "ShiftColorsRight"
-#endif
+        let doIt (context: LockContext) =
+    #if DEBUG
+            let f() = doFilter context (fun (r, g, b) -> (g, b, r))
+            let _, t = time f
+            doLog $"ShiftColorsLeft {t}" |> ignore
+    #else
+            doFilter context (fun (r, g, b) -> (g, b, r))
+    #endif
+        withContext doIt
 
     member this.ShiftColorsRight() =
+        let doIt(context: LockContext) =
 #if DEBUG
-        let f() = doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
-        let _, t = time f
-        doLog $"ShiftColorsRight {t}" |> ignore
+            let f() = doFilter context (fun (r, g, b) -> (b, r, g))
+            let _, t = time f
+            doLog $"ShiftColorsRight {t}" |> ignore
 #else
-        doFilter (fun (r, g, b) -> (b, r, g)) "ShiftColorsRight"
+            doFilter context (fun (r, g, b) -> (b, r, g))
 #endif
+        withContext doIt
 
     member this.RawBW(limit: byte) =
         let cutCol(r: byte, g: byte, b: byte) =
@@ -273,40 +265,49 @@ type ThePicture(form: BasicForm) =
                 white
             else
                 black
-
+        let doIt(context: LockContext) =
 #if DEBUG
-        let _, t0 = time (fun() -> doFilter cutCol "RawBW")
-        doLog $"RawBW: {t0}" |> ignore
+            let _, t0 = time (fun() -> doFilter context cutCol)
+            doLog $"RawBW {limit}: {t0}" |> ignore
 #else
-        doFilter cutCol "RawBW"
+            doFilter context cutCol
 #endif
+        withContext doIt
 
     member this.CutColors(limit: byte) =
         let cutCol =
             cutColLow limit
+        let doIt(context: LockContext) =
 #if DEBUG
-        let _, t0 = time (fun() -> doFilter cutCol "CutColors")
-        doLog $"CutColors: {t0}" |> ignore
+            let _, t0 = time (fun() -> doFilter context cutCol)
+            doLog $"CutColors {limit}: {t0}" |> ignore
 #else
-        doFilter cutCol "CutColors"
+            doFilter context cutCol
 #endif
+        withContext doIt
+
     member this.CutColorsMeanLow() =
-        let limit = getMeanTone()
-        let cutCol =
-            cutColLow (byte limit)
+        let doIt(context: LockContext) =
+            let limit = getMeanTone context
+            let cutCol =
+                cutColLow (byte limit)
 #if DEBUG
-        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
-        doLog $"CutColorsMean: {t0}" |> ignore
+            let _, t0 = time (fun() -> doFilter context cutCol)
+            doLog $"CutColorsMeanLow {limit}: {t0}" |> ignore
 #else
-        doFilter cutCol "CutColors"
+            doFilter context cutCol
 #endif
+        withContext doIt
+
     member this.CutColorsMeanHigh() =
-        let limit = getMeanTone()
-        let cutCol =
-            cutColHigh (byte limit)
+        let doIt(context: LockContext) =
+            let limit = getMeanTone context
+            let cutCol =
+                cutColHigh (byte limit)
 #if DEBUG
-        let _, t0 = time (fun() -> doFilter cutCol "CutColorsMean")
-        doLog $"CutColorsMean: {t0}" |> ignore
+            let _, t0 = time (fun() -> doFilter context cutCol)
+            doLog $"CutColorsMeanHigh {limit}: {t0}" |> ignore
 #else
-        doFilter cutCol "CutColors"
+            doFilter context cutCol
 #endif
+        withContext doIt

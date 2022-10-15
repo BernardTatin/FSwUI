@@ -3,17 +3,27 @@
 (Sorry, no english version)
 
 ## fonctionalités
-- ***TODO*** Sauvegarde de l'image
+- ***DONE*** Sauvegarde de l'image
 - ***TODO*** Afficher les métadonnées de l'image
-- ***TODO*** Afficher une page d'aide, F1
+- ***DONE*** Afficher une page d'aide, F1
 
 ## distribution
-- ***TODO*** faire un `.zip`pour *Windows*
+- ***DONE*** faire un `.zip`pour *Windows*
+- ***DONE*** numéro de version
+- ***DONE*** s'assurer de produire du code 64 bits
 
 ## code
-- ***TODO*** Modifier, voire supprimer la machine d'état de `ThePicture`
-- ***DONE*** Supprimer l'inutile dans `BitmapTools`
-- ***DONE*** Supprimer l'inutile dans `ThePicture`
+
+### `BitmapTools`
+- ***DONE*** Supprimer l'inutile
+- ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
+
+### `ThePicture`
+- ***PARTIAL*** Modifier, voire supprimer la machine d'état
+  - la machine d'état est plus adaptée mais pas parfaite
+- ***DONE*** Supprimer l'inutile
+
+### en général
 - ***PARTIAL*** Logging, timing uniquement si l'option de ligne de commande le permet ou si debug il y a
   - ***DONE*** pour le mode DEBUG
     - il suffit d'ajouter des `#if DEBUG`, `#else` et `#endif`, ça marche pas mal

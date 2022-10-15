@@ -57,7 +57,7 @@ let showAboutForm () =
     finally
         doLog "End of showAboutForm" |> ignore
 
-type TMenuHead (text) as self  =
+type TMenuHead (text)  =
     let mutable subs: MenuEntry List = []
     member this.AddEntry(entry) =
         subs <- subs @ [ entry ]

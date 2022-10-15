@@ -43,19 +43,19 @@ open Microsoft.FSharp.NativeInterop
 open LogTools.Logger
 #endif
 
-type LockContext(bitmap:Bitmap) =
-     let data = bitmap.LockBits(Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                                ImageLockMode.ReadOnly,
-                                bitmap.PixelFormat)
+type private OData = BitmapData option
 
-     let mutable isLocked = true
+type LockContext(bitmap:Bitmap) =
+     let mutable data = OData.None
+
+     let mutable isLocked = false
 
      let unlockTheBits() =
 #if DEBUG
         doLog $"Unlock bits isLocked = {isLocked}" |> ignore
 #endif
         if isLocked then
-           bitmap.UnlockBits(data)
+           bitmap.UnlockBits(data.Value)
            isLocked <- false
         else
            ()
@@ -81,25 +81,29 @@ type LockContext(bitmap:Bitmap) =
      let mutable sizeofColor = 3
      let mutable getRGB = getRGB24
      let mutable setRGB = setRGB24
-     do
-        match data.PixelFormat with
-        | PixelFormat.Format24bppRgb ->
-           sizeofColor <- 3
-           setRGB <- setRGB24
-           getRGB <- getRGB24
-        | PixelFormat.Format32bppArgb
-        | PixelFormat.Format32bppPArgb
-        | PixelFormat.Format32bppRgb ->
-           sizeofColor <- 4
-           setRGB <- setRGB32
-           getRGB <- getRGB32
-        | _ -> failwith formatNotSupportedMessage
-
+     let lockTheBits() =
+        if not isLocked then
+           data <- Some(bitmap.LockBits(Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                                ImageLockMode.ReadOnly,
+                                bitmap.PixelFormat))
+           isLocked <- true
+           match data.Value.PixelFormat with
+           | PixelFormat.Format24bppRgb ->
+              sizeofColor <- 3
+              setRGB <- setRGB24
+              getRGB <- getRGB24
+           | PixelFormat.Format32bppArgb
+           | PixelFormat.Format32bppPArgb
+           | PixelFormat.Format32bppRgb ->
+              sizeofColor <- 4
+              setRGB <- setRGB32
+              getRGB <- getRGB32
+           | _ -> failwith formatNotSupportedMessage
 
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
         let len = (bitmap.Width * bitmap.Height) - 1
         let rec loop idx k =
-          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Scan0) idx
+          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
           setRGB address (f (getRGB address))
           if k = len then
              ()
@@ -110,7 +114,7 @@ type LockContext(bitmap:Bitmap) =
      let meanTone() =
         let len = ((bitmap.Width * bitmap.Height) - 1)
         let rec loop (acc: int64) idx k =
-          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Scan0) idx
+          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
           let r, g, b = getRGB address
           let m:int64 = (int64 r) + (int64 g) + (int64 b)
           if k = len then
@@ -122,12 +126,19 @@ type LockContext(bitmap:Bitmap) =
      member this.ForEach f =
         forEachPixels f
 
-     member this.Unlock() =
+     member this.With f =
+         lockTheBits()
+         f()
          unlockTheBits()
 
      member this.getMeanTone() =
         meanTone()
 
+     member this.Unlock() =
+        unlockTheBits()
+
      interface IDisposable with
         member this.Dispose() =
             unlockTheBits()
+
+type OLockContext = LockContext option

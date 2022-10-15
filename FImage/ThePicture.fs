@@ -47,6 +47,13 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
+let time f =
+    let sw = System.Diagnostics.Stopwatch()
+    sw.Start()
+    let res = f()
+    sw.Stop()
+    (res, sw.Elapsed.TotalMilliseconds)
+
 let inline private mMMin x y z =
     min (min x y) z
 let inline private mMMax x y z =
@@ -157,12 +164,6 @@ type ThePicture(form: BasicForm) =
         pic.Top <- delta1 + form.Tips.Height
         pic.Left <- delta1
 
-    let time f =
-        let sw = System.Diagnostics.Stopwatch()
-        sw.Start()
-        let res = f()
-        sw.Stop()
-        (res, sw.Elapsed.TotalMilliseconds)
     let onNewImage(filePath: string) =
         let fileName = (getBaseName filePath)
         let fi: FileInfo = FileInfo filePath

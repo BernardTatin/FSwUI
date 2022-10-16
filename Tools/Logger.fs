@@ -64,14 +64,14 @@ module Logger =
         log.Value.start()
 
     let closeLog () =
-#if DEBUG
+#if LOGGER
         log.Value.stop ()
 #else
         true
 #endif
 
     let doLog (message: string) : bool =
-#if DEBUG
+#if LOGGER
         log.Value.write message
 #else
         true

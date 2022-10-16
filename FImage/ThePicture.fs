@@ -34,7 +34,7 @@ open System.Drawing
 open System.Windows.Forms
 open System.IO
 
-#if DEBUG
+#if LOGGER
 open LogTools.Logger
 #endif
 open GUITools.Fonts
@@ -216,7 +216,7 @@ type ThePicture(form: BasicForm) =
         ()
 
     member this.ReLoadImage() =
-#if DEBUG
+#if LOGGER
         let _, t0 = time reloadImage
         doLog $"ReLoadImage {t0}" |> ignore
 #else
@@ -234,7 +234,7 @@ type ThePicture(form: BasicForm) =
 
     member this.ShiftColorsLeft() =
         let doIt (context: LockContext) =
-    #if DEBUG
+    #if LOGGER
             let f() = doFilter context (fun (r, g, b) -> (g, b, r))
             let _, t = time f
             doLog $"ShiftColorsLeft {t}" |> ignore
@@ -245,7 +245,7 @@ type ThePicture(form: BasicForm) =
 
     member this.ShiftColorsRight() =
         let doIt(context: LockContext) =
-#if DEBUG
+#if LOGGER
             let f() = doFilter context (fun (r, g, b) -> (b, r, g))
             let _, t = time f
             doLog $"ShiftColorsRight {t}" |> ignore
@@ -265,7 +265,7 @@ type ThePicture(form: BasicForm) =
             else
                 black
         let doIt(context: LockContext) =
-#if DEBUG
+#if LOGGER
             let _, t0 = time (fun() -> doFilter context cutCol)
             doLog $"RawBW {limit}: {t0}" |> ignore
 #else
@@ -277,7 +277,7 @@ type ThePicture(form: BasicForm) =
         let cutCol =
             cutColLow limit
         let doIt(context: LockContext) =
-#if DEBUG
+#if LOGGER
             let _, t0 = time (fun() -> doFilter context cutCol)
             doLog $"CutColors {limit}: {t0}" |> ignore
 #else
@@ -290,7 +290,7 @@ type ThePicture(form: BasicForm) =
             let limit = getMeanTone context
             let cutCol =
                 cutColLow (byte limit)
-#if DEBUG
+#if LOGGER
             let _, t0 = time (fun() -> doFilter context cutCol)
             doLog $"CutColorsMeanLow {limit}: {t0}" |> ignore
 #else
@@ -303,7 +303,7 @@ type ThePicture(form: BasicForm) =
             let limit = getMeanTone context
             let cutCol =
                 cutColHigh (byte limit)
-#if DEBUG
+#if LOGGER
             let _, t0 = time (fun() -> doFilter context cutCol)
             doLog $"CutColorsMeanHigh {limit}: {t0}" |> ignore
 #else

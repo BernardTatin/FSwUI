@@ -25,8 +25,8 @@
 
 ### en général
 - ***PARTIAL*** Logging, timing uniquement si l'option de ligne de commande le permet ou si debug il y a
-  - ***DONE*** pour le mode DEBUG
-    - il suffit d'ajouter des `#if DEBUG`, `#else` et `#endif`, ça marche pas mal
+  - ***DONE*** avec option de compilation: `-p:DefineConstants=LOGGER`
+    - il suffit d'ajouter des `#if LOGGER`, `#else` et `#endif`, ça marche pas mal
 
 ## performances
 - ***TODO*** S'assurer de la consommation de mémoire

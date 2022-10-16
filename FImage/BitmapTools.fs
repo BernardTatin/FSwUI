@@ -39,7 +39,7 @@ open System.Drawing
 open System.Drawing.Imaging
 open Microsoft.FSharp.NativeInterop
 
-#if DEBUG
+#if LOGGER
 open LogTools.Logger
 #endif
 
@@ -51,7 +51,7 @@ type LockContext(bitmap:Bitmap) =
      let mutable isLocked = false
 
      let unlockTheBits() =
-#if DEBUG
+#if LOGGER
         doLog $"Unlock bits isLocked = {isLocked}" |> ignore
 #endif
         if isLocked then

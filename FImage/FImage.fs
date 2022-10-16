@@ -58,7 +58,7 @@ module main =
         let image = new ThePicture (form)
 
         try
-#if DEBUG
+#if LOGGER
             openLog () |> ignore
             doLog $"Running {appName}" |> ignore
 #endif
@@ -70,7 +70,7 @@ module main =
             (int SYSExit.Success)
         with
         | :? System.InvalidOperationException as ex ->
-#if DEBUG
+#if LOGGER
             doLog (sprintf "unexpected exception %s" ex.Message) |> ignore
 #endif
             (int SYSExit.Failure)

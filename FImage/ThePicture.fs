@@ -138,8 +138,7 @@ type ThePicture(form: BasicForm) =
 
     let withContext doIt =
         let context = openContext()
-        context.With (fun() -> doIt context)
-        closeContext context
+        context.With doIt
 
     let getMeanTone (pix: LockContext) =
         pix.getMeanTone()

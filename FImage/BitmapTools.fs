@@ -103,23 +103,23 @@ type LockContext(bitmap:Bitmap) =
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
         let len = (bitmap.Width * bitmap.Height) - 1
         let rec loop idx k =
-          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
-          setRGB address (f (getRGB address))
           if k = len then
              ()
           else
+             let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
+             setRGB address (f (getRGB address))
              loop (idx + sizeofColor) (k + 1)
         loop 0 0
 
      let meanTone() =
         let len = ((bitmap.Width * bitmap.Height) - 1)
         let rec loop (acc: int64) idx k =
-          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
-          let r, g, b = getRGB address
-          let m:int64 = (int64 r) + (int64 g) + (int64 b)
           if k = len then
              acc / (3L * (int64 len))
           else
+             let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
+             let r, g, b = getRGB address
+             let m:int64 = (int64 r) + (int64 g) + (int64 b)
              loop (acc + m) (idx + sizeofColor) (k + 1)
         loop 0L 0 0
 
@@ -128,7 +128,7 @@ type LockContext(bitmap:Bitmap) =
 
      member this.With f =
          lockTheBits()
-         f()
+         f this
          unlockTheBits()
 
      member this.getMeanTone() =
@@ -140,5 +140,3 @@ type LockContext(bitmap:Bitmap) =
      interface IDisposable with
         member this.Dispose() =
             unlockTheBits()
-
-type OLockContext = LockContext option

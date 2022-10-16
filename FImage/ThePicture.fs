@@ -47,12 +47,14 @@ open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
 
+#if LOGGER
 let time f =
     let sw = System.Diagnostics.Stopwatch()
     sw.Start()
     let res = f()
     sw.Stop()
     (res, sw.Elapsed.TotalMilliseconds)
+#endif
 
 let inline private mMMin x y z =
     min (min x y) z

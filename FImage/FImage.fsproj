@@ -14,9 +14,12 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>TRACE;RECURSEBM;LOGGER</DefineConstants>
+    <TailCalls>true</TailCalls>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PlatformTarget>x64</PlatformTarget>
+    <DefineConstants>TRACE;RECURSEBM;LOGGER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +34,7 @@
     <Compile Include="FImage.fs" />
     <Content Include="TODO.md" />
     <Content Include="run.bat" />
+    <Content Include="NOTES.md" />
   </ItemGroup>
 
   <ItemGroup>

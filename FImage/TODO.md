@@ -17,6 +17,9 @@
 ### `BitmapTools`
 - ***DONE*** Supprimer l'inutile
 - ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
+- ***TODO*** faire une copie de l'original
+  - *undo* sur un niveau,
+
 
 ### `ThePicture`
 - ***PARTIAL*** Modifier, voire supprimer la machine d'état

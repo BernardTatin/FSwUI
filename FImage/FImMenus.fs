@@ -77,7 +77,7 @@ let createMenu (form: BasicForm) (image: ThePicture) =
 
 
 
-    let menuEdit = new TMenuHead ("&Edit")
+    let menuEdit = new TMenuHead ("&Filters")
     menuEdit.AddEntry (new MenuEntryWithK ("&Rotate",
                                          (fun _ _ -> image.Rotate()),
                                          Keys.Control ||| Keys.R,

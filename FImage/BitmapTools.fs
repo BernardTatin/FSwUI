@@ -50,6 +50,8 @@ type LockContext(bitmap:Bitmap) =
 
      let mutable isLocked = false
 
+     let mutable bitmapLenInBytes = 0
+
      let unlockTheBits() =
 #if LOGGER
         doLog $"Unlock bits isLocked = {isLocked}" |> ignore
@@ -61,6 +63,7 @@ type LockContext(bitmap:Bitmap) =
            ()
 
      let formatNotSupportedMessage = "BitmapTools: Pixel format not supported."
+
      let getRGB24 address =
        (NativePtr.get address 2,
                       NativePtr.get address 1,
@@ -87,6 +90,7 @@ type LockContext(bitmap:Bitmap) =
                                 ImageLockMode.ReadOnly,
                                 bitmap.PixelFormat))
            isLocked <- true
+           bitmapLenInBytes <- bitmap.Width * bitmap.Height
            match data.Value.PixelFormat with
            | PixelFormat.Format24bppRgb ->
               sizeofColor <- 3
@@ -100,28 +104,45 @@ type LockContext(bitmap:Bitmap) =
               getRGB <- getRGB32
            | _ -> failwith formatNotSupportedMessage
 
+#if RECURSEBM
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
-        let len = (bitmap.Width * bitmap.Height) - 1
         let rec loop idx k =
-          if k = len then
-             ()
-          else
+          if k < bitmapLenInBytes then
              let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
              setRGB address (f (getRGB address))
              loop (idx + sizeofColor) (k + 1)
+          else
+             ()
         loop 0 0
 
      let meanTone() =
-        let len = ((bitmap.Width * bitmap.Height) - 1)
         let rec loop (acc: int64) idx k =
-          if k = len then
-             acc / (3L * (int64 len))
-          else
+          if k < bitmapLenInBytes then
              let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
              let r, g, b = getRGB address
-             let m:int64 = (int64 r) + (int64 g) + (int64 b)
-             loop (acc + m) (idx + sizeofColor) (k + 1)
+             // let m:int64 = (int64 r) + (int64 g) + (int64 b)
+             loop (acc + (int64 r) + (int64 g) + (int64 b)) (idx + sizeofColor) (k + 1)
+          else
+             acc / (3L * (int64 bitmapLenInBytes))
         loop 0L 0 0
+#else
+     let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =
+        let mutable idx = 0
+        for k = 0 to bitmapLenInBytes - 1 do
+          let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
+          setRGB address (f (getRGB address))
+          idx <- idx + sizeofColor
+        ()
+
+     let meanTone() =
+        let mutable idx = 0
+        let mutable acc = 0L
+        for k = 0 to bitmapLenInBytes - 1 do
+             let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
+             let r, g, b = getRGB address
+             acc <- acc + (int64 r) + (int64 g) + (int64 b)
+        acc / (3L * (int64 bitmapLenInBytes))
+#endif
 
      member this.ForEach f =
         forEachPixels f

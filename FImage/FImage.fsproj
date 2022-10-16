@@ -30,6 +30,7 @@
     <Compile Include="FImMenus.fs" />
     <Compile Include="FImage.fs" />
     <Content Include="TODO.md" />
+    <Content Include="run.bat" />
   </ItemGroup>
 
   <ItemGroup>

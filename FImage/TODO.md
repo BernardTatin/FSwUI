@@ -3,26 +3,41 @@
 (Sorry, no english version)
 
 ## fonctionalités
-- ***TODO*** Sauvegarde de l'image
+- ***DONE*** Sauvegarde de l'image
+  - à améliorer
 - ***TODO*** Afficher les métadonnées de l'image
-- ***TODO*** Afficher une page d'aide, F1
+- ***DONE*** Afficher une page d'aide, F1
 
 ## distribution
-- ***TODO*** faire un `.zip`pour *Windows*
+- ***DONE*** faire un `.zip`pour *Windows*
+- ***DONE*** numéro de version
+- ***DONE*** s'assurer de produire du code 64 bits
 
 ## code
-- ***TODO*** Modifier, voire supprimer la machine d'état de `ThePicture`
-- ***DONE*** Supprimer l'inutile dans `BitmapTools`
-- ***DONE*** Supprimer l'inutile dans `ThePicture`
+
+### `BitmapTools`
+- ***DONE*** Supprimer l'inutile
+- ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
+- ***TODO*** faire une copie de l'original
+  - *undo* sur un niveau,
+
+
+### `ThePicture`
+- ***PARTIAL*** Modifier, voire supprimer la machine d'état
+  - la machine d'état est plus adaptée mais pas parfaite
+- ***DONE*** Supprimer l'inutile
+
+### en général
 - ***PARTIAL*** Logging, timing uniquement si l'option de ligne de commande le permet ou si debug il y a
-  - ***DONE*** pour le mode DEBUG
-    - il suffit d'ajouter des `#if DEBUG`, `#else` et `#endif`, ça marche pas mal
+  - ***DONE*** avec option de compilation: `-p:DefineConstants=LOGGER`
+    - il suffit d'ajouter des `#if LOGGER`, `#else` et `#endif`, ça marche pas mal
 
 ## performances
 - ***TODO*** S'assurer de la consommation de mémoire
+  - avec `dotMemory`, pas de problèmes (16/10/2022 - 23:10)
 
 ## documentation
 - ***TODO*** Un *vrai* README.md
-- ***TODO*** Créer des *Github pages*
+- ***DONE*** utiliser mes *Github pages* existantes
 - ***TODO*** Documentation utilisateur
 - ***TODO*** Documentation code

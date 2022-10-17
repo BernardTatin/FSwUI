@@ -44,7 +44,6 @@
 namespace LogTools
 
 open LogTools.LogTypes
-open LogTypes
 open Tools.BasicStuff
 
 module Logger =
@@ -57,25 +56,25 @@ module Logger =
 
     let openLog () : bool =
         if not(isWindows()) then
-            log <- Some (new LogConsole())
+            log <- Some (LogConsole())
             // log <- Some (new LogUDP(2345))
         else
-            log <- Some (new LogUDP(2345))
+            log <- Some (LogUDP(2345))
             // log <- Some (new LogConsole())
         log.Value.start()
 
     let closeLog () =
-#if DEBUG
+#if LOGGER
         log.Value.stop ()
 #else
         true
 #endif
 
     let doLog (message: string) : bool =
-#if DEBUG
+#if LOGGER
         log.Value.write message
 #else
         true
 #endif
 
-    let doLogError message = doLog (sprintf "ERROR >>> %s\n" message)
+    let doLogError message = doLog $"ERROR >>> {message}\n"

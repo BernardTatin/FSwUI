@@ -57,7 +57,7 @@ let showAboutForm () =
     finally
         doLog "End of showAboutForm" |> ignore
 
-type TMenuHead (text) as self  =
+type TMenuHead (text)  =
     let mutable subs: MenuEntry List = []
     member this.AddEntry(entry) =
         subs <- subs @ [ entry ]
@@ -77,7 +77,7 @@ let createMenu (form: BasicForm) (image: ThePicture) =
 
 
 
-    let menuEdit = new TMenuHead ("&Edit")
+    let menuEdit = new TMenuHead ("&Filters")
     menuEdit.AddEntry (new MenuEntryWithK ("&Rotate",
                                          (fun _ _ -> image.Rotate()),
                                          Keys.Control ||| Keys.R,

@@ -7,7 +7,7 @@ Le but de cette application est de pouvoir modifier des images au niveau des cou
 ## démarrage rapide
 
 - Assurez-vous d'avoir un ***Windows 10*** bien à jour,
-- Téléchargez le [fichier ZIP](/somefiles/FImage for net48.zip),
+- Téléchargez le [fichier ZIP](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip),
 - Décompressez le fichier Zip où vous voulez,
 - Double cliquez sur le fichier `FImage.exe`,
 - C'est parti.
@@ -20,7 +20,7 @@ Ce logiciel consomme relativement peu de mémoire. Cependant, je pense qu'il est
 
 ## installation
 
-Téléchargez le [fichier ZIP](/somefiles/FImage for net48.zip), décompressez le dans le répertoire de votre choix.
+Téléchargez le [fichier ZIP](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip), décompressez le dans le répertoire de votre choix.
 
 L'installation est finie.
 

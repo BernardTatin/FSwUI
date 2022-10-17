@@ -36,6 +36,7 @@
     <Content Include="run.bat" />
     <Content Include="NOTES.md" />
     <Content Include="README.md" />
+    <Content Include="LISEZMOI.md" />
   </ItemGroup>
 
   <ItemGroup>

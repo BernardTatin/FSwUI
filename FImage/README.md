@@ -1,51 +1,55 @@
-﻿# FImage, pour jouer avec les couleurs
+﻿***[Version française](LISEZMOI.md)***
 
-C'est un logiciel en cours de développement qui a des défauts et, très certainement, des bugs. Il est même incomplet sur certains points. Il est donc ***fortement*** conseillé de sauvegarder les images que vous voulez traiter avec cette application.
+# FImage, to play with colors
 
-Le but de cette application est de pouvoir modifier des images au niveau des couleurs, teintes, saturations et quelques autres paramètres du même type. Les filtres proposés actuellement sont bruts de décoffrage et ne sont pas paramétrables. Mais ça va changer.
+It is a software under development which has defects and, most certainly, bugs. It is even incomplete on some points. It is therefore ***strongly*** advised to save the images you want to process with this application.
 
-## démarrage rapide
+The purpose of this application is to be able to modify images in terms of colors, hues, saturations and some other parameters of the same type. The filters currently offered are rough and cannot be customized. But this will change.
 
-- Assurez-vous d'avoir un ***Windows 10*** bien à jour,
-- Téléchargez le [fichier ZIP](/somefiles/FImage for net48.zip),
-- Décompressez le fichier Zip où vous voulez,
-- Double cliquez sur le fichier `FImage.exe`,
-- C'est parti.
+## quick start
 
-## configuration requise
+- Make sure you have an up-to-date ***Windows 10***,
+- Download the [ZIP file](/somefiles/FImage for net48.zip),
+- Unzip the zip file wherever you want,
+- Double click on the `FImage.exe` file,
+- and you're good to go.
 
-Pour le moment, il fonctionne uniquement sur un ***Windows 10*** *64 bits*. Dans un avenir proche, une version **Linux**__ verra le jour. Et si tout va bien, il pourrait y avoir une version pour **Mac**__.
+## system requirements
 
-Ce logiciel consomme relativement peu de mémoire. Cependant, je pense qu'il est nécessaire d'avoir au moins 8 Go de RAM.
+For the moment, it works only on a ***Windows 10*** *64 bits*. In the near future, a **Linux**__ version will be released. And if all goes well, there might be a version for **Mac**__.
+
+This software consumes relatively little memory. However, I think it is necessary to have at least 8 GB of RAM.
 
 ## installation
 
-Téléchargez le [fichier ZIP](/somefiles/FImage for net48.zip), décompressez le dans le répertoire de votre choix.
+Download the [ZIP file](/somefiles/FImage for net48.zip), unzip it in the directory of your choice.
 
-L'installation est finie.
+The installation is finished.
 
-## lancer l'application
+## launch the application
 
-Une fois installé, sélectionnez le fichier `FImage.exe` puis double cliquez le pour le lancer.
+Once installed, select the `FImage.exe` file then double click it to launch it.
 
-## utilisation
+## use
 
-Tout est dans les menus. A terme, il y aura une description détaillée de la chose avec de belles images.
+Everything is in the menus. Eventually, there will be a detailed description of the thing with nice pictures.
 
-### opérations sue les fichiers
+### file operations
 
-- <Ctrl+O>: ouvre un fichier,
-- <Ctrl+S>: sauve un fichier,
-- <Ctrl+Q>: ferme l'application
-    - ***ATTENTION***: si un fichier est modifié, l'application se ferme sans prévenir, toutes les modifications seront perdues! Une prochaine version permettra de modifier se comportement.
-- <Ctrl+D>: permet de recharger le fichier en cours, toutes les modifications sont perdues.
+- <Ctrl+O>: opens a file,
+- <Ctrl+S>: save a file,
+- <Ctrl+Q>: close the application
+  - ***WARNING***: if a file is modified, the application closes without warning, all modifications will be lost! A next version will allow to modify this behavior.
+- <Ctrl+D>: reloads the current file, all modifications are lost.
 
-### les filtres
+### filters
 
-Les filtres actuels sont assez primitifs et ne travaillent que sur les canaux RVB de l'image.
+The current filters are quite primitive and only work on the RGB channels of the image.
 
-- <Ctrl+R>: effectue une rotation de l'image de 90° dans le sens des aiguilles d'une montre (ok, c'est pas un filtre, mais ça sert),
-- <Ctrl+T>: effectue une rotation des canaux RVB vers la droite,    c'est à dire que RVB devient BRV,
-- <Ctrl+L>: effectue une rotation des canaux RVB vers la gauche,    c'est à dire que RVB devient VBR,
-- <Ctrl+G>, <Ctrl+K> et <Ctrl+H>: produit une image à deux *couleurs* uniquement, noir pur et blanc pur, avec des seuils différents pour chaque racourcis; effet lithographie, tract 1968, ... et j'aime beaucoup (explications détaillées plus tard, mais merci de m'avoir posé la question)
-- <Ctrl+X>, <Ctrl+C>, <Ctrl+V>, <Ctrl+M>, <Ctrl+N>: met en valeur la couleur la plus *lumineuse* avec, pour chaque raccourci, un seuil différent. Amusant, très amusant et oui, il y aura des explications plus tard.
+- <Ctrl+R>: performs a 90° clockwise rotation of the image (ok, it's not a filter, but it's useful),
+- <Ctrl+T>: performs a rotation of the RGB channels to the right, that is, RGB becomes BRV,
+- <Ctrl+L>: performs a rotation of RGB channels to the left, that is, RGB becomes BRV,
+- <Ctrl+G>, <Ctrl+K> and <Ctrl+H>: produces a two *color* image only, pure black and pure white, with different thresholds for each shortcut; lithography effect, 1968 tract, ... and I like it a lot (detailed explanation later, but thanks for asking)
+- <Ctrl+X>, <Ctrl+C>, <Ctrl+V>, <Ctrl+M>, <Ctrl+N>: highlights the most *bright* color with, for each shortcut, a different threshold. Fun, very fun and yes, there will be explanations later.
+
+***Translated with www.DeepL.com/Translator (free version), sorry***

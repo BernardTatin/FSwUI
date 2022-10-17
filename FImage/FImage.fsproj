@@ -35,6 +35,7 @@
     <Content Include="TODO.md" />
     <Content Include="run.bat" />
     <Content Include="NOTES.md" />
+    <Content Include="README.md" />
   </ItemGroup>
 
   <ItemGroup>

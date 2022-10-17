@@ -4,6 +4,7 @@
 
 ## fonctionalités
 - ***DONE*** Sauvegarde de l'image
+  - à améliorer
 - ***TODO*** Afficher les métadonnées de l'image
 - ***DONE*** Afficher une page d'aide, F1
 
@@ -33,9 +34,10 @@
 
 ## performances
 - ***TODO*** S'assurer de la consommation de mémoire
+  - avec `dotMemory`, pas de problèmes (16/10/2022 - 23:10)
 
 ## documentation
 - ***TODO*** Un *vrai* README.md
-- ***TODO*** Créer des *Github pages*
+- ***DONE*** utiliser mes *Github pages* existantes
 - ***TODO*** Documentation utilisateur
 - ***TODO*** Documentation code

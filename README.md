@@ -4,4 +4,4 @@
 - Experimenting with types (structures, enum, classes, ...), state machines, files...
 
 # The End of the Game
-A little application to play with pictures is the ultimate aim. It's *FImage* which use the libraries.
+A little application to play with pictures is the ultimate aim. It's *[FImage](FImage/README.md)* which use the libraries.

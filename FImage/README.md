@@ -9,7 +9,7 @@ The purpose of this application is to be able to modify images in terms of color
 ## quick start
 
 - Make sure you have an up-to-date ***Windows 10***,
-- Download the [ZIP file](/somefiles/FImage for net48.zip),
+- Download the [ZIP file](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip),
 - Unzip the zip file wherever you want,
 - Double click on the `FImage.exe` file,
 - and you're good to go.
@@ -22,7 +22,7 @@ This software consumes relatively little memory. However, I think it is necessar
 
 ## installation
 
-Download the [ZIP file](/somefiles/FImage for net48.zip), unzip it in the directory of your choice.
+Download the [ZIP file](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip), unzip it in the directory of your choice.
 
 The installation is finished.
 

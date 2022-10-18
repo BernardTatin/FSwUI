@@ -110,6 +110,8 @@ type LockContext(bitmap:Bitmap) =
           if k < bitmapLenInBytes then
              let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
              setRGB address (f (getRGB address))
+             // following line: ~40% slower than preceding line
+             // getRGB address |> f |> setRGB address
              loop (idx + sizeofColor) (k + 1)
           else
              ()
@@ -131,6 +133,7 @@ type LockContext(bitmap:Bitmap) =
         for k = 0 to bitmapLenInBytes - 1 do
           let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
           setRGB address (f (getRGB address))
+          // getRGB address |> f |> setRGB address
           idx <- idx + sizeofColor
         ()
 

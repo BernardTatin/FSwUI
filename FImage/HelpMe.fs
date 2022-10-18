@@ -38,7 +38,7 @@ Un peu d'aide
 Ctrl+O: ouvrir un fichier image (jpeg et png)
 Ctrl+S: sauver un fichier; si l'image s'appelle 'image.jpg',
      sauvegarde sous le nom de 'image-001.jpg'
-Ctrl+Q: quitter l'appliication
+Ctrl+Q: quitter l'application
 
 Le menu 'Edit' propose plusieurs filtres amusants.
 """

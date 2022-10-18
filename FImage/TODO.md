@@ -18,7 +18,7 @@
 ### `BitmapTools`
 - ***DONE*** Supprimer l'inutile
 - ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
-- ***TODO*** faire une copie de l'original
+- ***TODO*** faire une copie de l'original dans un tableau d'octets contenant uniquement les niveaux RGB
   - *undo* sur un niveau,
 
 
@@ -31,6 +31,7 @@
 - ***PARTIAL*** Logging, timing uniquement si l'option de ligne de commande le permet ou si debug il y a
   - ***DONE*** avec option de compilation: `-p:DefineConstants=LOGGER`
     - il suffit d'ajouter des `#if LOGGER`, `#else` et `#endif`, ça marche pas mal
+- ***TODO***: application multilingue
 
 ## performances
 - ***TODO*** S'assurer de la consommation de mémoire

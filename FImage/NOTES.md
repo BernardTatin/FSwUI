@@ -4,7 +4,7 @@
 
 Après une étude *presque* approfondie, on conclu les faits suivants:
 - sur le bitmap en direct, les boucles `for` sont plus lentes que les fonctions récursives équivalentes (*cf* exemple [for loops vs recursion](#for-loops-vs-recursion)),
-- les *pipes* sont plus lents que les appels directs des fonctions (*cf* exemple [Pipes *vs.* direct calls](#Pipes-*vs.*-direct-calls))
+- les *pipes* sont plus lents que les appels directs des fonctions (*cf* exemple [Pipes vs direct calls](#Pipes-vs-direct-calls))
 
 ## exemples de code
 
@@ -29,7 +29,7 @@ ce code est plus rapide:
         loop 0 0
 ```
 
-### Pipes *vs.* direct calls
+### Pipes vs direct calls
 
 ce code est lent:
 ```f#

@@ -1,18 +1,18 @@
-﻿***[Version française](LISEZMOI.md)***
+***[Version française](LISEZMOI.md)***
 
 # FImage, to play with colors
 
-It is a software under development which has defects and, most certainly, bugs. It is even incomplete on some points. It is therefore ***strongly*** advised to save the images you want to process with this application.
+It is a software under development, ***a work in progress***, which has defects and, certainly, bugs. It is even incomplete on some points. It is therefore ***strongly*** advised to save the images you want to process with this application.
 
 The purpose of this application is to be able to modify images in terms of colors, hues, saturations and some other parameters of the same type. The filters currently offered are rough and cannot be customized. But this will change.
 
 ## quick start
 
-- Make sure you have an up-to-date ***Windows 10***,
-- Download the [ZIP file](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip),
-- Unzip the zip file wherever you want,
-- Double click on the `FImage.exe` file,
-- and you're good to go.
+- **[system requirements](#system-requirements)**: Make sure you have an up-to-date ***Windows 10***,
+- [**installation**](#installation): Download the [ZIP file](https://bernardtatin.github.io/somefiles/FImage%20for%20net48.zip),
+  - Unzip the zip file wherever you want,
+- **[launch the application](#launch-the-application)** Double click on the `FImage.exe` file,
+- **[use it!](#use-it)**: and you're good to go.
 
 ## system requirements
 
@@ -30,7 +30,7 @@ The installation is finished.
 
 Once installed, select the `FImage.exe` file then double click it to launch it.
 
-## use
+## use it
 
 Everything is in the menus. Eventually, there will be a detailed description of the thing with nice pictures.
 
@@ -52,4 +52,4 @@ The current filters are quite primitive and only work on the RGB channels of the
 - <Ctrl+G>, <Ctrl+K> and <Ctrl+H>: produces a two *color* image only, pure black and pure white, with different thresholds for each shortcut; lithography effect, 1968 tract, ... and I like it a lot (detailed explanation later, but thanks for asking)
 - <Ctrl+X>, <Ctrl+C>, <Ctrl+V>, <Ctrl+M>, <Ctrl+N>: highlights the most *bright* color with, for each shortcut, a different threshold. Fun, very fun and yes, there will be explanations later.
 
-***Translated with www.DeepL.com/Translator (free version), sorry***
+***Translated with [DeepL Translator](https://www.DeepL.com/Translator) (free version), sorry***

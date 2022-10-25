@@ -52,6 +52,7 @@ type LockContext(bitmap:Bitmap) =
 
      let mutable bitmapLenInBytes = 0
 
+     let mutable rgb : byte[] = [| |]
      let unlockTheBits() =
 #if LOGGER
         doLog $"Unlock bits isLocked = {isLocked}" |> ignore
@@ -84,6 +85,24 @@ type LockContext(bitmap:Bitmap) =
      let mutable sizeofColor = 3
      let mutable getRGB = getRGB24
      let mutable setRGB = setRGB24
+
+     let fillRGBArray() =
+        if isLocked then
+           let rgb : byte[] = Array.zeroCreate (bitmapLenInBytes * 3)
+           let rec fillMe (idx: int) (cIdx: int) (k: int) =
+              if k = bitmapLenInBytes then
+                 rgb
+              else
+                let address = NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
+                let r, g, b = getRGB address
+                rgb[cIdx + 0] = r
+                rgb[cIdx + 1] = g
+                rgb[cIdx + 2] = b
+                fillMe (idx + sizeofColor) (cIdx + 3) (k + 1)
+           fillMe 0 0 0
+         else
+           rgb
+
      let lockTheBits() =
         if not isLocked then
            data <- Some(bitmap.LockBits(Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -103,6 +122,7 @@ type LockContext(bitmap:Bitmap) =
               setRGB <- setRGB32
               getRGB <- getRGB32
            | _ -> failwith formatNotSupportedMessage
+           rgb <- fillRGBArray()
 
 #if RECURSEBM
      let forEachPixels (f: byte*byte*byte -> byte*byte*byte) =

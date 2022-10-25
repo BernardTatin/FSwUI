@@ -11,7 +11,7 @@ Après une étude *presque* approfondie, on conclu les faits suivants:
 
 L'idée:
 
-- partir d'un fichier CSV par langue contenant une kiste de données au format:
+- partir d'un fichier CSV par langue contenant une liste de données au format:
   - ID unique,
   - le contenu de la chaîne
 - ce fichier est traduit pour obtenir un code source F# avec un dictionnare contenant le couple ID, chaîne.
@@ -19,14 +19,14 @@ L'idée:
 ## BitmapTools.LockContext, refactoring
 Le but ultime: faire un *double-buffer* indépendant du bitmap sur lequel s'opère les transformations de l'image sauf s'il est plus simple d'agir directement sur le bitmap (comme, par exemple, la rotation de l'image). Cela pourra peut-être permettre le recadrage et le zoom.
 
-Pour en arriver là, il faut un certain nombre de conditions. Tout d'abord, il faut arrêter de créer des objets `LockContext`comme cela est fait actuellement. L'utilisation  de l'`Option` est impérative. A noter que cela peut être intéressant de faire un module spécifique à la manipulation des types et des `Option`.
+Pour en arriver là, il faut un certain nombre de conditions. Tout d'abord, il faut arrêter de créer des objets `LockContext`comme cela est fait actuellement. L'utilisation  de l'`Option` est impérative. A noter que cela peut être intéressant de faire un module spécifique à la manipulation des types et des `Option`, mais il faut que je *révise* le fonctionnement des *types* en *F#*.
 
 
 ## exemples de code
 
 ### for loops vs recursion
 
-ce code est lent:
+ce code est lent, pas beau et nécessite des variables *mutables*:
 
 ```f#
 for k = 0 to bitmapLenInBytes - 1 do
@@ -56,7 +56,7 @@ ce code est beau mais lent:
      getRGB address |> f |> setRGB address
 ```
 
-ce code est plus rapide:
+ce code est moins beau mais plus rapide:
 
 ```f#
      setRGB address (f (getRGB address))

@@ -4,7 +4,9 @@
 
 ## fonctionalités
 - ***DONE*** Sauvegarde de l'image
-  - à améliorer
+  - ***TODO*** à améliorer: 
+    - faire attention au format de sortie,
+    - placer le nom du fichier d'origine dans la boîte de dialogue
 - ***TODO*** Afficher les métadonnées de l'image
 - ***DONE*** Afficher une page d'aide, F1
 
@@ -16,13 +18,18 @@
 ## code
 
 ### `BitmapTools`
-- ***DONE*** Supprimer l'inutile
-- ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
 - ***TODO*** faire une copie de l'original dans un tableau d'octets contenant uniquement les niveaux RGB
   - *undo* sur un niveau,
+  - il faut faire des choix d'utilisation de ce buffer:
+    - à quel moment faut-il l'invalider (sauvegarde, acceptation du filtrage...) ?
+  - ...
+- ***DONE*** Supprimer l'inutile
+- ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
 
 
 ### `ThePicture`
+- ***TODO*** avoir une seule création de `LockContext` au chargement de l'image
+  - utiliser une `Option`
 - ***PARTIAL*** Modifier, voire supprimer la machine d'état
   - la machine d'état est plus adaptée mais pas parfaite
 - ***DONE*** Supprimer l'inutile

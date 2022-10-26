@@ -162,9 +162,10 @@ type LockContext(bitmap: Bitmap) =
 
 #if RECURSEBM
     let forEachPixels (f: byte * byte * byte -> byte * byte * byte) =
-        doLog $"RGB len: {rgb.Length} / {bitmapLenInBytes * 3}"
         let rec loop nativeIdx rgbIdx k =
-            if k < bitmapLenInBytes then
+            if k = bitmapLenInBytes then
+                ()
+            else
                 let address =
                     NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) nativeIdx
 
@@ -173,24 +174,18 @@ type LockContext(bitmap: Bitmap) =
                 // following line: ~40% slower than preceding line
                 // getRGB address |> f |> setRGB address
                 loop (nativeIdx + sizeofColor) (rgbIdx + 3) (k + 1)
-            else
-                ()
 
         loop 0 0 0
 
     let meanTone () =
-        let rec loop (acc: int64) idx k =
-            if k < bitmapLenInBytes then
-                let address =
-                    NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) idx
-
-                let r, g, b = getRGB address
-                // let m:int64 = (int64 r) + (int64 g) + (int64 b)
-                loop (acc + (int64 r) + (int64 g) + (int64 b)) (idx + sizeofColor) (k + 1)
-            else
+        let rec loop (acc: int64) nativeIdx rgbIdx k =
+            if k = bitmapLenInBytes then
                 acc / (3L * (int64 bitmapLenInBytes))
+            else
+                let r, g, b = getRawRGB rgbIdx
+                loop (acc + (int64 r) + (int64 g) + (int64 b)) (nativeIdx + sizeofColor) (rgbIdx + 3) (k + 1)
 
-        loop 0L 0 0
+        loop 0L 0 0 0
 #else
     let forEachPixels (f: byte * byte * byte -> byte * byte * byte) =
         let mutable idx = 0

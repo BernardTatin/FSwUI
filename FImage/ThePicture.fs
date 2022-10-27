@@ -100,6 +100,8 @@ type ThePicture(form: BasicForm) =
     let mutable bmp =
         new Bitmap (20, 20)
 
+    let mutable context = OLockContext.None
+
     let pic = new PictureBox ()
     let imageProps = new Label3D ("")
     let setBitmap (newBMP: Bitmap) =
@@ -123,6 +125,7 @@ type ThePicture(form: BasicForm) =
             | NewBMPFromFile ->
                 setBitmap (new Bitmap (currentImageFile))
                 bmpState <- NewBMPFromFile
+                context <- None
                 changeState Loaded
             | Loaded ->
                 bmpState <- Loaded
@@ -133,14 +136,23 @@ type ThePicture(form: BasicForm) =
                 newState <> NothingToSee
 
     let openContext() =
-        new LockContext(bmp)
+        let ctx = match context with
+                    | Some _ ->
+                        context.Value
+                    | None ->
+                        context <- Some(new LockContext(bmp))
+                        context.Value
+        ctx.Lock()
+        ctx
 
-    let closeContext (context: LockContext) =
-        context.Unlock()
+    let closeContext (ctx: LockContext) =
+        ctx.Unlock()
 
     let withContext doIt =
-        let context = openContext()
-        context.With doIt
+        let ctx = openContext()
+        // ctx.With doIt
+        doIt ctx
+        closeContext ctx
 
     let getMeanTone (pix: LockContext) =
         pix.getMeanTone()
@@ -176,6 +188,7 @@ type ThePicture(form: BasicForm) =
     let onSaveImage(filePath: string) =
         bmp.Save filePath
         changeState BMPState.Loaded |> ignore
+        context <- None
 
     let reloadImage() =
         changeState BMPState.NewBMPFromFile |> ignore

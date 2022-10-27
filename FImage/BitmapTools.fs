@@ -131,8 +131,10 @@ type LockContext(bitmap: Bitmap) =
             ()
 
 
+
     let lockTheBits () =
         if not isLocked then
+            doLog "Lockin' the bits"
             data <-
                 Some (
                     bitmap.LockBits (
@@ -143,22 +145,25 @@ type LockContext(bitmap: Bitmap) =
                 )
 
             isLocked <- true
-            bitmapLenInBytes <- bitmap.Width * bitmap.Height
+    let initMe () =
+        lockTheBits ()
+        bitmapLenInBytes <- bitmap.Width * bitmap.Height
 
-            match data.Value.PixelFormat with
-            | PixelFormat.Format24bppRgb ->
-                sizeofColor <- 3
-                setRGB <- setRGB24
-                getRGB <- getRGB24
-            | PixelFormat.Format32bppArgb
-            | PixelFormat.Format32bppPArgb
-            | PixelFormat.Format32bppRgb ->
-                sizeofColor <- 4
-                setRGB <- setRGB32
-                getRGB <- getRGB32
-            | _ -> failwith formatNotSupportedMessage
+        match data.Value.PixelFormat with
+        | PixelFormat.Format24bppRgb ->
+            sizeofColor <- 3
+            setRGB <- setRGB24
+            getRGB <- getRGB24
+        | PixelFormat.Format32bppArgb
+        | PixelFormat.Format32bppPArgb
+        | PixelFormat.Format32bppRgb ->
+            sizeofColor <- 4
+            setRGB <- setRGB32
+            getRGB <- getRGB32
+        | _ -> failwith formatNotSupportedMessage
 
-            fillRGBArray ()
+        fillRGBArray ()
+        unlockTheBits()
 
 #if RECURSEBM
     let forEachPixels (f: byte * byte * byte -> byte * byte * byte) =
@@ -214,16 +219,22 @@ type LockContext(bitmap: Bitmap) =
         acc / (3L * (int64 bitmapLenInBytes))
 #endif
 
+    do
+        doLog "Creatin' a BMP locker"
+        initMe()
+
     member this.ForEach f = forEachPixels f
 
     member this.With f =
-        lockTheBits ()
         f this
-        unlockTheBits ()
 
     member this.getMeanTone() = meanTone ()
 
     member this.Unlock() = unlockTheBits ()
 
+    member this.Lock() = lockTheBits ()
+
     interface IDisposable with
         member this.Dispose() = unlockTheBits ()
+
+type OLockContext = LockContext Option

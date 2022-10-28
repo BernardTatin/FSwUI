@@ -49,119 +49,121 @@ open FSImage.BitmapTools
 
 #if LOGGER
 let time f =
-    let sw = System.Diagnostics.Stopwatch()
-    sw.Start()
-    let res = f()
-    sw.Stop()
+    let sw = System.Diagnostics.Stopwatch ()
+    sw.Start ()
+    let res = f ()
+    sw.Stop ()
     (res, sw.Elapsed.TotalMilliseconds)
 #endif
 
-let inline private mMMin x y z =
-    min (min x y) z
-let inline private mMMax x y z =
-    max (max x y) z
+let inline private mMMin x y z = min (min x y) z
+let inline private mMMax x y z = max (max x y) z
 
-let private white = (byte 255, byte 255, byte 255)
+let private white =
+    (byte 255, byte 255, byte 255)
+
 let private black = (byte 0, byte 0, byte 0)
 
 let inline private cutColLow (limit: byte) (r: byte, g: byte, b: byte) =
     let M = mMMax r g b
     let m = mMMin r g b
-    if M<=limit then
+
+    if M <= limit then
         black
-    else if r>limit && g<=r && b<=r then
+    else if r > limit && g <= r && b <= r then
         (r, m, m)
-    else if g>limit && r<=g && b<=g then
+    else if g > limit && r <= g && b <= g then
         (m, g, m)
     else
         (m, m, b)
 
 let inline private cutColHigh (limit: byte) (r: byte, g: byte, b: byte) =
     let m = mMMax r g b
-    if m<=limit then
+
+    if m <= limit then
         black
-    else if r>limit && g<=r && b<=r then
+    else if r > limit && g <= r && b <= r then
         let n = max g b
         (r, n, n)
-    else if g>limit && r<=g && b<=g then
-        let n = max  r b
+    else if g > limit && r <= g && b <= g then
+        let n = max r b
         (n, g, n)
     else
         let n = max r g
         (n, n, b)
 
-type ThePicture(form: BasicForm) =
+type ThePicture (form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
 
     // let mutable context = OLockContext.None
     let mutable currentImageFile = ""
 
-    let mutable bmp =
-        new Bitmap (20, 20)
+    let mutable bmp = new Bitmap (20, 20)
 
     let mutable context = OLockContext.None
 
     let pic = new PictureBox ()
     let imageProps = new Label3D ("")
+
     let setBitmap (newBMP: Bitmap) =
         bmp.Dispose ()
         bmp <- newBMP
         bmp.RotateFlip RotateFlipType.RotateNoneFlipNone
         pic.Image <- bmp
 
-    let isReady() =
-        bmpState <> BMPState.NothingToSee
-    let isModified() =
-        bmpState = BMPState.Modified
+    let isReady () = bmpState <> BMPState.NothingToSee
+    let isModified () = bmpState = BMPState.Modified
 
     let rec changeState (newState: BMPState) : bool =
-            match newState with
-            | NothingToSee ->
-                if bmpState <> BMPState.NothingToSee then
-                    setBitmap (new Bitmap (20, 20))
-                bmpState <- NothingToSee
-                true
-            | NewBMPFromFile ->
-                setBitmap (new Bitmap (currentImageFile))
-                bmpState <- NewBMPFromFile
-                context <- None
-                changeState Loaded
-            | Loaded ->
-                bmpState <- Loaded
-                true
-            | Modified ->
-                if bmpState = Loaded then
-                    bmpState <- Modified
-                newState <> NothingToSee
+        match newState with
+        | NothingToSee ->
+            if bmpState <> BMPState.NothingToSee then
+                setBitmap (new Bitmap (20, 20))
 
-    let openContext() =
-        let ctx = match context with
-                    | Some _ ->
-                        context.Value
-                    | None ->
-                        context <- Some(new LockContext(bmp))
-                        context.Value
-        ctx.Lock()
+            bmpState <- NothingToSee
+            true
+        | NewBMPFromFile ->
+            setBitmap (new Bitmap (currentImageFile))
+            bmpState <- NewBMPFromFile
+            context <- None
+            changeState Loaded
+        | Loaded ->
+            bmpState <- Loaded
+            true
+        | Modified ->
+            if bmpState = Loaded then
+                bmpState <- Modified
+
+            newState <> NothingToSee
+
+    let openContext () =
+        let ctx =
+            match context with
+            | Some _ -> context.Value
+            | None ->
+                context <- Some (new LockContext (bmp))
+                context.Value
+
+        ctx.Lock ()
         ctx
 
-    let closeContext (ctx: LockContext) =
-        ctx.Unlock()
+    let closeContext (ctx: LockContext) = ctx.Unlock ()
 
     let withContext doIt =
-        let ctx = openContext()
+        let ctx = openContext ()
         // ctx.With doIt
         doIt ctx
         closeContext ctx
 
-    let getMeanTone (pix: LockContext) =
-        pix.getMeanTone()
+    let getMeanTone (pix: LockContext) = pix.getMeanTone ()
 
-    let doFilter (pix: LockContext) (f: byte*byte*byte -> byte*byte*byte) =
-        if isReady() then
+    let doFilter (pix: LockContext) (f: byte * byte * byte -> byte * byte * byte) =
+        if isReady () then
             pix.ForEach f
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
+
         ()
 
 
@@ -173,7 +175,7 @@ type ThePicture(form: BasicForm) =
         pic.Top <- delta1 + form.Tips.Height
         pic.Left <- delta1
 
-    let onNewImage(filePath: string) =
+    let onNewImage (filePath: string) =
         let fileName = (getBaseName filePath)
         let fi: FileInfo = FileInfo filePath
         currentImageFile <- filePath
@@ -181,16 +183,16 @@ type ThePicture(form: BasicForm) =
         form.Text <- $"{appName} - {fileName}"
 
         imageProps.Text <-
-                $"{fileName} - {fi.Length / 1024L} Ko {bmp.Width} x {bmp.Height} pixels {bmp.PixelFormat.ToString ()}"
+            $"{fileName} - {fi.Length / 1024L} Ko {bmp.Width} x {bmp.Height} pixels {bmp.PixelFormat.ToString ()}"
 
         ()
 
-    let onSaveImage(filePath: string) =
+    let onSaveImage (filePath: string) =
         bmp.Save filePath
         changeState BMPState.Loaded |> ignore
         context <- None
 
-    let reloadImage() =
+    let reloadImage () =
         changeState BMPState.NewBMPFromFile |> ignore
 
     do
@@ -205,63 +207,67 @@ type ThePicture(form: BasicForm) =
         form.addControl imageProps
 
 
-    member this.IsReady() =
-        isReady()
-    member this.IsModified() =
-        isModified()
+    member this.IsReady () = isReady ()
+    member this.IsModified () = isModified ()
 
-    member this.GetPicture() = pic
-    member this.GetBMP() = pic.Image
-    member this.ImageProps() = imageProps
+    member this.GetPicture () = pic
+    member this.GetBMP () = pic.Image
+    member this.ImageProps () = imageProps
 
 
-    member this.LoadImage() =
+    member this.LoadImage () =
         let (filePath: string, ok: bool) =
             loadImage ()
 
         if ok then onNewImage filePath
         ()
 
-    member this.SaveImage() =
-        if isReady() then
+    member this.SaveImage () =
+        if isReady () then
             let (filePath: string, ok: bool) =
-                saveImage(currentImageFile)
-            if ok then
-                onSaveImage filePath
+                saveImage currentImageFile
+
+            if ok then onSaveImage filePath
+
         ()
 
-    member this.ReLoadImage() =
+    member this.ReLoadImage () =
 #if LOGGER
         let _, t0 = time reloadImage
         doLog $"ReLoadImage {t0}" |> ignore
 #else
-        reloadImage()
+        reloadImage ()
 #endif
 
-    member this.Resize() = resizePicture ()
+    member this.Resize () = resizePicture ()
 
-    member this.Rotate() =
-        if isReady() then
+    member this.Rotate () =
+        if isReady () then
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
+
         ()
 
-    member this.ShiftColorsLeft() =
+    member this.ShiftColorsLeft () =
         let doIt (context: LockContext) =
-    #if LOGGER
-            let f() = doFilter context (fun (r, g, b) -> (g, b, r))
+#if LOGGER
+            let f () =
+                doFilter context (fun (r, g, b) -> (g, b, r))
+
             let _, t = time f
             doLog $"ShiftColorsLeft {t}" |> ignore
-    #else
+#else
             doFilter context (fun (r, g, b) -> (g, b, r))
-    #endif
+#endif
         withContext doIt
 
-    member this.ShiftColorsRight() =
-        let doIt(context: LockContext) =
+    member this.ShiftColorsRight () =
+        let doIt (context: LockContext) =
 #if LOGGER
-            let f() = doFilter context (fun (r, g, b) -> (b, r, g))
+            let f () =
+                doFilter context (fun (r, g, b) -> (b, r, g))
+
             let _, t = time f
             doLog $"ShiftColorsRight {t}" |> ignore
 #else
@@ -269,57 +275,60 @@ type ThePicture(form: BasicForm) =
 #endif
         withContext doIt
 
-    member this.RawBW(limit: byte) =
-        let cutCol(r: byte, g: byte, b: byte) =
-            if r>limit then
-                white
-            else if g>limit then
-                white
-            else if b>limit then
-                white
-            else
-                black
-        let doIt(context: LockContext) =
+    member this.RawBW (limit: byte) =
+        let cutCol (r: byte, g: byte, b: byte) =
+            if r > limit then white
+            else if g > limit then white
+            else if b > limit then white
+            else black
+
+        let doIt (context: LockContext) =
 #if LOGGER
-            let _, t0 = time (fun() -> doFilter context cutCol)
+            let _, t0 =
+                time (fun () -> doFilter context cutCol)
+
             doLog $"RawBW {limit}: {t0}" |> ignore
 #else
             doFilter context cutCol
 #endif
         withContext doIt
 
-    member this.CutColors(limit: byte) =
-        let cutCol =
-            cutColLow limit
-        let doIt(context: LockContext) =
+    member this.CutColors (limit: byte) =
+        let cutCol = cutColLow limit
+
+        let doIt (context: LockContext) =
 #if LOGGER
-            let _, t0 = time (fun() -> doFilter context cutCol)
+            let _, t0 =
+                time (fun () -> doFilter context cutCol)
+
             doLog $"CutColors {limit}: {t0}" |> ignore
 #else
             doFilter context cutCol
 #endif
         withContext doIt
 
-    member this.CutColorsMeanLow() =
-        let doIt(context: LockContext) =
+    member this.CutColorsMeanLow () =
+        let doIt (context: LockContext) =
             let limit = getMeanTone context
-            let cutCol =
-                cutColLow (byte limit)
+            let cutCol = cutColLow (byte limit)
 #if LOGGER
-            let _, t0 = time (fun() -> doFilter context cutCol)
+            let _, t0 =
+                time (fun () -> doFilter context cutCol)
+
             doLog $"CutColorsMeanLow {limit}: {t0}" |> ignore
 #else
             doFilter context cutCol
 #endif
         withContext doIt
 
-    member this.CutColorsMeanHigh() =
-        let doIt(context: LockContext) =
+    member this.CutColorsMeanHigh () =
+        let doIt (context: LockContext) =
             let limit = getMeanTone context
-            let cutCol =
-                cutColHigh (byte limit)
+            let cutCol = cutColHigh (byte limit)
 #if LOGGER
-            let _, t0 = time (fun() -> doFilter context cutCol)
+            let _, t0 =
+                time (fun () -> doFilter context cutCol)
+
             doLog $"CutColorsMeanHigh {limit}: {t0}" |> ignore
 #else
             doFilter context cutCol

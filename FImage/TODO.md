@@ -6,7 +6,7 @@
 - ***DONE*** Sauvegarde de l'image
   - ***TODO*** à améliorer: 
     - faire attention au format de sortie,
-    - placer le nom du fichier d'origine dans la boîte de dialogue
+    - *PARTIAL* placer le nom du fichier d'origine dans la boîte de dialogue
 - ***TODO*** Afficher les métadonnées de l'image
 - ***DONE*** Afficher une page d'aide, F1
 

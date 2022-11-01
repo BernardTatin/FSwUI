@@ -93,6 +93,29 @@ type SimpleOKForm(width: int, height: int, title: string, panel: Panel) as self 
     member this.GetOKButton() = okButton
 
 
+type FullOKForm(width: int, height: int, title: string, panel: Panel) as self =
+    inherit BasicForm(width, height, title, panel)
+    let mutable result = DialogResult.OK
+    let cancelButtonOnClick =
+        (fun _ _ ->
+            result <- DialogResult.Cancel
+            self.Close ())
+    let okButtonOnClick =
+        (fun _ _ ->
+            result <- DialogResult.OK
+            self.Close ())
+    let cancelButton = new StdButton ("Cancel", cancelButtonOnClick)
+    let okButton = new StdButton ("OK", okButtonOnClick)
+
+    do
+        self.CancelButton <- cancelButton
+        self.AcceptButton <- okButton
+
+    member this.GetOKButton() = okButton
+    member this.GetCancelButton() = cancelButton
+    member this.Result = result
+
+
 type AboutForm(width: int, height: int, appName: string, text: string) as self =
     inherit SimpleOKForm(width, height, $"About {appName}", new StdTableLayoutPanel (1, 5))
 

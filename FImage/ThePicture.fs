@@ -207,6 +207,7 @@ type ThePicture (form: BasicForm) =
         form.addControl imageProps
 
 
+    member this.AcceptBitmap() = context <- None
     member this.IsReady () = isReady ()
     member this.IsModified () = isModified ()
 

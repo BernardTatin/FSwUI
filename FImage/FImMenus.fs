@@ -48,6 +48,7 @@ open FSImage.helpers
 open FSImage.ImageLoad
 open FSImage.ThePicture
 open FSImage.HelpMe
+open FSImage.DlgRawBW
 
 let showAboutForm () =
     try
@@ -90,36 +91,12 @@ let createMenu (form: BasicForm) (image: ThePicture) =
                                          (fun _ _ -> image.ShiftColorsLeft()),
                                          Keys.Control ||| Keys.L,
                                          image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (63)",
-                                         (fun _ _ -> image.RawBW (byte 63)),
-                                         Keys.Control ||| Keys.G,
-                                         image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (127)",
-                                         (fun _ _ -> image.RawBW (byte 127)),
-                                         Keys.Control ||| Keys.K,
-                                         image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Raw BW (191)",
-                                         (fun _ _ -> image.RawBW (byte 191)),
-                                         Keys.Control ||| Keys.H,
-                                         image.IsReady))
     menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors low (63)",
-                                         (fun _ _ -> image.CutColors (byte 63)),
+                                         (fun _ _ -> ShowRawCutColorsDlg image),
                                          Keys.Control ||| Keys.X,
                                          image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors low (127)",
-                                         (fun _ _ -> image.CutColors (byte 127)),
-                                         Keys.Control ||| Keys.C,
-                                         image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors low (191)",
-                                         (fun _ _ -> image.CutColors (byte 191)),
-                                         Keys.Control ||| Keys.V,
-                                         image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors low (Mean)",
-                                         (fun _ _ -> image.CutColorsMeanLow()),
-                                         Keys.Control ||| Keys.M,
-                                         image.IsReady))
-    menuEdit.AddEntry (new MenuEntryWithK ("Cut Colors high (Mean)",
-                                         (fun _ _ -> image.CutColorsMeanHigh()),
+    menuEdit.AddEntry (new MenuEntryWithK ("Raw Black and White",
+                                         (fun _ _ -> ShowRawBWDlg image),
                                          Keys.Control ||| Keys.N,
                                          image.IsReady))
 

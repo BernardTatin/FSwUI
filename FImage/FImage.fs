@@ -63,7 +63,7 @@ module main =
             doLog $"\n\nRunning {appName}" |> ignore
 #endif
 #if RECURSEBM
-            doLog $"\n\nRECURSEBM ON\n\n"
+            doLog $"\n\nRECURSEBM ON\n\n" |> ignore
 #endif
             // form.Font <- smallFont
             createMenu form image

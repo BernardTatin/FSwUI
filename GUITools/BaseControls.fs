@@ -33,8 +33,6 @@ namespace GUITools
 open System
 open System.Drawing
 open System.Windows.Forms
-open Tools.BasicStuff
-open FontTools
 
 module BaseControls =
     type LabelAnchor =
@@ -101,3 +99,10 @@ module BaseControls =
             self.BorderStyle <- BorderStyle.Fixed3D
             self.BackColor <- Color.White
         new () = new Label3D("")
+
+    type TextBox3D(text: string) as self =
+        inherit TextBox()
+        do
+            self.Text <- text
+            self.BorderStyle <- BorderStyle.Fixed3D
+            self.BackColor <- Color.White

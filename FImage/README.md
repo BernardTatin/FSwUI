@@ -1,5 +1,7 @@
 ***[Version française](LISEZMOI.md)***
 
+***Translated with [DeepL Translator](https://www.DeepL.com/Translator) (free version), sorry***
+
 # FImage, to play with colors
 
 It is a software under development, ***a work in progress***, which has defects and, certainly, bugs. It is even incomplete on some points. It is therefore ***strongly*** advised to save the images you want to process with this application.
@@ -51,5 +53,3 @@ The current filters are quite primitive and only work on the RGB channels of the
 - <Ctrl+L>: performs a rotation of RGB channels to the left, that is, RGB becomes BRV,
 - <Ctrl+G>, <Ctrl+K> and <Ctrl+H>: produces a two *color* image only, pure black and pure white, with different thresholds for each shortcut; lithography effect, 1968 tract, ... and I like it a lot (detailed explanation later, but thanks for asking)
 - <Ctrl+X>, <Ctrl+C>, <Ctrl+V>, <Ctrl+M>, <Ctrl+N>: highlights the most *bright* color with, for each shortcut, a different threshold. Fun, very fun and yes, there will be explanations later.
-
-***Translated with [DeepL Translator](https://www.DeepL.com/Translator) (free version), sorry***

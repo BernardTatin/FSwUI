@@ -67,6 +67,7 @@ let saveImage (fileName: string) =
     sfd.DefaultExt <- "*.jpg"
     sfd.Filter <- "Image Files (*.jpg;*.png)|*.jpg;*.jpeg;*.JPG;*.JPEG;*.png;*.PNG|All files (*.*)|*.*"
     sfd.InitialDirectory <- startDir
+    sfd.FileName <- fileName
     let result = sfd.ShowDialog()
     if result = DialogResult.OK then
         (sfd.FileName, true)

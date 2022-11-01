@@ -2,9 +2,11 @@
 
 (Sorry, no english version)
 
-## fonctionalités
+## fonctionnalités
 - ***DONE*** Sauvegarde de l'image
-  - à améliorer
+  - ***TODO*** à améliorer: 
+    - faire attention au format de sortie,
+    - *PARTIAL* placer le nom du fichier d'origine dans la boîte de dialogue
 - ***TODO*** Afficher les métadonnées de l'image
 - ***DONE*** Afficher une page d'aide, F1
 
@@ -16,13 +18,22 @@
 ## code
 
 ### `BitmapTools`
+- ***PARTIAL*** double buffering
+  - *DONE* faire une copie de l'original dans un tableau d'octets contenant uniquement les niveaux RGB
+  - *TODO* *undo* sur un niveau,
+  - *DONE* il faut faire des choix d'utilisation de ce buffer:
+    - *DONE* invalidation de l'objet `LockContext` par son propriétaire
+  - *TODO* étude de la perte de performances induite
 - ***DONE*** Supprimer l'inutile
 - ***DONE*** revoir `LockContext`, proposer quelque chose comme `withLockContext`
-- ***TODO*** faire une copie de l'original dans un tableau d'octets contenant uniquement les niveaux RGB
-  - *undo* sur un niveau,
 
 
 ### `ThePicture`
+- ***DONE*** avoir une seule création de `LockContext` au chargement de l'image
+  - utiliser une `Option`
+  - invalidation du double buffer par la destruction de l'objet 
+    - *DONE* à la sauvegarde
+    - *TODO* ailleurs
 - ***PARTIAL*** Modifier, voire supprimer la machine d'état
   - la machine d'état est plus adaptée mais pas parfaite
 - ***DONE*** Supprimer l'inutile

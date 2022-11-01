@@ -39,6 +39,8 @@ open System.Drawing
 open System.Drawing.Imaging
 open Microsoft.FSharp.NativeInterop
 
+#nowarn "9"
+
 #if LOGGER
 open LogTools.Logger
 #endif
@@ -221,8 +223,6 @@ type LockContext (bitmap: Bitmap) =
     do initMe ()
 
     member this.ForEach f = forEachPixels f
-
-    // member this.With f = f this
 
     member this.getMeanTone () = meanTone ()
 

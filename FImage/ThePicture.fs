@@ -210,11 +210,6 @@ type ThePicture (form: BasicForm) =
     member this.IsReady () = isReady ()
     member this.IsModified () = isModified ()
 
-    member this.GetPicture () = pic
-    member this.GetBMP () = pic.Image
-    member this.ImageProps () = imageProps
-
-
     member this.LoadImage () =
         let (filePath: string, ok: bool) =
             loadImage ()
@@ -246,7 +241,7 @@ type ThePicture (form: BasicForm) =
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
-
+            context <- None
         ()
 
     member this.ShiftColorsLeft () =

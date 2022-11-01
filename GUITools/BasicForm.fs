@@ -31,12 +31,9 @@
 module GUITools.BasicForm
 
 open System
-open System.Drawing
-open System.Windows
 open System.Windows.Forms
 open GUITools.BaseControls
 open GUITools.Controls
-open LogTools.Logger
 
 let DEFAULT_WIDTH = 640
 let DEFAULT_HEIGHT = 480
@@ -93,27 +90,24 @@ type SimpleOKForm(width: int, height: int, title: string, panel: Panel) as self 
     member this.GetOKButton() = okButton
 
 
+
 type FullOKForm(width: int, height: int, title: string, panel: Panel) as self =
     inherit BasicForm(width, height, title, panel)
-    let mutable result = DialogResult.OK
-    let cancelButtonOnClick =
-        (fun _ _ ->
-            result <- DialogResult.Cancel
-            self.Close ())
-    let okButtonOnClick =
-        (fun _ _ ->
-            result <- DialogResult.OK
-            self.Close ())
-    let cancelButton = new StdButton ("Cancel", cancelButtonOnClick)
-    let okButton = new StdButton ("OK", okButtonOnClick)
+
+    let cancelButtonOnClick () =
+            self.Close ()
+            DialogResult.Cancel
+    let okButtonOnClick () =
+            self.Close ()
+            DialogResult.OK
+
+    let okBar = new OkCancelBar(cancelButtonOnClick, okButtonOnClick)
 
     do
-        self.CancelButton <- cancelButton
-        self.AcceptButton <- okButton
+        okBar.SetDefault self
 
-    member this.GetOKButton() = okButton
-    member this.GetCancelButton() = cancelButton
-    member this.Result = result
+    member this.GetOKBar() = okBar
+    member this.Result = okBar.GetResult()
 
 
 type AboutForm(width: int, height: int, appName: string, text: string) as self =

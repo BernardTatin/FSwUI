@@ -106,3 +106,22 @@ module BaseControls =
             self.Text <- text
             self.BorderStyle <- BorderStyle.Fixed3D
             self.BackColor <- Color.White
+
+    type OkCancelBar(onCancel: unit -> DialogResult, onOK: unit -> DialogResult) as self =
+        inherit StdTableLayoutPanel(2, 1)
+
+        let mutable result = DialogResult.OK
+        let cancelButton = new StdButton ("Cancel", (fun _ _ -> result <- onCancel()))
+        let okButton = new StdButton ("OK", (fun _ _ -> result <- onOK()))
+
+        do
+            self.Controls.Add cancelButton
+            self.Controls.Add okButton
+
+        member this.SetDefault (form:Form) =
+            form.CancelButton <- cancelButton
+            form.AcceptButton <- okButton
+
+        member this.GetOKButton() = okButton
+        member this.GetCancelButton() = cancelButton
+        member this.GetResult () = result

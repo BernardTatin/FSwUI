@@ -30,13 +30,10 @@
 
 module FSImage.DlgRawBW
 
-open System.Windows.Controls
 open System.Windows.Forms
 open GUITools.BaseControls
 open GUITools.BasicForm
-open FSImage.BitmapTools
 open FSImage.ThePicture
-open LogTools.Logger
 
 type ByteLevelConfiguration(title, onChange: byte -> unit) as self =
     inherit FullOKForm(DEFAULT_WIDTH,
@@ -60,8 +57,7 @@ type ByteLevelConfiguration(title, onChange: byte -> unit) as self =
             (new Label3D ("Level") :> Control)
             sliderValue
             slider :> Control
-            self.GetCancelButton()
-            self.GetOKButton()
+            self.GetOKBar()
         ]
     do
         slider.Minimum <- 0
@@ -87,20 +83,19 @@ type CutColorsConfiguration(image: ThePicture) =
                                     (fun v -> image.CutColors v))
 
 
+let private showByteLC (image: ThePicture) (form: ByteLevelConfiguration) =
+    form.ShowDialog() |> ignore
+    if form.Result <> DialogResult.OK then
+        image.ReLoadImage()
+    else
+        image.AcceptBitmap()
+    ()
+
 
 let ShowRawBWDlg(image: ThePicture) =
     let form = new RawBWConfiguration(image)
-    form.ShowDialog() |> ignore
-    if form.Result <> DialogResult.OK then
-        image.ReLoadImage()
-    else
-        image.AcceptBitmap()
-    ()
+    showByteLC image form
+
 let ShowRawCutColorsDlg(image: ThePicture) =
     let form = new CutColorsConfiguration(image)
-    form.ShowDialog() |> ignore
-    if form.Result <> DialogResult.OK then
-        image.ReLoadImage()
-    else
-        image.AcceptBitmap()
-    ()
+    showByteLC image form

@@ -188,9 +188,9 @@ type ThePicture (form: BasicForm) =
         ()
 
     let onSaveImage (filePath: string) =
+        context <- None
         bmp.Save filePath
         changeState BMPState.Loaded |> ignore
-        context <- None
 
     let reloadImage () =
         changeState BMPState.NewBMPFromFile |> ignore

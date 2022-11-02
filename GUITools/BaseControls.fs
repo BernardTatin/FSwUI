@@ -115,7 +115,13 @@ module BaseControls =
         let okButton = new StdButton ("OK", (fun _ _ -> result <- onOK()))
 
         do
+            self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            self.Dock <- DockStyle.Fill
+            self.AutoSize <- true
+
+            cancelButton.Anchor <- AnchorStyles.Left
             self.Controls.Add cancelButton
+            okButton.Anchor <- AnchorStyles.Right
             self.Controls.Add okButton
 
         member this.SetDefault (form:Form) =
@@ -125,3 +131,21 @@ module BaseControls =
         member this.GetOKButton() = okButton
         member this.GetCancelButton() = cancelButton
         member this.GetResult () = result
+
+    type LabeledValue(text: string, value: string) as self =
+        inherit StdTableLayoutPanel(2, 1)
+
+        let labText = new StdLabel(text)
+        let labValue = new Label3D(value)
+        do
+            self.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
+            self.Dock <- DockStyle.Fill
+            self.AutoSize <- true
+
+            labText.Anchor <- AnchorStyles.Left
+            self.Controls.Add labText
+            labValue.Anchor <- AnchorStyles.Right
+            self.Controls.Add labValue
+
+        member this.Value with get() = labValue.Text
+        member this.Value with set (value: string) = labValue.Text <- value

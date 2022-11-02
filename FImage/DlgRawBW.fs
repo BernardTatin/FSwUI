@@ -36,13 +36,13 @@ open GUITools.BasicForm
 open FSImage.ThePicture
 
 type ByteLevelConfiguration(title, onChange: byte -> unit) as self =
-    inherit FullOKForm(DEFAULT_WIDTH,
-                       DEFAULT_HEIGHT,
+    inherit FullOKForm(DEFAULT_WIDTH / 2,
+                       DEFAULT_HEIGHT / 2,
                        title,
-                       new StdTableLayoutPanel(1, 8))
+                       new StdTableLayoutPanel(1, 3))
 
     let slider = new TrackBar()
-    let sliderValue = new Label3D("127")
+    let sliderValue = new LabeledValue("Level", "127")
     let createAddControl (control: Control) : bool =
         control.Anchor <- (AnchorStyles.Left ||| AnchorStyles.Right)
         self.ThePanel.Controls.Add control
@@ -50,12 +50,11 @@ type ByteLevelConfiguration(title, onChange: byte -> unit) as self =
     let onSliderChange() =
         let v = slider.Value
         onChange (byte v)
-        sliderValue.Text <- $"{v}"
+        sliderValue.Value <- $"{v}"
 
     let controls =
         [
-            (new Label3D ("Level") :> Control)
-            sliderValue
+            sliderValue :> Control
             slider :> Control
             self.GetOKBar()
         ]
@@ -63,9 +62,9 @@ type ByteLevelConfiguration(title, onChange: byte -> unit) as self =
         slider.Minimum <- 0
         slider.Maximum <- 255
         slider.TickFrequency <- 16
-        slider.SmallChange <- 4
-        slider.LargeChange <- 16
-        slider.Value <- 127
+        slider.SmallChange <- 2
+        slider.LargeChange <- 10
+        slider.Value <- 120
         onSliderChange()
         slider.Scroll.Add (fun _ -> onSliderChange())
 

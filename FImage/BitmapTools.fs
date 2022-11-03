@@ -122,13 +122,15 @@ type LockContext (bitmap: Bitmap) =
                 else
                     let address =
                         NativePtr.add<byte> (NativePtr.ofNativeInt data.Value.Scan0) nativeIdx
-
-                    setRGB address (rgb[rgbIdx + 0], rgb[rgbIdx + 1], rgb[rgbIdx + 2])
+                    let r, g, b = getRawRGB rgbIdx
+                    setRGB address (r, g, b)
                     fillMe (nativeIdx + sizeofColor) (rgbIdx + 3) (k + 1)
                     ()
 
+            doLog "fillBitmap() OK"
             fillMe 0 0 0
         else
+            doLog "fillBitmap() failde"
             ()
 
 
@@ -230,10 +232,9 @@ type LockContext (bitmap: Bitmap) =
 
     member this.Lock () = lockTheBits ()
 
-    member this.InvalidateBuffer() =
-        lockTheBits()
-        fillRGBArray()
-        unlockTheBits()
+    member this.ResetRGBBuffer () = fillRGBArray ()
+
+    member this.ResetBitmap () = fillBitmap ()
 
     interface IDisposable with
         member this.Dispose () = unlockTheBits ()

@@ -46,6 +46,7 @@ open FSImage.ImageLoad
 open FSImage.helpers
 open FSImage.BMPStates
 open FSImage.BitmapTools
+open FSImage.FilterHelpers
 
 #if LOGGER
 let time f =
@@ -56,41 +57,6 @@ let time f =
     (res, sw.Elapsed.TotalMilliseconds)
 #endif
 
-let inline private mMMin x y z = min (min x y) z
-let inline private mMMax x y z = max (max x y) z
-
-let private white =
-    (byte 255, byte 255, byte 255)
-
-let private black = (byte 0, byte 0, byte 0)
-
-let inline private cutColLow (limit: byte) (r: byte, g: byte, b: byte) =
-    let M = mMMax r g b
-    let m = mMMin r g b
-
-    if M <= limit then
-        black
-    else if r > limit && g <= r && b <= r then
-        (r, m, m)
-    else if g > limit && r <= g && b <= g then
-        (m, g, m)
-    else
-        (m, m, b)
-
-let inline private cutColHigh (limit: byte) (r: byte, g: byte, b: byte) =
-    let m = mMMax r g b
-
-    if m <= limit then
-        black
-    else if r > limit && g <= r && b <= r then
-        let n = max g b
-        (r, n, n)
-    else if g > limit && r <= g && b <= g then
-        let n = max r b
-        (n, g, n)
-    else
-        let n = max r g
-        (n, n, b)
 
 type ThePicture (form: BasicForm) =
     let mutable bmpState: BMPState =
@@ -136,25 +102,26 @@ type ThePicture (form: BasicForm) =
 
             newState <> NothingToSee
 
-    let getContext() =
-            match context with
-            | Some _ -> context.Value
-            | None ->
-                context <- Some (new LockContext (bmp))
-                context.Value
+    let getContext () =
+        match context with
+        | Some _ -> context.Value
+        | None ->
+            context <- Some (new LockContext (bmp))
+            context.Value
 
     let openContext () =
-        let ctx = getContext()
+        let ctx = getContext ()
 
         ctx.Lock ()
         ctx
 
     let closeContext (ctx: LockContext) = ctx.Unlock ()
 
-    let invalidate() =
-        let ctx = openContext()
-        ctx.InvalidateBuffer()
-        ctx.Unlock()
+    let resetRGBBuffer () =
+        if context <> None then
+            let ctx = openContext ()
+            ctx.ResetRGBBuffer ()
+            ctx.Unlock ()
 
     let withContext doIt =
         let ctx = openContext ()
@@ -193,7 +160,7 @@ type ThePicture (form: BasicForm) =
         ()
 
     let onSaveImage (filePath: string) =
-        invalidate()
+        resetRGBBuffer ()
         bmp.Save filePath
         changeState BMPState.Loaded |> ignore
 
@@ -212,8 +179,13 @@ type ThePicture (form: BasicForm) =
         form.addControl imageProps
 
 
-    member this.ResetBitmap() = context <- None
-    member this.InvalidateBitmap() = invalidate()
+    member this.ResetBitmap () =
+        if context <> None then
+            let ctx = openContext()
+            ctx.ResetBitmap()
+            closeContext ctx
+
+    member this.ResetRGBBuffers () = resetRGBBuffer ()
     member this.IsReady () = isReady ()
     member this.IsModified () = isModified ()
 
@@ -248,7 +220,8 @@ type ThePicture (form: BasicForm) =
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
-            invalidate()
+            resetRGBBuffer ()
+
         ()
 
     member this.ShiftColorsLeft () =

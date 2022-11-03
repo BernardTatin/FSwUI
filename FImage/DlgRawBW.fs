@@ -30,6 +30,8 @@
 
 module FSImage.DlgRawBW
 
+open LogTools
+open Logger
 open System.Windows.Forms
 open GUITools.BaseControls
 open GUITools.BasicForm
@@ -84,10 +86,10 @@ type CutColorsConfiguration(image: ThePicture) =
 
 let private showByteLC (image: ThePicture) (form: ByteLevelConfiguration) =
     form.ShowDialog() |> ignore
-    if form.Result <> DialogResult.OK then
-        image.ResetBitmap()
+    if form.Result = DialogResult.OK then
+        image.ResetRGBBuffers()
     else
-        image.InvalidateBitmap()
+        image.ResetBitmap()
     ()
 
 

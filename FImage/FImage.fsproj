@@ -35,6 +35,7 @@
     <Compile Include="FImNames.fs" />
     <Compile Include="ImageLoad.fs" />
     <Compile Include="BMPStates.fs" />
+    <Compile Include="FilterHelpers.fs" />
     <Compile Include="BitmapTools.fs" />
     <Compile Include="ThePicture.fs" />
     <Compile Include="HelpMe.fs" />

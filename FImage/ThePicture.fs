@@ -181,8 +181,9 @@ type ThePicture (form: BasicForm) =
 
     member this.ResetBitmap () =
         if context <> None then
+            let doIt (r, g, b) = (r, g, b)
             let ctx = openContext()
-            ctx.ResetBitmap()
+            doFilter ctx doIt
             closeContext ctx
 
     member this.ResetRGBBuffers () = resetRGBBuffer ()

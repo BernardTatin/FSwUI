@@ -127,10 +127,8 @@ type LockContext (bitmap: Bitmap) =
                     fillMe (nativeIdx + sizeofColor) (rgbIdx + 3) (k + 1)
                     ()
 
-            doLog "fillBitmap() OK"
             fillMe 0 0 0
         else
-            doLog "fillBitmap() failde"
             ()
 
 

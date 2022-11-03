@@ -181,10 +181,10 @@ type ThePicture (form: BasicForm) =
 
     member this.ResetBitmap () =
         if context <> None then
-            let doIt (r, g, b) = (r, g, b)
             let ctx = openContext()
-            doFilter ctx doIt
+            ctx.ResetBitmap()
             closeContext ctx
+            pic.Image <- bmp
 
     member this.ResetRGBBuffers () = resetRGBBuffer ()
     member this.IsReady () = isReady ()

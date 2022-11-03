@@ -85,9 +85,9 @@ type CutColorsConfiguration(image: ThePicture) =
 let private showByteLC (image: ThePicture) (form: ByteLevelConfiguration) =
     form.ShowDialog() |> ignore
     if form.Result <> DialogResult.OK then
-        image.ReLoadImage()
+        image.ResetBitmap()
     else
-        image.AcceptBitmap()
+        image.InvalidateBitmap()
     ()
 
 

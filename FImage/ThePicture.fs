@@ -96,7 +96,6 @@ type ThePicture (form: BasicForm) =
     let mutable bmpState: BMPState =
         BMPState.NothingToSee
 
-    // let mutable context = OLockContext.None
     let mutable currentImageFile = ""
 
     let mutable bmp = new Bitmap (20, 20)
@@ -124,9 +123,9 @@ type ThePicture (form: BasicForm) =
             bmpState <- NothingToSee
             true
         | NewBMPFromFile ->
+            context <- None
             setBitmap (new Bitmap (currentImageFile))
             bmpState <- NewBMPFromFile
-            context <- None
             changeState Loaded
         | Loaded ->
             bmpState <- Loaded
@@ -137,22 +136,28 @@ type ThePicture (form: BasicForm) =
 
             newState <> NothingToSee
 
-    let openContext () =
-        let ctx =
+    let getContext() =
             match context with
             | Some _ -> context.Value
             | None ->
                 context <- Some (new LockContext (bmp))
                 context.Value
 
+    let openContext () =
+        let ctx = getContext()
+
         ctx.Lock ()
         ctx
 
     let closeContext (ctx: LockContext) = ctx.Unlock ()
 
+    let invalidate() =
+        let ctx = openContext()
+        ctx.InvalidateBuffer()
+        ctx.Unlock()
+
     let withContext doIt =
         let ctx = openContext ()
-        // ctx.With doIt
         doIt ctx
         closeContext ctx
 
@@ -188,7 +193,7 @@ type ThePicture (form: BasicForm) =
         ()
 
     let onSaveImage (filePath: string) =
-        context <- None
+        invalidate()
         bmp.Save filePath
         changeState BMPState.Loaded |> ignore
 
@@ -207,7 +212,8 @@ type ThePicture (form: BasicForm) =
         form.addControl imageProps
 
 
-    member this.AcceptBitmap() = context <- None
+    member this.ResetBitmap() = context <- None
+    member this.InvalidateBitmap() = invalidate()
     member this.IsReady () = isReady ()
     member this.IsModified () = isModified ()
 
@@ -242,7 +248,7 @@ type ThePicture (form: BasicForm) =
             bmp.RotateFlip RotateFlipType.Rotate90FlipNone
             pic.Image <- bmp
             changeState BMPState.Modified |> ignore
-            context <- None
+            invalidate()
         ()
 
     member this.ShiftColorsLeft () =

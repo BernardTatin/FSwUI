@@ -230,6 +230,11 @@ type LockContext (bitmap: Bitmap) =
 
     member this.Lock () = lockTheBits ()
 
+    member this.InvalidateBuffer() =
+        lockTheBits()
+        fillRGBArray()
+        unlockTheBits()
+
     interface IDisposable with
         member this.Dispose () = unlockTheBits ()
 

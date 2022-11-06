@@ -139,7 +139,7 @@ type LockContext (bitmap: Bitmap) =
                 Some (
                     bitmap.LockBits (
                         Rectangle (0, 0, bitmap.Width, bitmap.Height),
-                        ImageLockMode.ReadOnly,
+                        ImageLockMode.ReadWrite,
                         bitmap.PixelFormat
                     )
                 )

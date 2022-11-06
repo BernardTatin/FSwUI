@@ -160,8 +160,8 @@ type ThePicture (form: BasicForm) =
         ()
 
     let onSaveImage (filePath: string) =
-        resetRGBBuffer ()
         bmp.Save filePath
+        resetRGBBuffer ()
         changeState BMPState.Loaded |> ignore
 
     let reloadImage () =
@@ -181,10 +181,9 @@ type ThePicture (form: BasicForm) =
 
     member this.ResetBitmap () =
         if context <> None then
-            let ctx = openContext()
-            ctx.ResetBitmap()
-            closeContext ctx
-            pic.Image <- bmp
+            let doIt context =
+                doFilter context (fun (r, g, b) -> (r, g, b))
+            withContext doIt
 
     member this.ResetRGBBuffers () = resetRGBBuffer ()
     member this.IsReady () = isReady ()
